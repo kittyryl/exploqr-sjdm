@@ -1,28 +1,16 @@
-"use client";
-
 import Glyph from "@/components/Glyph";
-import { useLocale } from "@/components/LocaleProvider";
 
-// Extracted from app/layout.js when i18n landed: the tagline is translatable,
-// which needs the locale context, which needs a client component. The
-// attribution lines stay untranslated — they're license text naming CARTO,
-// OpenStreetMap, and Wikimedia, and those are proper nouns either way.
+// The attribution lines stay untranslated — they're license text naming
+// CARTO, OpenStreetMap, and Wikimedia, and those are proper nouns either way.
 export default function Footer() {
-  const { t } = useLocale();
-
   return (
     <footer className="border-t border-line bg-ink/[.02]">
       <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-8 sm:flex-row sm:items-start sm:justify-between sm:px-6">
         <div className="flex items-center gap-2.5">
           <Glyph size={18} />
-          <div>
-            <p className="font-mono text-[11px] uppercase tracking-widest text-ink/70">
-              ExploQR SJDM
-            </p>
-            <p className="mt-0.5 text-[11px] text-ink/70">
-              {t("footer.tagline")}
-            </p>
-          </div>
+          <p className="font-mono text-[11px] uppercase tracking-widest text-ink/70">
+            ExploQR SJDM
+          </p>
         </div>
         <div className="font-mono text-[11px] leading-relaxed text-ink/70 sm:text-right">
           <p>
