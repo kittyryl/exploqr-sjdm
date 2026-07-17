@@ -1,0 +1,443 @@
+@import "tailwindcss";
+
+/* Field-guide palette: warm paper, green-tinted ink, hairline rule.
+   Category colors live in lib/categories.js and are applied inline.
+
+   Dark mode keeps the same three roles rather than inverting literally —
+   paper becomes a warm near-black, ink a warm off-white, and `line` lifts
+   instead of darkening (a hairline that's *lighter* than its surface is what
+   reads as a rule on a dark ground). Every `text-ink/70`-style opacity in the
+   app therefore keeps working in both themes with no `dark:` variant.
+
+   On muted text: /70 is the floor for AA. /60 composites to 4.2:1 on paper —
+   close enough to look fine and still fail. Measure before lowering it. */
+:root {
+  --paper: #fafaf7;
+  --ink: #1c2321;
+  --line: #e6e6df;
+  --surface: #ffffff;
+  --map-backdrop: #f2f2ee;
+
+  /* Deliberately NOT themed. Scrims behind the modal and the photo lightbox
+     have to stay dark in both modes — they're derived from `ink` no longer,
+     because an inverted ink would turn the photo viewer into a white glare
+     panel. A dimmed backdrop is dark by definition. */
+  --scrim: #101413;
+
+  /* Category colors, mirrored from lib/categories.js. They live here rather
+     than in JS because components apply them as inline styles, where a JS
+     media query would risk a hydration mismatch — a CSS variable just
+     resolves correctly on both sides of the render.
+
+     `fill` is the saturated identity color and holds steady across themes
+     (it's what the map markers and the logo are made of). `accent` and
+     `tint` are a contrast pair and must swap: a color legible on paper is
+     invisible on ink. */
+  --cat-religious-fill: #7f77dd;
+  --cat-religious-accent: #3c3489;
+  --cat-religious-tint: #eeedfe;
+  --cat-religious-btn-fg: #ffffff;
+
+  --cat-nature-fill: #1d9e75;
+  --cat-nature-accent: #0f6e56;
+  --cat-nature-tint: #e1f5ee;
+  --cat-nature-btn-fg: #ffffff;
+
+  --cat-leisure-fill: #d85a30;
+  --cat-leisure-accent: #993c1d;
+  --cat-leisure-tint: #faece7;
+  --cat-leisure-btn-fg: #ffffff;
+
+  /* `block` is a saturated card-sized surface carrying white text — the spot
+     tiles that have no photo, and the active filter chips.
+     It exists because `fill` can't do this job: white on the fill colors
+     measures 3.4–3.9:1, under AA. These are deepened to clear 5:1 while
+     staying recognisably the same hue.
+     Theme-constant, like --scrim: a saturated block is a block in both modes,
+     and `accent` can't be reused because it inverts. */
+  --cat-religious-block: #4f46b5;
+  --cat-nature-block: #0d7357;
+  --cat-leisure-block: #b8471f;
+  --cat-block-fg: #ffffff;
+}
+
+/* Dark values apply when the OS prefers dark and the user hasn't explicitly
+   chosen light, or unconditionally once the user has explicitly chosen dark
+   via the theme toggle. ThemeProvider sets `data-theme` on <html> for an
+   explicit choice and leaves it unset for "system", so the media query is
+   still what drives the no-JS, no-flash default. The block below the media
+   query is a duplicate of the same values, not a typo — CSS can't combine a
+   `prefers-color-scheme` condition and a plain attribute selector into one
+   rule, and this is small enough that an indirection layer isn't worth it. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #141917;
+    --ink: #eceee9;
+    --line: #2c3532;
+    --surface: #1b211f;
+    --map-backdrop: #101413;
+
+    /* Accents lighten and tints darken, keeping each pair's contrast. The
+       directions button flips with them: a light accent needs dark text. */
+    --cat-religious-accent: #b9b4f5;
+    --cat-religious-tint: #2a2748;
+    --cat-religious-btn-fg: #141917;
+
+    --cat-nature-accent: #5fd6ac;
+    --cat-nature-tint: #14352c;
+    --cat-nature-btn-fg: #141917;
+
+    --cat-leisure-accent: #f5a283;
+    --cat-leisure-tint: #3a2018;
+    --cat-leisure-btn-fg: #141917;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #141917;
+  --ink: #eceee9;
+  --line: #2c3532;
+  --surface: #1b211f;
+  --map-backdrop: #101413;
+
+  --cat-religious-accent: #b9b4f5;
+  --cat-religious-tint: #2a2748;
+  --cat-religious-btn-fg: #141917;
+
+  --cat-nature-accent: #5fd6ac;
+  --cat-nature-tint: #14352c;
+  --cat-nature-btn-fg: #141917;
+
+  --cat-leisure-accent: #f5a283;
+  --cat-leisure-tint: #3a2018;
+  --cat-leisure-btn-fg: #141917;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-line: var(--line);
+  --color-surface: var(--surface);
+  --color-scrim: var(--scrim);
+
+  --font-display: var(--font-bricolage), ui-sans-serif, sans-serif;
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-face), ui-monospace, monospace;
+}
+
+/* The page is a field guide to a surveyed city, so the ground it sits on is
+   grid paper. Flat paper read as an unfinished page; a graticule fills it with
+   something the subject actually implies.
+   Minor rules every 40px and a major rule every 200px — the 5:1 ratio is what
+   makes it read as a survey sheet rather than a table. Both stay hairline-thin
+   and under 9% ink: texture at a glance, never competing with type. They ride
+   the `ink` token, so the whole thing inverts with the theme for free. */
+body {
+  font-family: var(--font-sans);
+  background-color: var(--paper);
+  background-image: linear-gradient(
+      color-mix(in srgb, var(--ink) 8%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--ink) 8%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      color-mix(in srgb, var(--ink) 4%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--ink) 4%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 200px 200px, 200px 200px, 40px 40px, 40px 40px;
+  color: var(--ink);
+}
+
+/* The full-bleed band under the spot grid. A translucent wash rather than an
+   opaque fill: it marks the grid as its own zone while letting the graticule
+   read straight through, and it inherits `ink` for text, so nothing here needs
+   its own foreground token. */
+.spot-panel {
+  background: color-mix(in srgb, var(--ink) 3.5%, transparent);
+}
+
+/* Horizontal chip rail on mobile: scrolls without showing a scrollbar */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Leaflet chrome, tuned to the page */
+.leaflet-container {
+  font-family: var(--font-sans);
+  background: var(--map-backdrop);
+}
+
+.spot-marker {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* Leaflet writes pathOptions colors into SVG presentation attributes, which
+   can't hold var() — so the theme-dependent parts are styled here instead,
+   where fill/stroke are real CSS properties. CSS also wins over the
+   attribute, so the values Leaflet writes are just ignored. */
+.map-dim-mask {
+  fill: var(--paper);
+}
+
+.map-boundary {
+  stroke: var(--ink);
+}
+
+.leaflet-control-attribution {
+  font-size: 10px;
+  background: color-mix(in srgb, var(--paper) 85%, transparent) !important;
+  color: color-mix(in srgb, var(--ink) 70%, transparent);
+}
+
+.leaflet-control-attribution a {
+  color: color-mix(in srgb, var(--ink) 85%, transparent);
+}
+
+/* Hover preview on map pins */
+/* Ink-on-paper inverts with the theme for free: in dark mode this becomes a
+   light tooltip on the dark map, which is still the high-contrast pairing. */
+.leaflet-tooltip.spot-tooltip {
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
+}
+.leaflet-tooltip.spot-tooltip.leaflet-tooltip-top::before {
+  border-top-color: var(--ink);
+}
+
+/* Tooltips are created fresh on each hover, so a plain entrance animation
+   replays every time. Only opacity is animated on the tooltip itself —
+   Leaflet drives its position with `transform`, so a scale there would snap it
+   out of place; the scale rides the inner content instead. */
+.leaflet-tooltip.spot-tooltip {
+  animation: tooltip-fade 0.14s ease-out;
+}
+.leaflet-tooltip.spot-tooltip > * {
+  display: inline-block;
+  animation: tooltip-scale 0.14s ease-out;
+}
+
+@keyframes tooltip-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tooltip-scale {
+  from {
+    transform: scale(0.92);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* Leaflet ships light-only zoom buttons; without this they stay white. */
+.leaflet-bar a,
+.leaflet-bar a:hover {
+  background: var(--surface);
+  color: var(--ink);
+  border-bottom-color: var(--line);
+}
+.leaflet-bar a:hover {
+  background: color-mix(in srgb, var(--ink) 8%, var(--surface));
+}
+.leaflet-bar a.leaflet-disabled {
+  background: color-mix(in srgb, var(--ink) 4%, var(--surface));
+  color: color-mix(in srgb, var(--ink) 35%, transparent);
+}
+
+/* Gentle entrance for the detail card when the selection changes */
+.spot-card {
+  animation: card-in 0.25s ease-out;
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spot-card {
+    animation: none;
+  }
+}
+
+/* The page-load sequence: eyebrow, then the four headline nouns in reading
+   order, then the supporting line, Near me, and the map. One orchestrated
+   moment beats motion sprinkled everywhere — and the headline naming a
+   category per word is the thing worth watching arrive.
+   Delays are set inline at each use site; `backwards` holds an element
+   invisible through its delay instead of letting it flash first. */
+.rise-in {
+  animation: rise-in 0.5s cubic-bezier(0.22, 0.8, 0.3, 1) backwards;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pins settle in with a short staggered drop when the map first paints (and
+   when a filter changes the visible set). --i is the pin's index, set on the
+   element in markerIcon(); `backwards` holds it invisible through its delay so
+   it doesn't flash at full size before dropping. The transform lives on this
+   wrapper alone, leaving the inner dot's transform free for the selected pop. */
+.spot-marker__drop {
+  animation: marker-drop 0.52s cubic-bezier(0.22, 0.8, 0.3, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+
+@keyframes marker-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.5);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.spot-marker__dot {
+  position: relative;
+  display: flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  box-shadow: 0 0 0 2px var(--surface), 0 3px 8px rgba(0, 0, 0, 0.3);
+  transform-origin: center;
+  /* A springy overshoot on select — the transition finally runs because the
+     element is no longer recreated on selection. */
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.22s ease;
+}
+
+/* Selection is a class toggled on the marker element, not a rebuilt icon. */
+.spot-marker--selected .spot-marker__dot {
+  transform: scale(1.4);
+  box-shadow: 0 0 0 3px var(--surface),
+    0 0 0 5px color-mix(in srgb, currentColor 33%, transparent),
+    0 6px 14px rgba(0, 0, 0, 0.35);
+}
+
+/* The ring that keeps breathing around the selected pin — the map's only
+   looping animation, and it earns it by marking what's currently open. Hidden
+   until selected. */
+.spot-marker-pulse {
+  position: absolute;
+  inset: -5px;
+  display: none;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+}
+
+.spot-marker--selected .spot-marker-pulse {
+  display: block;
+  animation: marker-pulse 1.9s ease-out infinite;
+}
+
+@keyframes marker-pulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.65;
+  }
+  70% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-in {
+    animation: none;
+  }
+  .spot-marker__drop {
+    animation: none;
+  }
+  .spot-marker__dot {
+    transition: none;
+  }
+  .spot-marker-pulse,
+  .spot-marker--selected .spot-marker-pulse {
+    display: none;
+    animation: none;
+  }
+  .leaflet-tooltip.spot-tooltip,
+  .leaflet-tooltip.spot-tooltip > * {
+    animation: none;
+  }
+}
+
+/* The spot tiles' entrance, exit, reorder, hover and press all live in
+   components/SpotList.js now — Motion owns them, because reordering on "Near
+   me" and animating tiles that React has already unmounted are things CSS
+   can't express. Nothing here should try to animate .spot-tile as well. */
+
+/* Spot modal + photo lightbox */
+.overlay-fade-in {
+  animation: overlay-fade-in 0.18s ease-out;
+}
+
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* The spot modal's own open/close animation now lives in SpotModal.js via
+   Motion's AnimatePresence (it needed a real *exit*, which CSS can't drive on
+   unmount). Only the shared .overlay-fade-in below remains — the photo
+   lightbox still uses it. */
+@media (prefers-reduced-motion: reduce) {
+  .overlay-fade-in {
+    animation: none;
+  }
+}
