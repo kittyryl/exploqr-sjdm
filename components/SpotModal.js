@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft, Check, Share2, X } from "lucide-react";
 import SpotDetailCard from "@/components/SpotDetailCard";
 import { useFocusTrap } from "@/lib/useFocusTrap";
 import { useLocale } from "@/components/LocaleProvider";
@@ -42,6 +42,7 @@ const PANEL_DESKTOP_TRANSITION = { duration: 0.2, ease: "easeOut" };
 export default function SpotModal({ spot, onClose, distanceKm }) {
   const { t, text } = useLocale();
   const panelRef = useRef(null);
+  const [copied, setCopied] = useState(false);
 
   // Which enter/exit the panel uses is a layout fact, not a style one, so it
   // can't ride Tailwind's responsive classes — Motion animates inline
@@ -81,6 +82,21 @@ export default function SpotModal({ spot, onClose, distanceKm }) {
   }, [spot, onClose]);
 
   const titleId = spot ? `spot-modal-title-${spot.id}` : undefined;
+
+  async function handleShare() {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: text(spot.name), url });
+      } catch (e) {
+        if (e.name !== "AbortError") throw e; // user closing the native share sheet isn't an error
+      }
+      return;
+    }
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   return (
     <AnimatePresence>
@@ -126,11 +142,36 @@ export default function SpotModal({ spot, onClose, distanceKm }) {
               </button>
               <span
                 aria-hidden="true"
-                className="truncate font-mono text-xs uppercase tracking-widest text-ink/70"
+                className="min-w-0 flex-1 truncate font-mono text-xs uppercase tracking-widest text-ink/70"
               >
                 {text(spot.name)}
               </span>
+              <button
+                type="button"
+                onClick={handleShare}
+                aria-label={copied ? t("share.copied") : t("share.button")}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink/70 transition-colors hover:bg-ink/5 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+              >
+                {copied ? (
+                  <Check size={18} aria-hidden="true" />
+                ) : (
+                  <Share2 size={18} aria-hidden="true" />
+                )}
+              </button>
             </div>
+
+            <button
+              type="button"
+              onClick={handleShare}
+              aria-label={copied ? t("share.copied") : t("share.button")}
+              className="absolute right-14 top-3 z-10 hidden h-8 w-8 items-center justify-center rounded-full bg-ink/5 text-ink/70 transition-colors hover:bg-ink/10 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink sm:flex"
+            >
+              {copied ? (
+                <Check size={16} aria-hidden="true" />
+              ) : (
+                <Share2 size={16} aria-hidden="true" />
+              )}
+            </button>
 
             <button
               type="button"
