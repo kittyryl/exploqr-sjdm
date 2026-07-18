@@ -36,6 +36,7 @@ export const spots = [
       tl: "Malaking dambanang Marian na hango sa Rosary Basilica sa Lourdes, France, may kuweba sa gilid ng burol, Stations of the Cross, at bukal na dinadalaw ng mga deboto dahil sa paniniwalang nakapagpapagaling nito.",
     },
     hours: { en: "Open daily", tl: "Bukas araw-araw" },
+    openHours: { open: "05:00", close: "20:00" },
     images: [
       {
         src: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Our_Lady_of_Lourdes_Shrine_San_Jose_del_Monte_City_16.jpg/960px-Our_Lady_of_Lourdes_Shrine_San_Jose_del_Monte_City_16.jpg",
@@ -72,6 +73,7 @@ export const spots = [
       en: "Tue–Sun, 6 AM–5 PM (closed Mondays)",
       tl: "Martes–Linggo, 6 AM–5 PM (sarado tuwing Lunes)",
     },
+    openHours: { open: "06:00", close: "17:00", closedDays: [1] },
   },
   {
     id: "balagbag",
@@ -88,6 +90,7 @@ export const spots = [
       en: "Daytime trekking recommended",
       tl: "Inirerekomenda ang pag-a-trek sa maghapon",
     },
+    openHours: { open: "06:00", close: "17:00" },
     images: [
       {
         src: "https://upload.wikimedia.org/wikipedia/commons/6/68/Mount_Balagbag.jpg",
@@ -116,6 +119,7 @@ export const spots = [
       tl: "Natural na talon na may tatlong antas, aabutin sa pamamagitan ng pag-a-trek sa gubat, bahagi ng kilalang trail ng mga talon sa lugar.",
     },
     hours: { en: "Daytime only", tl: "Sa maghapon lamang" },
+    openHours: { open: "07:00", close: "16:00" },
     images: [
       {
         src: "https://upload.wikimedia.org/wikipedia/commons/e/ec/Sjdm_kaytitinga_falls.jpg",
@@ -138,6 +142,7 @@ export const spots = [
       tl: "Tahanan ng mga outdoor team-building program ng Paradise Adventure Camp, at ang makasaysayang Emilio Aguinaldo Bridge kung saan minsang nagpahinga si Heneral Aguinaldo at ang kanyang mga tauhan patungong Timog Luzon.",
     },
     hours: { en: "Varies by activity", tl: "Depende sa aktibidad" },
+    openHours: { open: "07:00", close: "18:00" },
   },
   {
     id: "cattlecreek",
@@ -151,6 +156,7 @@ export const spots = [
       tl: "Isang par-72, mabundok at makahoy na 9-hole na golf course, isa sa pangunahing destinasyon pang-libangan ng lungsod.",
     },
     hours: { en: "6 AM–5 PM daily", tl: "6 AM–5 PM araw-araw" },
+    openHours: { open: "06:00", close: "17:00" },
     images: [
       {
         src: "https://upload.wikimedia.org/wikipedia/commons/e/e7/Sjdm_golf_course2.jpg",
