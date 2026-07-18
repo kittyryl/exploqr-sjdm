@@ -55,7 +55,6 @@ export default function SpotDetailCard({ spot, titleId, distanceKm }) {
             style={{ background: cat.tint, color: cat.accent }}
             aria-hidden="true"
           >
-            {/* eslint-disable-next-line react-hooks/static-components */}
             <Icon size={28} strokeWidth={2} />
           </div>
 
