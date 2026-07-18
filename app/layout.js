@@ -26,7 +26,19 @@ const mono = Space_Mono({
   subsets: ["latin"],
 });
 
+// Needed so og:image/twitter:image resolve to an absolute URL — social
+// scrapers won't follow a relative one. Vercel sets these automatically per
+// deploy; VERCEL_PROJECT_PRODUCTION_URL is the stable production domain
+// (unlike VERCEL_URL, which is per-deployment and would break on preview
+// builds pointing at the wrong host).
+const SITE_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000";
+
 export const metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "ExploQR SJDM — Tourism guide to San Jose del Monte, Bulacan",
   description:
     "An interactive map guide to San Jose del Monte, Bulacan: pilgrimage shrines, Mt. Balagbag, Kaytitinga Falls, adventure camps, and more — with directions to each spot.",
