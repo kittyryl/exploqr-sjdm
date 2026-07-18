@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- **No test framework in this repo.** `package.json` has no jest/vitest/playwright as a dependency — verification is via a throwaway Node script during development (deleted before committing, never checked in) for the pure `lib/hours.js` logic, plus a Playwright-driven browser check (this project's established `verify` skill pattern) for final end-to-end confirmation. Do **not** add a new test framework dependency for this work.
+- **No test framework in this repo.** `package.json` has no jest/vitest/playwright as a dependency. `lib/hours.js` gets a committed plain-Node test file (`lib/hours.test.mjs`, using only the built-in `node:assert/strict` — zero new dependencies, run via `node lib/hours.test.mjs`) since it's pure logic with genuine edge-case risk (timezone/weekday boundaries). UI work is still verified via a Playwright-driven browser check (this project's established `verify` skill pattern), not a committed UI test suite. Do **not** add a new test framework dependency for this work.
 - Every new user-facing string gets both an `en` and `tl` entry in `lib/i18n.js`, consumed via the existing `t()` (for UI strings) — never hardcoded text in JSX.
 - "Open now" must be evaluated in the `Asia/Manila` timezone regardless of the visitor's own browser/OS timezone.
 - No new toast/notification system — the share button's "Copied!" state is local component state (`useState` + `setTimeout`), nothing global.
@@ -33,7 +33,7 @@
 
 **Files:**
 - Create: `lib/hours.js`
-- Test: throwaway Node script (not committed — see Global Constraints)
+- Test: `lib/hours.test.mjs` (committed — plain Node, `node:assert/strict`, no framework)
 
 **Interfaces:**
 - Produces: `isOpenNow(openHours: { open: string, close: string, closedDays?: number[] } | undefined, now?: Date) => boolean | null`
@@ -42,7 +42,54 @@
   - Returns `null` when `openHours` is falsy (no data → no badge).
   - Interval is half-open: `open` is inclusive, `close` is exclusive.
 
-- [ ] **Step 1: Write `lib/hours.js`**
+- [ ] **Step 1: Write the failing test file `lib/hours.test.mjs`**
+
+```js
+import { isOpenNow } from "./hours.js";
+import assert from "node:assert/strict";
+
+// Manila is UTC+8 with no DST, so a UTC timestamp at hour 04:00 is always
+// noon in Manila on the same calendar day — this lets the test find a UTC
+// weekday that's guaranteed to equal the Manila weekday, without relying
+// on hand-checked calendar facts.
+function manilaNoonOnWeekday(targetWeekday) {
+  const d = new Date(Date.UTC(2026, 0, 1, 4, 0));
+  while (d.getUTCDay() !== targetWeekday) d.setUTCDate(d.getUTCDate() + 1);
+  return d;
+}
+
+function atManilaTime(noonDate, hh, mm) {
+  const d = new Date(noonDate);
+  d.setUTCHours(hh - 8, mm, 0, 0); // Manila = UTC + 8h, so UTC hour = Manila hour - 8
+  return d;
+}
+
+const monday = manilaNoonOnWeekday(1);
+const tuesday = manilaNoonOnWeekday(2);
+const sunday = manilaNoonOnWeekday(0);
+
+const padrePio = { open: "06:00", close: "17:00", closedDays: [1] };
+const grotto = { open: "05:00", close: "20:00" };
+
+assert.equal(isOpenNow(padrePio, atManilaTime(monday, 10, 0)), false, "closed all day Monday (closedDays)");
+assert.equal(isOpenNow(padrePio, atManilaTime(tuesday, 10, 0)), true, "open Tuesday mid-window");
+assert.equal(isOpenNow(padrePio, atManilaTime(tuesday, 18, 0)), false, "closed Tuesday after close");
+assert.equal(isOpenNow(padrePio, atManilaTime(tuesday, 5, 0)), false, "closed Tuesday before open");
+assert.equal(isOpenNow(padrePio, atManilaTime(tuesday, 6, 0)), true, "open exactly at open time (inclusive)");
+assert.equal(isOpenNow(padrePio, atManilaTime(tuesday, 17, 0)), false, "closed exactly at close time (exclusive)");
+assert.equal(isOpenNow(grotto, atManilaTime(sunday, 12, 0)), true, "open-daily spot open on Sunday too");
+assert.equal(isOpenNow(undefined, atManilaTime(tuesday, 10, 0)), null, "no openHours -> null");
+
+console.log("All isOpenNow assertions passed");
+```
+
+- [ ] **Step 2: Run it, confirm it fails**
+
+Run: `node lib/hours.test.mjs`
+
+Expected: fails with a module-not-found error for `./hours.js` (it doesn't exist yet). This confirms the test actually exercises the real module rather than passing vacuously.
+
+- [ ] **Step 3: Write `lib/hours.js`**
 
 ```js
 // "Open now" is evaluated in Asia/Manila regardless of the visitor's own
@@ -84,66 +131,19 @@ export function isOpenNow(openHours, now = new Date()) {
 }
 ```
 
-- [ ] **Step 2: Write and run a throwaway verification script**
+- [ ] **Step 4: Run the test again, confirm it passes**
 
-Create a temporary file `_check-hours.mjs` in the project root (same folder as `lib/`) with:
-
-```js
-import { isOpenNow } from "./lib/hours.js";
-import assert from "node:assert/strict";
-
-// Manila is UTC+8 with no DST, so a UTC timestamp at hour 04:00 is always
-// noon in Manila on the same calendar day — this lets the script find a
-// UTC weekday that's guaranteed to equal the Manila weekday, without
-// relying on hand-checked calendar facts.
-function manilaNoonOnWeekday(targetWeekday) {
-  const d = new Date(Date.UTC(2026, 0, 1, 4, 0));
-  while (d.getUTCDay() !== targetWeekday) d.setUTCDate(d.getUTCDate() + 1);
-  return d;
-}
-
-function atManilaTime(noonDate, hh, mm) {
-  const d = new Date(noonDate);
-  d.setUTCHours(hh - 8, mm, 0, 0); // Manila = UTC + 8h, so UTC hour = Manila hour - 8
-  return d;
-}
-
-const monday = manilaNoonOnWeekday(1);
-const tuesday = manilaNoonOnWeekday(2);
-const sunday = manilaNoonOnWeekday(0);
-
-const padrePio = { open: "06:00", close: "17:00", closedDays: [1] };
-const grotto = { open: "05:00", close: "20:00" };
-
-assert.equal(isOpenNow(padrePio, atManilaTime(monday, 10, 0)), false, "closed all day Monday (closedDays)");
-assert.equal(isOpenNow(padrePio, atManilaTime(tuesday, 10, 0)), true, "open Tuesday mid-window");
-assert.equal(isOpenNow(padrePio, atManilaTime(tuesday, 18, 0)), false, "closed Tuesday after close");
-assert.equal(isOpenNow(padrePio, atManilaTime(tuesday, 5, 0)), false, "closed Tuesday before open");
-assert.equal(isOpenNow(padrePio, atManilaTime(tuesday, 6, 0)), true, "open exactly at open time (inclusive)");
-assert.equal(isOpenNow(padrePio, atManilaTime(tuesday, 17, 0)), false, "closed exactly at close time (exclusive)");
-assert.equal(isOpenNow(grotto, atManilaTime(sunday, 12, 0)), true, "open-daily spot open on Sunday too");
-assert.equal(isOpenNow(undefined, atManilaTime(tuesday, 10, 0)), null, "no openHours -> null");
-
-console.log("All isOpenNow assertions passed");
-```
-
-Run: `node _check-hours.mjs`
+Run: `node lib/hours.test.mjs`
 
 Expected output: `All isOpenNow assertions passed`
 
-If any assertion throws, fix `lib/hours.js` (not the script) and re-run until it passes.
+If any assertion throws, fix `lib/hours.js` (not the test) and re-run until it passes.
 
-- [ ] **Step 3: Delete the throwaway script**
-
-```bash
-rm _check-hours.mjs
-```
-
-- [ ] **Step 4: Lint and commit**
+- [ ] **Step 5: Lint and commit**
 
 ```bash
-npx eslint lib/hours.js
-git add lib/hours.js
+npx eslint lib/hours.js lib/hours.test.mjs
+git add lib/hours.js lib/hours.test.mjs
 git commit -m "Add isOpenNow time-window helper for the open/closed badge"
 ```
 
