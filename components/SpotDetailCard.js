@@ -17,6 +17,7 @@ import {
   barangayLabel,
 } from "@/lib/categories";
 import { formatDistance } from "@/lib/geo";
+import { isOpenNow } from "@/lib/hours";
 import SpotMedia from "@/components/SpotMedia";
 import { useLocale } from "@/components/LocaleProvider";
 
@@ -39,6 +40,7 @@ export default function SpotDetailCard({ spot, titleId, distanceKm }) {
   if (!spot) return null;
   const cat = CATEGORIES[spot.category];
   const Icon = spotIcon(spot);
+  const openStatus = isOpenNow(spot.openHours);
 
   return (
     <article className="spot-card">
@@ -53,6 +55,7 @@ export default function SpotDetailCard({ spot, titleId, distanceKm }) {
             style={{ background: cat.tint, color: cat.accent }}
             aria-hidden="true"
           >
+            {/* eslint-disable-next-line react-hooks/static-components */}
             <Icon size={28} strokeWidth={2} />
           </div>
 
@@ -95,6 +98,21 @@ export default function SpotDetailCard({ spot, titleId, distanceKm }) {
               <p className="flex items-center gap-1.5 font-mono text-xs text-ink/70">
                 <Clock size={14} aria-hidden="true" />
                 {text(spot.hours)}
+                {openStatus != null && (
+                  <span
+                    className={`ml-1 flex items-center gap-1 ${openStatus ? "" : "text-ink/60"}`}
+                    style={openStatus ? { color: CATEGORIES.nature.accent } : undefined}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{
+                        backgroundColor: openStatus ? CATEGORIES.nature.accent : "currentColor",
+                      }}
+                    />
+                    {openStatus ? t("status.open") : t("status.closed")}
+                  </span>
+                )}
               </p>
               {/* The practical details. Each is optional and simply absent
                   until someone confirms it locally — an empty row would be
