@@ -35,6 +35,21 @@ const PANEL_DESKTOP = {
 const PANEL_MOBILE_TRANSITION = { duration: 0.28, ease: [0.32, 0.72, 0, 1] };
 const PANEL_DESKTOP_TRANSITION = { duration: 0.2, ease: "easeOut" };
 
+// Same action rendered in both the mobile sticky header and the desktop
+// corner chrome — only sizing/positioning differ, so those stay as props
+// rather than duplicating the handler/label/icon-swap in both call sites.
+function ShareButton({ onClick, copied, label, className, iconSize }) {
+  return (
+    <button type="button" onClick={onClick} aria-label={label} className={className}>
+      {copied ? (
+        <Check size={iconSize} aria-hidden="true" />
+      ) : (
+        <Share2 size={iconSize} aria-hidden="true" />
+      )}
+    </button>
+  );
+}
+
 // Full spot view: a full-screen page takeover on mobile (a bottom sheet
 // still left the map peeking through cramped margins — this gives photos
 // and text the room they need), a centered dialog over the dimmed map on
@@ -93,6 +108,7 @@ export default function SpotModal({ spot, onClose, distanceKm }) {
       }
       return;
     }
+    if (!navigator.clipboard) return; // no share sheet, no Clipboard API (e.g. non-secure origin) — nothing we can do
     await navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -146,32 +162,22 @@ export default function SpotModal({ spot, onClose, distanceKm }) {
               >
                 {text(spot.name)}
               </span>
-              <button
-                type="button"
+              <ShareButton
                 onClick={handleShare}
-                aria-label={copied ? t("share.copied") : t("share.button")}
+                copied={copied}
+                label={copied ? t("share.copied") : t("share.button")}
+                iconSize={18}
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink/70 transition-colors hover:bg-ink/5 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-              >
-                {copied ? (
-                  <Check size={18} aria-hidden="true" />
-                ) : (
-                  <Share2 size={18} aria-hidden="true" />
-                )}
-              </button>
+              />
             </div>
 
-            <button
-              type="button"
+            <ShareButton
               onClick={handleShare}
-              aria-label={copied ? t("share.copied") : t("share.button")}
+              copied={copied}
+              label={copied ? t("share.copied") : t("share.button")}
+              iconSize={16}
               className="absolute right-14 top-3 z-10 hidden h-8 w-8 items-center justify-center rounded-full bg-ink/5 text-ink/70 transition-colors hover:bg-ink/10 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink sm:flex"
-            >
-              {copied ? (
-                <Check size={16} aria-hidden="true" />
-              ) : (
-                <Share2 size={16} aria-hidden="true" />
-              )}
-            </button>
+            />
 
             <button
               type="button"
