@@ -23,6 +23,12 @@
 //             All current photos are freely-licensed works from Wikimedia
 //             Commons; credit + license must stay displayed with the photo.
 //   pano360 — equirectangular panorama URL; setting it enables the 360° view.
+//   openHours — { open: "HH:MM", close: "HH:MM", closedDays?: number[] },
+//             evaluated in Asia/Manila by lib/hours.js to drive the open/closed
+//             badge. Only set this when the spot genuinely has one daily
+//             window — a spot whose `hours` text says something like "varies"
+//             has no single window to encode, so leave openHours unset rather
+//             than picking a plausible-looking range.
 export const spots = [
   {
     id: "grotto",
@@ -142,7 +148,6 @@ export const spots = [
       tl: "Tahanan ng mga outdoor team-building program ng Paradise Adventure Camp, at ang makasaysayang Emilio Aguinaldo Bridge kung saan minsang nagpahinga si Heneral Aguinaldo at ang kanyang mga tauhan patungong Timog Luzon.",
     },
     hours: { en: "Varies by activity", tl: "Depende sa aktibidad" },
-    openHours: { open: "07:00", close: "18:00" },
   },
   {
     id: "cattlecreek",
