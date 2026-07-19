@@ -12,6 +12,10 @@ interface PhotoLightboxProps {
   images: SpotImage[];
   index: number;
   spotName: string;
+  // Whether the surrounding media set has more than one item to page through.
+  // Passed in because the cycle can include a 360° panorama, which isn't part
+  // of `images` — so `images.length` alone can't decide if arrows should show.
+  navigable: boolean;
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
@@ -25,6 +29,7 @@ export default function PhotoLightbox({
   images,
   index,
   spotName,
+  navigable,
   onClose,
   onPrev,
   onNext,
@@ -78,7 +83,7 @@ export default function PhotoLightbox({
         <X size={18} aria-hidden="true" />
       </button>
 
-      {images.length > 1 && (
+      {navigable && (
         <>
           <button
             type="button"

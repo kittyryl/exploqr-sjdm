@@ -27,7 +27,9 @@ export default function SpotMedia({ spot }: { spot: Spot }) {
   const { t, text } = useLocale();
   const images = spot.images || [];
   const hasPano = Boolean(spot.pano360);
-  const [active, setActive] = useState<ActiveMedia>(hasPano && images.length === 0 ? "pano" : 0);
+  // The 360° panorama, when present, is the first item in the media order — so
+  // it's the default view and leads the thumbnail strip.
+  const [active, setActive] = useState<ActiveMedia>(hasPano ? "pano" : 0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   // Every photo is hotlinked from Wikimedia; a dead URL should read as a
   // gap, not a broken-image glyph. Keyed by src so a failure sticks to the
@@ -46,7 +48,23 @@ export default function SpotMedia({ spot }: { spot: Spot }) {
   }
 
   const activeImage = active === "pano" ? null : images[active];
-  const showThumbs = images.length + (hasPano ? 1 : 0) > 1;
+  const total = images.length + (hasPano ? 1 : 0);
+  const showThumbs = total > 1;
+
+  // The lightbox pages across the whole media sequence, which — when the spot
+  // has a panorama — is [360°, ...photos]. Landing on the 360° slot closes the
+  // zoom and switches to the interactive viewer, since a panorama can't be
+  // shown inside the flat photo lightbox. Called only while a photo is open.
+  const stepLightbox = (dir: 1 | -1) => {
+    const seq = hasPano ? (active as number) + 1 : (active as number);
+    const nextSeq = (seq + dir + total) % total;
+    if (hasPano && nextSeq === 0) {
+      setLightboxOpen(false);
+      setActive("pano");
+    } else {
+      setActive(hasPano ? nextSeq - 1 : nextSeq);
+    }
+  };
 
   return (
     <figure>
@@ -95,6 +113,31 @@ export default function SpotMedia({ spot }: { spot: Spot }) {
 
       {showThumbs && (
         <div className="mt-2 flex gap-2">
+          {hasPano && (
+            <button
+              type="button"
+              onClick={() => setActive("pano")}
+              aria-label={t("media.panoThumbLabel")}
+              aria-pressed={active === "pano"}
+              className={`relative h-11 w-14 shrink-0 overflow-hidden rounded-lg border transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
+                active === "pano"
+                  ? "border-ink"
+                  : "border-line opacity-70 hover:opacity-100"
+              }`}
+            >
+              <Image
+                src={spot.pano360!}
+                alt=""
+                width={56}
+                height={44}
+                className="h-full w-full object-cover"
+                loading="lazy"
+              />
+              <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-center bg-scrim/70 py-px font-mono text-[8px] font-medium uppercase tracking-wider text-white">
+                360°
+              </span>
+            </button>
+          )}
           {images.map((img, i) => (
             <button
               key={img.src}
@@ -126,20 +169,6 @@ export default function SpotMedia({ spot }: { spot: Spot }) {
               )}
             </button>
           ))}
-          {hasPano && (
-            <button
-              type="button"
-              onClick={() => setActive("pano")}
-              aria-pressed={active === "pano"}
-              className={`flex h-11 shrink-0 items-center rounded-lg border px-3 font-mono text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
-                active === "pano"
-                  ? "border-ink bg-ink text-paper"
-                  : "border-line text-ink/70 hover:border-ink/40"
-              }`}
-            >
-              360°
-            </button>
-          )}
         </div>
       )}
 
@@ -163,9 +192,10 @@ export default function SpotMedia({ spot }: { spot: Spot }) {
           images={images}
           index={active}
           spotName={text(spot.name)}
+          navigable={total > 1}
           onClose={() => setLightboxOpen(false)}
-          onPrev={() => setActive((i) => (((i as number) - 1 + images.length) % images.length))}
-          onNext={() => setActive((i) => (((i as number) + 1) % images.length))}
+          onPrev={() => stepLightbox(-1)}
+          onNext={() => stepLightbox(1)}
         />
       )}
     </figure>

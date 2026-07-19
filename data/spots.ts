@@ -65,6 +65,11 @@ export const spots: Spot[] = [
         page: "https://commons.wikimedia.org/wiki/File:Our_Lady_of_Lourdes_Shrine_San_Jose_del_Monte_City_25.jpg",
       },
     ],
+    // DUMMY placeholder for testing the 360° viewer — this is a church interior
+    // in Cruzy, France, not the Grotto. Swap for a real SJDM panorama before launch.
+    // Credit: "Panorama Sphérique", CC BY-SA, Wikimedia Commons.
+    pano360:
+      "https://upload.wikimedia.org/wikipedia/commons/7/7e/%28Panorama_Spherique%29_PlaceEglise_Cruzy_France.jpg",
   },
   {
     id: "padrepio",

@@ -80,6 +80,7 @@ const EN_UI = {
   "media.credit": "Photo:",
   "media.zoomLabel": "Zoom in on {name} photo {index} of {total}",
   "media.thumbLabel": "Show photo {index}",
+  "media.panoThumbLabel": "Show 360° panorama",
   "media.alt": "{name} — photo {index} of {total}",
   "media.panoLabel": "360° panorama of {name}",
 
@@ -153,6 +154,7 @@ const TL_UI: Partial<Record<UIKey, string>> = {
   "media.credit": "Litrato:",
   "media.zoomLabel": "I-zoom ang litrato ng {name}, larawan {index} ng {total}",
   "media.thumbLabel": "Ipakita ang larawan {index}",
+  "media.panoThumbLabel": "Ipakita ang 360° na panorama",
   "media.alt": "{name} — larawan {index} ng {total}",
   "media.panoLabel": "360° na panorama ng {name}",
 
