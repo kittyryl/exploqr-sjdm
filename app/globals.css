@@ -233,7 +233,12 @@ body {
   animation: tooltip-fade 0.14s ease-out;
 }
 .leaflet-tooltip.spot-tooltip > * {
-  display: inline-block;
+  /* inline-flex, not inline-block: the spot-name tooltip's content is a flex
+     row (category dot + name, see components/SpotMap.tsx), and inline-block
+     here would win the specificity fight against its Tailwind `flex` class
+     and silently kill `items-center`, leaving the dot pinned to the text's
+     top instead of centered on it. */
+  display: inline-flex;
   animation: tooltip-scale 0.14s ease-out;
 }
 
