@@ -11,10 +11,13 @@ import {
   CircleMarker,
   Tooltip,
   useMap,
+  useMapEvents,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { CATEGORIES, spotIcon } from "@/lib/categories";
 import { sjdmBoundary } from "@/data/sjdmBoundary";
+import { barangays } from "@/data/barangays";
+import { barangaysWithSpots } from "@/lib/barangays";
 import { DEFAULT_LOCALE, text } from "@/lib/i18n";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { useLocale } from "@/components/providers/LocaleProvider";
@@ -125,6 +128,58 @@ function FitToSpots({ spots, userLocation }: { spots: Spot[]; userLocation: User
   return null;
 }
 
+function useZoom(): number {
+  const map = useMap();
+  const [zoom, setZoom] = useState(() => map.getZoom());
+  useMapEvents({ zoomend: () => setZoom(map.getZoom()) });
+  return zoom;
+}
+
+// The city's 59 barangays, tinted so neighbours are distinguishable and
+// labelled by name — the shape of the printed City Tourism Office map, kept
+// translucent so the basemap underneath still does its job.
+//
+// interactive={false} throughout: these are a backdrop, and a barangay
+// swallowing a click meant for a pin would be a real regression. Permanent
+// tooltips render without needing pointer events.
+// Labels appear progressively by size: each barangay carries the zoom at which
+// it's finally wide enough to hold its own name (see scripts/generate-
+// barangays.mjs). A single global cutoff doesn't work here — Tungkong Mangga
+// is legible from the default view while the San Rafael and Fatima slivers
+// around Sapang Palay pile into an unreadable knot until far deeper in. The
+// barangays holding a destination are always named, whatever the zoom.
+function BarangayLayer({ spots }: { spots: Spot[] }) {
+  const zoom = useZoom();
+  const withSpots = useMemo(() => barangaysWithSpots(spots), [spots]);
+
+  return (
+    <>
+      {barangays.map((b) => {
+        const hasSpot = withSpots.has(b.name);
+        return (
+          <Polygon
+            key={b.name}
+            positions={b.rings as L.LatLngExpression[][]}
+            interactive={false}
+            pathOptions={{ className: `map-brgy map-brgy--${b.tint}` }}
+          >
+            {(hasSpot || zoom >= b.minZoom) && (
+              <Tooltip
+                permanent
+                direction="center"
+                opacity={1}
+                className={`brgy-label${hasSpot ? " brgy-label--spot" : ""}`}
+              >
+                {b.name}
+              </Tooltip>
+            )}
+          </Polygon>
+        );
+      })}
+    </>
+  );
+}
+
 interface SpotMapProps {
   spots: Spot[];
   selectedId: string | null;
@@ -219,6 +274,8 @@ export default function SpotMap({ spots, selectedId, onSelect, userLocation }: S
         url={prefersDark ? TILE_URL_DARK : TILE_URL_LIGHT}
         attribution={TILE_ATTRIBUTION}
       />
+      {/* Under the dim mask, so the wash still reads over the tinted city. */}
+      <BarangayLayer spots={spots} />
       {/* Dim everything outside the city. fillColor/color are dead values that
           the .map-dim-mask / .map-boundary CSS rules override — Leaflet can't
           write a var() into an SVG attribute. */}
