@@ -6,6 +6,7 @@ import ThemeToggle from "@/components/controls/ThemeToggle";
 import LocaleToggle from "@/components/controls/LocaleToggle";
 import HomeHero from "@/components/home/HomeHero";
 import StatGrid from "@/components/home/StatGrid";
+import QRCard from "@/components/home/QRCard";
 
 export default function Home() {
   return (
@@ -24,6 +25,7 @@ export default function Home() {
         <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
           <HomeHero />
           <StatGrid />
+          <QRCard />
         </div>
       </main>
     </MotionConfig>
