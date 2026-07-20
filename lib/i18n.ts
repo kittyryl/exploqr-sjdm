@@ -51,6 +51,8 @@ const EN_UI = {
 
   "cat.religious": "Religious",
   "cat.nature": "Nature",
+  "cat.parks": "Parks",
+  "cat.resorts": "Resorts",
   "cat.leisure": "Leisure",
 
   "nearme.idle": "Near me",
@@ -74,6 +76,8 @@ const EN_UI = {
   "spot.hours": "Hours",
   "spot.contactLabel": "Contact",
   "spot.websiteLabel": "Website",
+  "spot.addressLabel": "Address",
+  "spot.facebookLabel": "Facebook Page",
   "spot.amenities": "Amenities",
   "spot.photos": "Photos",
   "spot.view360": "360° View",
@@ -135,6 +139,8 @@ const TL_UI: Partial<Record<UIKey, string>> = {
 
   "cat.religious": "Relihiyoso",
   "cat.nature": "Kalikasan",
+  "cat.parks": "Mga Parke",
+  "cat.resorts": "Resort",
   "cat.leisure": "Libangan",
 
   "nearme.idle": "Malapit sa akin",
@@ -156,6 +162,8 @@ const TL_UI: Partial<Record<UIKey, string>> = {
   "spot.hours": "Oras",
   "spot.contactLabel": "Kontak",
   "spot.websiteLabel": "Website",
+  "spot.addressLabel": "Address",
+  "spot.facebookLabel": "Facebook Page",
   "spot.amenities": "Mga Amenity",
   "spot.photos": "Mga Litrato",
   "spot.view360": "360° na Tanawin",

@@ -43,6 +43,19 @@
   --cat-nature-tint: #e1f5ee;
   --cat-nature-btn-fg: #ffffff;
 
+  /* Olive-lime, not a second green: a landscaped city park and a Sierra Madre
+     waterfall are different trips, and two greens read as one category. The
+     five fills sit at 245/161/73/333/15 degrees of hue — no pair adjacent. */
+  --cat-parks-fill: #8ba52b;
+  --cat-parks-accent: #4c6111;
+  --cat-parks-tint: #f1f6da;
+  --cat-parks-btn-fg: #ffffff;
+
+  --cat-resorts-fill: #d1508a;
+  --cat-resorts-accent: #97305f;
+  --cat-resorts-tint: #fbe9f1;
+  --cat-resorts-btn-fg: #ffffff;
+
   --cat-leisure-fill: #d85a30;
   --cat-leisure-accent: #993c1d;
   --cat-leisure-tint: #faece7;
@@ -57,6 +70,8 @@
      and `accent` can't be reused because it inverts. */
   --cat-religious-block: #4f46b5;
   --cat-nature-block: #0d7357;
+  --cat-parks-block: #4f6b12;
+  --cat-resorts-block: #a8306a;
   --cat-leisure-block: #b8471f;
   --cat-block-fg: #ffffff;
 }
@@ -87,6 +102,14 @@
     --cat-nature-tint: #14352c;
     --cat-nature-btn-fg: #141917;
 
+    --cat-parks-accent: #c3dd6a;
+    --cat-parks-tint: #2b330f;
+    --cat-parks-btn-fg: #141917;
+
+    --cat-resorts-accent: #f5a0c4;
+    --cat-resorts-tint: #3d1a2b;
+    --cat-resorts-btn-fg: #141917;
+
     --cat-leisure-accent: #f5a283;
     --cat-leisure-tint: #3a2018;
     --cat-leisure-btn-fg: #141917;
@@ -107,6 +130,14 @@
   --cat-nature-accent: #5fd6ac;
   --cat-nature-tint: #14352c;
   --cat-nature-btn-fg: #141917;
+
+  --cat-parks-accent: #c3dd6a;
+  --cat-parks-tint: #2b330f;
+  --cat-parks-btn-fg: #141917;
+
+  --cat-resorts-accent: #f5a0c4;
+  --cat-resorts-tint: #3d1a2b;
+  --cat-resorts-btn-fg: #141917;
 
   --cat-leisure-accent: #f5a283;
   --cat-leisure-tint: #3a2018;

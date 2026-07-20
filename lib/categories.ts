@@ -1,4 +1,14 @@
-import { Church, Mountain, Droplet, Tent, Flag, type LucideIcon } from "lucide-react";
+import {
+  Church,
+  Mountain,
+  Droplet,
+  Tent,
+  Flag,
+  Trees,
+  Waves,
+  Eye,
+  type LucideIcon,
+} from "lucide-react";
 import type { CategoryKey, Spot } from "@/lib/types";
 import type { UIKey } from "@/lib/i18n";
 
@@ -51,6 +61,28 @@ export const CATEGORIES: Record<CategoryKey, CategoryTokens> = {
     blockFg: "var(--cat-block-fg)",
     icon: Mountain,
   },
+  // Public open space — the city's river esplanade, family parks, eco-park.
+  // Deliberately a separate hue from `nature` rather than a second green: a
+  // landscaped urban park and a waterfall in the Sierra Madre are different
+  // trips, and two greens on one map read as one category.
+  parks: {
+    fill: "var(--cat-parks-fill)",
+    accent: "var(--cat-parks-accent)",
+    tint: "var(--cat-parks-tint)",
+    btnFg: "var(--cat-parks-btn-fg)",
+    block: "var(--cat-parks-block)",
+    blockFg: "var(--cat-block-fg)",
+    icon: Trees,
+  },
+  resorts: {
+    fill: "var(--cat-resorts-fill)",
+    accent: "var(--cat-resorts-accent)",
+    tint: "var(--cat-resorts-tint)",
+    btnFg: "var(--cat-resorts-btn-fg)",
+    block: "var(--cat-resorts-block)",
+    blockFg: "var(--cat-block-fg)",
+    icon: Waves,
+  },
   leisure: {
     fill: "var(--cat-leisure-fill)",
     accent: "var(--cat-leisure-accent)",
@@ -66,6 +98,7 @@ export const CATEGORIES: Record<CategoryKey, CategoryTokens> = {
 const ICON_OVERRIDES: Record<string, LucideIcon> = {
   droplet: Droplet,
   tent: Tent,
+  eye: Eye,
 };
 
 // Resolve the icon component for a spot: its override if set, else its

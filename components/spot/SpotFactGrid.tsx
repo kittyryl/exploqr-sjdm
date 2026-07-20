@@ -6,9 +6,21 @@ import { isOpenNow } from "@/lib/hours";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import type { Spot } from "@/lib/types";
 
-function Fact({ label, children }: { label: string; children: ReactNode }) {
+function Fact({
+  label,
+  children,
+  wide,
+}: {
+  label: string;
+  children: ReactNode;
+  wide?: boolean;
+}) {
   return (
-    <div className="rounded-[10px] border border-line bg-surface px-3.5 py-3">
+    <div
+      className={`rounded-[10px] border border-line bg-surface px-3.5 py-3 ${
+        wide ? "sm:col-span-2" : ""
+      }`}
+    >
       <div className="font-mono text-[11px] uppercase tracking-wider text-ink/70">
         {label}
       </div>
@@ -27,6 +39,14 @@ export default function SpotFactGrid({ spot }: { spot: Spot }) {
 
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      {/* Full width: a street address wraps to two lines in a half cell and
+          drags the row it shares out of alignment. */}
+      {spot.address && (
+        <Fact label={t("spot.addressLabel")} wide>
+          <span className="font-normal">{spot.address}</span>
+        </Fact>
+      )}
+
       {spot.fee && <Fact label={t("spot.fee")}>{text(spot.fee)}</Fact>}
 
       <Fact label={t("spot.hours")}>
@@ -65,6 +85,11 @@ export default function SpotFactGrid({ spot }: { spot: Spot }) {
           </a>
         </Fact>
       )}
+
+      {/* The page name as the tourism office records it, not a link: these
+          have no verified vanity URLs, and a guessed one could point visitors
+          at an impostor page. */}
+      {spot.facebook && <Fact label={t("spot.facebookLabel")}>{spot.facebook}</Fact>}
 
       {spot.contact && (
         <Fact label={t("spot.contactLabel")}>
