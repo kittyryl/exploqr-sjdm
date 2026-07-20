@@ -1,11 +1,21 @@
-// Regenerate data/barangays.ts from the upstream PSA boundary set:
+// Regenerate data/barangays.ts and data/sjdmBoundary.ts from the upstream PSA
+// boundary set:
 //   node scripts/generate-barangays.mjs
 // Needs network access. Rerun it if the barangay list changes or if a spot's
 // barangay stops matching (the script prints the join result).
+//
+// The city boundary is derived as the polygon union of the 59 barangays
+// rather than pulled from a separate source (it used to come from OSM/
+// Nominatim): two independently-digitized outlines of the same city never
+// line up exactly, which showed up on the map as slivers of gap and overhang
+// between the barangay tints and the dashed city border. Unioning the same
+// PSA shapes we already draw guarantees the border traces their combined
+// edge exactly.
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { union } from "@turf/turf";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -122,6 +132,20 @@ const byZoom = {};
 for (const o of out) byZoom[o.minZoom] = (byZoom[o.minZoom] || 0) + 1;
 console.log("\nlabels revealed per zoom:", JSON.stringify(byZoom));
 
+// --- city boundary: dissolve the 59 barangays into one outline -------------
+// Union needs GeoJSON [lng, lat] Polygon/MultiPolygon features, so this runs
+// on `geo.features` directly rather than the already-reprojected `items`.
+const dissolved = geo.features
+  .map((f) => ({ type: "Feature", properties: {}, geometry: f.geometry }))
+  .reduce((acc, f) => (acc ? union({ type: "FeatureCollection", features: [acc, f] }) : f));
+const dissolvedPolys =
+  dissolved.geometry.type === "MultiPolygon" ? dissolved.geometry.coordinates : [dissolved.geometry.coordinates];
+// Flatten to a flat ring list. Leaflet draws each ring as its own closed
+// path, so a MultiPolygon (e.g. a landlocked barangay leaving a doughnut
+// hole) still renders correctly whether the boundary is one piece or several.
+const cityRings = dissolvedPolys.flatMap((poly) => poly.map((ring) => ring.map(([lng, lat]) => [R(lat), R(lng)])));
+console.log("\ncity boundary rings:", cityRings.length, "points:", cityRings.reduce((n, r) => n + r.length, 0));
+
 // --- cross-check against the barangays used in data/spots.ts ---------------
 const spotsSrc = fs.readFileSync(path.join(ROOT, "data/spots.ts"), "utf8");
 const used = [...new Set([...spotsSrc.matchAll(/barangay:\s*"([^"]+)"/g)].map((m) => m[1]))];
@@ -159,3 +183,18 @@ export const barangays: Barangay[] = ${JSON.stringify(out)};
 // leave the file showing as modified with an EOL-only diff.
 fs.writeFileSync(path.join(ROOT, "data/barangays.ts"), body.replace(/\n/g, os.EOL));
 console.log("\nwrote data/barangays.ts —", (body.length / 1024).toFixed(1), "KB");
+
+const boundaryBody = `// Administrative boundary of San Jose del Monte, Bulacan.
+//
+// GENERATED FILE — do not hand-edit. Derived by dissolving the 59 barangay
+// polygons in data/barangays.ts into one outline (see
+// scripts/generate-barangays.mjs), rather than pulled from a separate
+// source: two independently-digitized outlines of the same city never line
+// up exactly, which used to leave visible gaps/overhangs between the
+// barangay tints and this border. Source: Philippine Statistics Authority
+// administrative boundaries, via github.com/faeldon/philippines-json-maps
+// (MIT). Rings are [lat, lng] pairs, ready for Leaflet.
+export const sjdmBoundary: number[][][] = ${JSON.stringify(cityRings)};
+`;
+fs.writeFileSync(path.join(ROOT, "data/sjdmBoundary.ts"), boundaryBody.replace(/\n/g, os.EOL));
+console.log("wrote data/sjdmBoundary.ts —", (boundaryBody.length / 1024).toFixed(1), "KB");

@@ -236,41 +236,46 @@ body {
    Kept translucent on purpose: underneath is Voyager's road hierarchy, which
    is what someone planning a trip actually needs. Fully opaque fills would
    turn a map back into a poster. */
+/* Hues picked in OKLCH: even lightness/chroma across all five so no single
+   slot reads louder than its neighbours (the old set mixed a hot pink and a
+   saturated orange next to pastel green/blue, which clashed rather than
+   reading as a family). Terracotta, gold, sage, dusty blue, plum — evenly
+   spaced around the wheel, moderate chroma so it stays a map tint, not a
+   coloring book. */
 .map-brgy {
   stroke: var(--paper);
   stroke-width: 0.75;
-  fill-opacity: 0.38;
+  fill-opacity: 0.32;
   stroke-opacity: 0.7;
 }
-.map-brgy--0 { fill: #7bb661; }
-.map-brgy--1 { fill: #d98cae; }
-.map-brgy--2 { fill: #9b8ec9; }
-.map-brgy--3 { fill: #e0b64e; }
-.map-brgy--4 { fill: #6fa8c9; }
+.map-brgy--0 { fill: oklch(76% 0.09 148); }
+.map-brgy--1 { fill: oklch(82% 0.1 80); }
+.map-brgy--2 { fill: oklch(74% 0.12 35); }
+.map-brgy--3 { fill: oklch(74% 0.07 235); }
+.map-brgy--4 { fill: oklch(68% 0.08 320); }
 
-/* Dark mode: the same hues, deepened. Pastels over dark tiles glare and bury
-   the basemap, and a slightly higher alpha is needed for the tint to register
-   at all against dark_all. */
+/* Dark mode: same hues, darkened and slightly more saturated so they still
+   register against dark_all instead of just looking washed out. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .map-brgy {
     stroke: var(--map-backdrop);
-    fill-opacity: 0.3;
+    fill-opacity: 0.4;
   }
-  :root:not([data-theme="light"]) .map-brgy--0 { fill: #315c3d; }
-  :root:not([data-theme="light"]) .map-brgy--1 { fill: #6b3d51; }
-  :root:not([data-theme="light"]) .map-brgy--2 { fill: #493f7a; }
-  :root:not([data-theme="light"]) .map-brgy--3 { fill: #75591f; }
-  :root:not([data-theme="light"]) .map-brgy--4 { fill: #2f6278; }
+  :root:not([data-theme="light"]) .map-brgy--0 { fill: oklch(42% 0.09 148); }
+  :root:not([data-theme="light"]) .map-brgy--1 { fill: oklch(48% 0.1 80); }
+  :root:not([data-theme="light"]) .map-brgy--2 { fill: oklch(40% 0.12 35); }
+  :root:not([data-theme="light"]) .map-brgy--3 { fill: oklch(40% 0.08 235); }
+  :root:not([data-theme="light"]) .map-brgy--4 { fill: oklch(38% 0.09 320); }
 }
 :root[data-theme="dark"] .map-brgy {
   stroke: var(--map-backdrop);
-  fill-opacity: 0.3;
+  fill-opacity: 0.4;
 }
-:root[data-theme="dark"] .map-brgy--0 { fill: #315c3d; }
-:root[data-theme="dark"] .map-brgy--1 { fill: #6b3d51; }
-:root[data-theme="dark"] .map-brgy--2 { fill: #493f7a; }
-:root[data-theme="dark"] .map-brgy--3 { fill: #75591f; }
-:root[data-theme="dark"] .map-brgy--4 { fill: #2f6278; }
+:root[data-theme="dark"] .map-brgy--0 { fill: oklch(42% 0.09 148); }
+:root[data-theme="dark"] .map-brgy--1 { fill: oklch(48% 0.1 80); }
+:root[data-theme="dark"] .map-brgy--2 { fill: oklch(40% 0.12 35); }
+:root[data-theme="dark"] .map-brgy--3 { fill: oklch(40% 0.08 235); }
+:root[data-theme="dark"] .map-brgy--4 { fill: oklch(38% 0.09 320); }
 
 /* Barangay name plates. No background box — 59 of these would tile the map
    into a wall of chips; letter-spaced small caps with a halo read as map
@@ -283,19 +288,19 @@ body {
   padding: 0;
   pointer-events: none;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink);
-  opacity: 0.75;
+  opacity: 0.85;
   text-shadow:
     0 0 3px var(--paper),
     0 0 3px var(--paper),
     0 0 6px var(--paper);
   white-space: normal;
   text-align: center;
-  max-width: 84px;
+  max-width: 96px;
   line-height: 1.15;
 }
 .leaflet-tooltip.brgy-label::before {
@@ -305,7 +310,7 @@ body {
    ones revealed on zoom. */
 .leaflet-tooltip.brgy-label--spot {
   opacity: 1;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .leaflet-control-attribution {

@@ -241,19 +241,6 @@ export default function Home() {
 
         </div>
 
-        {/* The page's one dark room. The tiles were floating on blank paper;
-            a band gives them a ground and takes the largest empty stretch of
-            background out of the page. */}
-        <section className="spot-panel mt-8 border-y border-line">
-          <div className="mx-auto w-full max-w-6xl px-4 py-9 sm:px-6 sm:py-12">
-            <SpotList
-              spots={orderedVisible}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-              distances={distances}
-            />
-          </div>
-        </section>
       </main>
 
       <SpotModal
