@@ -83,12 +83,34 @@ function usePrefersDark(): boolean {
 // (a scale transition) and the pulse. Keeping them separate stops the entrance
 // transform and the selected-scale transform from fighting over one element.
 // Size, shadows, colors, and both animations live in globals.css.
+// Pin geometry. The circle carries the photo; the tail below it is what
+// actually points at the coordinate, so the icon is anchored at the tip
+// rather than at its centre the way the old dot was.
+const PIN_SIZE = 46;
+const PIN_TAIL = 10;
+
 function markerIcon(spot: Spot, index: number): L.DivIcon {
   const Icon = spotIcon(spot);
   const fill = CATEGORIES[spot.category].fill;
   const svg = renderToStaticMarkup(
-    <Icon size={16} color="#ffffff" strokeWidth={2.25} />
+    <Icon size={18} color="#ffffff" strokeWidth={2.25} />
   );
+
+  // The photo rides on top of the category icon rather than replacing it, so
+  // the two spots with no photo — and any spot whose Wikimedia URL dies —
+  // simply show the pin this map has always drawn. `onerror` removes the
+  // broken image and uncovers it; a broken-image glyph on a 46px pin would be
+  // the ugliest thing on the map.
+  //
+  // Routed through the Next image optimizer instead of hotlinking: the
+  // originals are 960px wide and there is one per pin. w=96 covers the 46px
+  // circle at 2x and is a configured image size, so the endpoint accepts it.
+  const photo = spot.images?.[0]?.src;
+  const img = photo
+    ? `<img class="spot-marker__img" alt="" loading="lazy" decoding="async"
+        src="/_next/image?url=${encodeURIComponent(photo)}&w=96&q=70"
+        onerror="this.remove()">`
+    : "";
   // The aria-label isn't localized to the current UI language — this HTML
   // string is built outside React (no locale to read), so it always resolves
   // through lib/i18n's own English fallback chain via text().
@@ -99,11 +121,11 @@ function markerIcon(spot: Spot, index: number): L.DivIcon {
     className: "spot-marker",
     html: `<div class="spot-marker__drop" style="--i:${index}">
       <div class="spot-marker__dot" style="color:${fill};background:${fill}" role="img" aria-label="${label}">
-        <span class="spot-marker-pulse"></span>${svg}
+        <span class="spot-marker-pulse"></span>${svg}${img}
       </div>
     </div>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
+    iconSize: [PIN_SIZE, PIN_SIZE + PIN_TAIL],
+    iconAnchor: [PIN_SIZE / 2, PIN_SIZE + PIN_TAIL],
   });
 }
 
@@ -338,7 +360,9 @@ export default function SpotMap({ spots, selectedId, onSelect, userLocation }: S
           >
             <Tooltip
               direction="top"
-              offset={[0, selected ? -26 : -18]}
+              // Pins are anchored at the tail tip now, so the tooltip has to
+              // clear the whole pin height rather than half a dot.
+              offset={[0, selected ? -66 : -60]}
               opacity={1}
               className="spot-tooltip"
             >

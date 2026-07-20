@@ -422,15 +422,20 @@ body {
   }
 }
 
+/* The pin is a photo of the place in a category-colored ring, over a tail
+   that points at the coordinate — the shape the City Tourism Office's printed
+   map uses. The category icon sits underneath the photo and shows through for
+   the spots that have none, so "no photo yet" looks designed rather than
+   broken. */
 .spot-marker__dot {
   position: relative;
   display: flex;
-  width: 32px;
-  height: 32px;
+  width: 46px;
+  height: 46px;
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  box-shadow: 0 0 0 2px var(--surface), 0 3px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 0 3px var(--surface), 0 3px 8px rgba(0, 0, 0, 0.3);
   transform-origin: center;
   /* A springy overshoot on select — the transition finally runs because the
      element is no longer recreated on selection. */
@@ -439,10 +444,67 @@ body {
 }
 
 /* Selection is a class toggled on the marker element, not a rebuilt icon. */
+/* The tail. Sits behind the circle's own background, so only the part below
+   it shows — that keeps the join clean without drawing a real teardrop path.
+   It's a child of the dot, so it scales with the selected pop for free. */
+.spot-marker__dot::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  bottom: -8px;
+  left: 50%;
+  width: 0;
+  height: 0;
+  transform: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 12px solid currentColor;
+  filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.25));
+}
+
+/* Inset by the ring width, not edge-to-edge: the dot's background is the
+   category color, and letting it show as a ring is what keeps the pins
+   color-coded. The hero headline is this map's legend, so a photo that
+   swallowed the category would break the link between them. */
+/* The category ring is a real border on the photo rather than the dot's
+   background showing through an inset.
+
+   The long selector is load-bearing. Leaflet's own stylesheet carries
+   `.leaflet-container .leaflet-marker-pane img { width: auto }` at (0,2,1),
+   which outranks a lone `.spot-marker__img` at (0,1,0) — so `width` lost while
+   `height` (which Leaflet doesn't set) won, and Chrome sized the photo from
+   its 4:3 intrinsic ratio into an oversized rounded square spilling out of the
+   pin. Matching Leaflet's own path and adding the class puts us at (0,3,1). */
+.leaflet-container .leaflet-marker-pane img.spot-marker__img {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  border: 3px solid currentColor;
+  border-radius: 9999px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Hide the category icon while a photo is present — the colored ring already
+   says which category this is, and the icon was being stamped across the
+   middle of every photo.
+   Not a z-index fight: Leaflet stamps `z-index: 200` on SVGs, and the dot is a
+   flex container, where z-index applies to flex items even at position:static.
+   So the icon outranked the absolutely positioned photo whatever it asked for.
+   Hiding is also what makes the fallback work — `onerror` removes a dead
+   image, this stops matching, and the icon comes back on its own. */
+.spot-marker__dot:has(.spot-marker__img) > svg {
+  display: none;
+}
+
+/* A gentler pop than the old dot's 1.4 — at 46px that much scale threw the
+   pin across half a barangay. */
 .spot-marker--selected .spot-marker__dot {
-  transform: scale(1.4);
+  transform: scale(1.18);
   box-shadow: 0 0 0 3px var(--surface),
-    0 0 0 5px color-mix(in srgb, currentColor 33%, transparent),
+    0 0 0 6px color-mix(in srgb, currentColor 40%, transparent),
     0 6px 14px rgba(0, 0, 0, 0.35);
 }
 
