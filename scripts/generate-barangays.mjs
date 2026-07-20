@@ -3,6 +3,7 @@
 // Needs network access. Rerun it if the barangay list changes or if a spot's
 // barangay stops matching (the script prints the join result).
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -154,5 +155,7 @@ export interface Barangay {
 
 export const barangays: Barangay[] = ${JSON.stringify(out)};
 `;
-fs.writeFileSync(path.join(ROOT, "data/barangays.ts"), body);
+// Match the platform's line endings, so rerunning this on Windows doesn't
+// leave the file showing as modified with an EOL-only diff.
+fs.writeFileSync(path.join(ROOT, "data/barangays.ts"), body.replace(/\n/g, os.EOL));
 console.log("\nwrote data/barangays.ts —", (body.length / 1024).toFixed(1), "KB");
