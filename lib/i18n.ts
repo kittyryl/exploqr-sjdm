@@ -110,6 +110,22 @@ const EN_UI = {
   "install.android": "Add to your home screen for quicker, offline-friendly access.",
   "install.button": "Install",
   "install.dismiss": "Dismiss",
+
+  "front.hero.body":
+    "{count} shrines, waterfalls, resorts, and parks across San Jose del Monte — each one mapped, photographed, and previewable in 360°. No download required: scan the code below and the whole guide opens in your phone's browser.",
+  "front.cta.exploreMap": "Explore the Map",
+
+  "front.stat.destinations": "Tourist Destinations",
+  "front.stat.categories": "Destination Categories",
+  "front.stat.tour360.value": "360°",
+  "front.stat.tour360.label": "Virtual Tour Preview",
+  "front.stat.free.value": "100%",
+  "front.stat.free.label": "Free & Mobile-Friendly",
+
+  "front.qr.eyebrow": "Scan to Explore",
+  "front.qr.body": "One scan. No app to install — just point your camera and go.",
+
+  "front.featured.heading": "Featured Destinations",
 } as const;
 
 export type UIKey = keyof typeof EN_UI;
@@ -196,6 +212,22 @@ const TL_UI: Partial<Record<UIKey, string>> = {
   "install.android": "Idagdag sa home screen para sa mas mabilis, offline-friendly na access.",
   "install.button": "I-install",
   "install.dismiss": "Isara",
+
+  "front.hero.body":
+    "{count} dambana, talon, resort, at parke sa buong San Jose del Monte — bawat isa ay minapa, may larawan, at mapapanood sa 360°. Walang kailangang i-download: i-scan ang QR code sa ibaba at bubukas agad ang buong gabay sa browser ng iyong telepono.",
+  "front.cta.exploreMap": "Tingnan ang Mapa",
+
+  "front.stat.destinations": "Mga Destinasyon",
+  "front.stat.categories": "Kategorya ng Lugar",
+  "front.stat.tour360.value": "360°",
+  "front.stat.tour360.label": "Preview ng Virtual Tour",
+  "front.stat.free.value": "100%",
+  "front.stat.free.label": "Libre at Mobile-Friendly",
+
+  "front.qr.eyebrow": "I-scan Para Mag-explore",
+  "front.qr.body": "Isang scan lang. Walang app na i-i-install — itutok lang ang kamera at handa na.",
+
+  "front.featured.heading": "Mga Tampok na Destinasyon",
 };
 
 const UI: Record<Locale, Partial<Record<UIKey, string>>> = { en: EN_UI, tl: TL_UI };
