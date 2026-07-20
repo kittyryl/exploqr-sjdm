@@ -7,6 +7,7 @@ import LocaleToggle from "@/components/controls/LocaleToggle";
 import HomeHero from "@/components/home/HomeHero";
 import StatGrid from "@/components/home/StatGrid";
 import QRCard from "@/components/home/QRCard";
+import FeaturedDestinations from "@/components/home/FeaturedDestinations";
 
 export default function Home() {
   return (
@@ -26,6 +27,7 @@ export default function Home() {
           <HomeHero />
           <StatGrid />
           <QRCard />
+          <FeaturedDestinations />
         </div>
       </main>
     </MotionConfig>
