@@ -156,6 +156,37 @@ trap, `aria-modal`, and `aria-labelledby`. Thumbnails keep `aria-pressed`. The h
 button gets its own `aria-label` via `media.heroLabel`. Page-level
 `MotionConfig reducedMotion="user"` continues to govern all animation.
 
+## Changes made during implementation
+
+Three things the design got wrong, corrected while building:
+
+1. **The hero shows the *active* media, not just the lead one, and hosts the
+   360° viewer in place.** As specified, replacing the main panel with a hero
+   left nothing to host the active item — the thumbnail strip would have had no
+   visible effect, and the interactive viewer no home. The hero now renders
+   whatever the strip selects, and entering 360° swaps the still for the live
+   Pannellum canvas, hiding (but keeping mounted) the title overlay so
+   `aria-labelledby` still resolves. `useSpotMedia` gained `panoOpen`,
+   `openPano`, `closePano`, and `selectImage`; a new `media.exit360` string
+   labels the exit control.
+
+2. **Attribution falls back to the whole strip.** The credit line tracked only
+   the active *photo*, so a spot whose panorama holds the hero displayed three
+   Wikimedia photos as thumbnails with no visible credit. This was inherited
+   from `SpotMedia` rather than introduced here, but it contradicts the
+   licensing rule stated above. The strip now credits each distinct
+   contributor behind the photos whenever no single photo is active.
+
+3. **The fact grid needed noun-form labels.** Reusing `spot.contact` and
+   `spot.website` was wrong — they read as actions ("Call {number}", "Visit
+   website") because they label links. Added `spot.contactLabel` and
+   `spot.websiteLabel` alongside `spot.hours`, `spot.amenities`, `spot.photos`,
+   and `spot.view360`.
+
+Amenities were left unset on every spot: populating them means asserting facts
+about real destinations that nobody has confirmed. `data/spots.ts` documents
+the shape in its header and carries a commented-out example.
+
 ## Verification
 
 1. `npx tsc --noEmit`

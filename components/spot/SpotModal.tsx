@@ -127,7 +127,7 @@ export default function SpotModal({ spot, onClose, distanceKm }: SpotModalProps)
             // but with `static` the button skipped this panel entirely and
             // anchored to the fixed backdrop instead, landing in the
             // viewport's corner rather than the modal's.
-            className="absolute inset-0 flex h-full w-full flex-col overflow-y-auto bg-surface outline-none sm:relative sm:h-auto sm:max-h-[85vh] sm:w-full sm:max-w-2xl sm:rounded-2xl sm:shadow-2xl"
+            className="absolute inset-0 flex h-full w-full flex-col overflow-y-auto bg-surface outline-none sm:relative sm:h-auto sm:max-h-[88vh] sm:w-full sm:max-w-2xl sm:rounded-[20px] sm:shadow-2xl"
           >
             <div className="sticky top-0 z-10 flex items-center gap-2.5 border-b border-line bg-surface/95 px-3 py-3 backdrop-blur sm:hidden">
               <button
@@ -151,22 +151,22 @@ export default function SpotModal({ spot, onClose, distanceKm }: SpotModalProps)
               onClick={onClose}
               aria-label={t("modal.close")}
               // bg-scrim, not the ink-tinted treatment the mobile back button
-              // uses: this button floats directly over the media panel's photo
-              // (see SpotDetailCard's md:order-2 layout), which can be any
-              // brightness, so it needs its own opaque-enough backing rather
-              // than one that depends on a light `surface` background behind it.
+              // uses: this button floats directly over SpotHero's photo, which
+              // can be any brightness, so it needs its own opaque-enough
+              // backing rather than one that depends on a light `surface`
+              // background behind it.
               className="absolute right-3 top-3 z-10 hidden h-8 w-8 items-center justify-center rounded-full bg-scrim/80 text-white backdrop-blur-sm transition-colors hover:bg-scrim/95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:flex"
             >
               <X size={16} aria-hidden="true" />
             </button>
 
-            <div className="p-5 sm:p-6">
-              <SpotDetailCard
-                spot={spot}
-                titleId={titleId}
-                distanceKm={distanceKm}
-              />
-            </div>
+            {/* No padding wrapper: the detail card leads with a full-bleed
+                hero and pads its own body. */}
+            <SpotDetailCard
+              spot={spot}
+              titleId={titleId}
+              distanceKm={distanceKm}
+            />
           </motion.div>
         </motion.div>
       )}

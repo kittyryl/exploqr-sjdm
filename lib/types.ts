@@ -39,6 +39,10 @@ export interface Spot {
   fee?: LocaleText;
   contact?: string;
   website?: string;
+  // Short facilities on offer — parking, restrooms, wifi. Rendered as pills in
+  // the detail modal; the whole section is omitted when this is absent, since
+  // an empty amenities list reads as "none available" rather than "unconfirmed".
+  amenities?: LocaleText[];
 }
 
 export interface UserLocation {

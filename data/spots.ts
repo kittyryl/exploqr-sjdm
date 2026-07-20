@@ -18,6 +18,10 @@
 //   contact — phone number as dialed locally, e.g. "0917 123 4567".
 //             Rendered as a tel: link, so keep it a real number.
 //   website — full https:// URL; the label is derived from the hostname.
+//   amenities — short facilities on offer, rendered as pills. Each entry is
+//             translatable, so ["Parking", { en: "Restrooms", tl: "Palikuran" }]
+//             is valid. Omit the field entirely rather than passing [] — an
+//             empty list reads as "we checked and there are none".
 //   icon    — lucide icon name override (see ICON_OVERRIDES in lib/categories.js)
 //   images  — [{ src, credit, license, page }] real photos of the spot.
 //             All current photos are freely-licensed works from Wikimedia
@@ -37,14 +41,61 @@ export const spots: Spot[] = [
     name: "Our Lady of Lourdes Grotto Shrine",
     barangay: "Graceville",
     category: "religious",
+    // Amenities are unset on every spot until someone confirms them on the
+    // ground. The shape, once you have real ones — each entry translatable:
+    //
+    //   amenities: [
+    //     "Parking",
+    //     { en: "Restrooms", tl: "Palikuran" },
+    //     { en: "Souvenir shop", tl: "Tindahan ng souvenir" },
+    //   ],
     lat: 14.793467,
     lng: 121.06674,
     description: {
-      en: "A large Marian shrine modeled on the Rosary Basilica in Lourdes, France, with a hillside grotto, Stations of the Cross, and a spring devotees visit for its believed healing properties.",
+      en: "Kilalang pilgrimage site at religious destination na dinarayo ng mga deboto. The Our Lady of Lourdes Grotto Shrine is a prominent Roman Catholic pilgrimage site in Graceville, San Jose del Monte City, Bulacan.",
       tl: "Malaking dambanang Marian na hango sa Rosary Basilica sa Lourdes, France, may kuweba sa gilid ng burol, Stations of the Cross, at bukal na dinadalaw ng mga deboto dahil sa paniniwalang nakapagpapagaling nito.",
     },
     hours: { en: "Open daily", tl: "Bukas araw-araw" },
-    openHours: { open: "05:00", close: "20:00" },
+    openHours: { open: "06:00", close: "20:00" },
+    images: [
+      {
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Our_Lady_of_Lourdes_Shrine_San_Jose_del_Monte_City_16.jpg/960px-Our_Lady_of_Lourdes_Shrine_San_Jose_del_Monte_City_16.jpg",
+        credit: "Obandoeño12345",
+        license: "CC BY-SA 4.0",
+        page: "https://commons.wikimedia.org/wiki/File:Our_Lady_of_Lourdes_Shrine_San_Jose_del_Monte_City_16.jpg",
+      },
+      {
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Our_Lady_of_Lourdes_Shrine_San_Jose_del_Monte_City_11.jpg/960px-Our_Lady_of_Lourdes_Shrine_San_Jose_del_Monte_City_11.jpg",
+        credit: "Obandoeño12345",
+        license: "CC BY-SA 4.0",
+        page: "https://commons.wikimedia.org/wiki/File:Our_Lady_of_Lourdes_Shrine_San_Jose_del_Monte_City_11.jpg",
+      },
+      {
+        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Our_Lady_of_Lourdes_Shrine_San_Jose_del_Monte_City_25.jpg/960px-Our_Lady_of_Lourdes_Shrine_San_Jose_del_Monte_City_25.jpg",
+        credit: "Obandoeño12345",
+        license: "CC BY-SA 4.0",
+        page: "https://commons.wikimedia.org/wiki/File:Our_Lady_of_Lourdes_Shrine_San_Jose_del_Monte_City_25.jpg",
+      },
+    ],
+    // DUMMY placeholder for testing the 360° viewer — this is a church interior
+    // in Cruzy, France, not the Grotto. Swap for a real SJDM panorama before launch.
+    // Credit: "Panorama Sphérique", CC BY-SA, Wikimedia Commons.
+    pano360:
+      "https://upload.wikimedia.org/wikipedia/commons/7/7e/%28Panorama_Spherique%29_PlaceEglise_Cruzy_France.jpg",
+  },
+  {
+    id: "grottovista",
+    name: "Grotto Vista Resort",
+    barangay: "Graceville",
+    category: "leisure",
+    lat: 14.7919973,
+    lng: 121.0588505,
+    description: {
+      en: "Kilalang pilgrimage site at religious destination na dinarayo ng mga deboto.  The Our Lady of Lourdes Grotto Shrine is a prominent Roman Catholic pilgrimage site in Graceville, San Jose del Monte City, Bulacan. Situated on a 25-hectare expanse approximately 30 kilometers northeast of Manila. Established as a replica of the Basilica of Our Lady of Lourdes in France, it features a man-made grotto, a miraculous spring, and expansive devotional areas that draw thousands of visitors annually, especially during Holy Week for prayer, processions, and meditation. The shrine's origins trace back to 1961, when Anita Guidote-Guanzon experienced a miraculous recovery from cancer following a pilgrimage to Lourdes, France, prompting her and her husband Horacio Guanzon to construct the site as an act of thanksgiving.",
+      tl: "Malaking dambanang Marian na hango sa Rosary Basilica sa Lourdes, France, may kuweba sa gilid ng burol, Stations of the Cross, at bukal na dinadalaw ng mga deboto dahil sa paniniwalang nakapagpapagaling nito.",
+    },
+    hours: { en: "Open daily", tl: "Bukas araw-araw" },
+    openHours: { open: "06:00", close: "20:00" },
     images: [
       {
         src: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Our_Lady_of_Lourdes_Shrine_San_Jose_del_Monte_City_16.jpg/960px-Our_Lady_of_Lourdes_Shrine_San_Jose_del_Monte_City_16.jpg",
@@ -87,6 +138,23 @@ export const spots: Spot[] = [
       tl: "Martes–Linggo, 6 AM–5 PM (sarado tuwing Lunes)",
     },
     openHours: { open: "06:00", close: "17:00", closedDays: [1] },
+  },
+    {
+    id: "tungtong",
+    name: "Tungtong Falls",
+    barangay: "Sto. Cristo",
+    category: "nature",
+    lat: 14.812765,
+    lng: 121.0747165,
+    description: {
+      en: "A hillside shrine topped with a towering statue of Padre Pio, reached by a climb that rewards visitors with views over the Sierra Madre foothills.",
+      tl: "Dambana sa gilid ng burol na may nakatayong malaking estatwa ni Padre Pio, aabutin sa pamamagitan ng pag-akyat na gagantimpalaan ng tanawin ng mga paanan ng Sierra Madre.",
+    },
+    hours: {
+      en: "Tue–Sun, 6 AM–5 PM (closed Mondays)",
+      tl: "Martes–Linggo, 6 AM–5 PM (sarado tuwing Lunes)",
+    },
+    openHours: { open: "07:00", close: "17:00", closedDays: [1] },
   },
   {
     id: "balagbag",

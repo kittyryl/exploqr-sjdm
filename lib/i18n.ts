@@ -28,7 +28,7 @@ const EN_UI = {
   "theme.dark": "Dark",
   "theme.system": "System",
 
-  "hero.eyebrow": "San Jose del Monte · Bulacan · Philippines",
+  "hero.eyebrow": "Digital Tourism Guide · San Jose del Monte, Bulacan",
 
   // The headline is the four nouns that were buried mid-sentence in the old
   // hero; the sentence keeps the rest. Each word is its own key because each
@@ -69,6 +69,14 @@ const EN_UI = {
   "spot.fee": "Entrance",
   "spot.contact": "Call {number}",
   "spot.website": "Visit website",
+  // `spot.contact`/`spot.website` above read as actions because they label
+  // links; the fact grid needs the same fields named as nouns.
+  "spot.hours": "Hours",
+  "spot.contactLabel": "Contact",
+  "spot.websiteLabel": "Website",
+  "spot.amenities": "Amenities",
+  "spot.photos": "Photos",
+  "spot.view360": "360° View",
 
   "status.open": "Open now",
   "status.closed": "Closed now",
@@ -83,6 +91,8 @@ const EN_UI = {
   "media.panoThumbLabel": "Show 360° panorama",
   "media.alt": "{name} — photo {index} of {total}",
   "media.panoLabel": "360° panorama of {name}",
+  "media.heroLabel": "View media for {name}",
+  "media.exit360": "Exit 360° view",
 
   "modal.back": "Back to map",
   "modal.close": "Close",
@@ -143,6 +153,12 @@ const TL_UI: Partial<Record<UIKey, string>> = {
   "spot.fee": "Pasukan",
   "spot.contact": "Tumawag sa {number}",
   "spot.website": "Bisitahin ang website",
+  "spot.hours": "Oras",
+  "spot.contactLabel": "Kontak",
+  "spot.websiteLabel": "Website",
+  "spot.amenities": "Mga Amenity",
+  "spot.photos": "Mga Litrato",
+  "spot.view360": "360° na Tanawin",
 
   "status.open": "Bukas ngayon",
   "status.closed": "Sarado ngayon",
@@ -157,6 +173,8 @@ const TL_UI: Partial<Record<UIKey, string>> = {
   "media.panoThumbLabel": "Ipakita ang 360° na panorama",
   "media.alt": "{name} — larawan {index} ng {total}",
   "media.panoLabel": "360° na panorama ng {name}",
+  "media.heroLabel": "Tingnan ang media ng {name}",
+  "media.exit360": "Lumabas sa 360° na tanawin",
 
   "modal.back": "Bumalik sa mapa",
   "modal.close": "Isara",
