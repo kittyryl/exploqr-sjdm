@@ -41,7 +41,7 @@ export default function SegmentedToggle<T extends string>({
             onClick={() => onChange(option.value)}
             aria-pressed={isActive}
             title={option.title}
-            className={`${optionClassName} transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink ${
+            className={`tactile ${optionClassName} transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ink ${
               isActive ? "bg-ink text-paper" : "bg-transparent text-ink/70 hover:text-ink"
             }`}
           >

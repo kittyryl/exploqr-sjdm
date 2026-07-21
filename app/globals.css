@@ -204,6 +204,21 @@ body {
   display: none;
 }
 
+/* Shared press feedback for clickable pills/icon buttons across the app —
+   PILL_BUTTON_BASE (lib/styles.ts), the segmented toggles, the spot
+   modal's close/back buttons, the photo lightbox's controls, and the
+   photo strip thumbnails all opt in via this one class, so a press always
+   feels the same everywhere rather than just swapping color. */
+.tactile {
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.tactile:hover {
+  transform: scale(1.04);
+}
+.tactile:active {
+  transform: scale(0.94);
+}
+
 /* Leaflet chrome, tuned to the page */
 .leaflet-container {
   font-family: var(--font-sans);
@@ -389,6 +404,15 @@ body {
 .leaflet-bar a.leaflet-disabled {
   background: color-mix(in srgb, var(--ink) 4%, var(--surface));
   color: color-mix(in srgb, var(--ink) 35%, transparent);
+}
+.leaflet-bar a:not(.leaflet-disabled) {
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.leaflet-bar a:not(.leaflet-disabled):hover {
+  transform: scale(1.08);
+}
+.leaflet-bar a:not(.leaflet-disabled):active {
+  transform: scale(0.92);
 }
 
 /* Gentle entrance for the detail card when the selection changes */
@@ -593,6 +617,14 @@ body {
   .leaflet-tooltip.spot-tooltip,
   .leaflet-tooltip.spot-tooltip > * {
     animation: none;
+  }
+  .tactile,
+  .tactile:hover,
+  .tactile:active {
+    transform: none;
+  }
+  .leaflet-bar a {
+    transform: none;
   }
 }
 

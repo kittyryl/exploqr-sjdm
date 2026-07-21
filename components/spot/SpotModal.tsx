@@ -134,7 +134,7 @@ export default function SpotModal({ spot, onClose, distanceKm }: SpotModalProps)
                 type="button"
                 onClick={onClose}
                 aria-label={t("modal.back")}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink/70 transition-colors hover:bg-ink/5 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+                className="tactile flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink/70 transition-colors hover:bg-ink/5 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
               >
                 <ArrowLeft size={18} aria-hidden="true" />
               </button>
@@ -155,7 +155,7 @@ export default function SpotModal({ spot, onClose, distanceKm }: SpotModalProps)
               // can be any brightness, so it needs its own opaque-enough
               // backing rather than one that depends on a light `surface`
               // background behind it.
-              className="absolute right-3 top-3 z-10 hidden h-8 w-8 items-center justify-center rounded-full bg-scrim/80 text-white backdrop-blur-sm transition-colors hover:bg-scrim/95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:flex"
+              className="tactile absolute right-3 top-3 z-10 hidden h-8 w-8 items-center justify-center rounded-full bg-scrim/80 text-white backdrop-blur-sm transition-colors hover:bg-scrim/95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:flex"
             >
               <X size={16} aria-hidden="true" />
             </button>

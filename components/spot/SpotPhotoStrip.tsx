@@ -8,7 +8,7 @@ import type { SpotMediaState } from "@/lib/hooks/useSpotMedia";
 import type { Spot } from "@/lib/types";
 
 const THUMB =
-  "h-11 w-14 shrink-0 overflow-hidden rounded-lg border transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink";
+  "tactile h-11 w-14 shrink-0 overflow-hidden rounded-lg border transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink";
 
 // Picks which media the hero shows. The 360° panorama leads the strip when a
 // spot has one, mirroring its place at the head of the media sequence.
