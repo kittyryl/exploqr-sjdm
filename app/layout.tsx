@@ -1,9 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import {
-  Bricolage_Grotesque,
-  Instrument_Sans,
-  Space_Mono,
-} from "next/font/google";
+import { Fraunces, Instrument_Sans, Space_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 import "./globals.css";
 import ServiceWorkerRegister from "@/components/layout/ServiceWorkerRegister";
@@ -12,9 +8,14 @@ import Footer from "@/components/layout/Footer";
 import { LocaleProvider } from "@/components/providers/LocaleProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
-const display = Bricolage_Grotesque({
-  variable: "--font-bricolage",
+// Sierra Dawn's display face: an expressive high-contrast oldstyle serif.
+// Italic is loaded too — the hero's "Find your" kicker and the ampersand
+// lean on it, so the face has to carry a real italic, not a synthesised slant.
+const display = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
+  style: ["normal", "italic"],
+  display: "swap",
 });
 
 const body = Instrument_Sans({
@@ -62,8 +63,8 @@ export const viewport: Viewport = {
   // Matches the page's own paper in each theme, so the browser/OS chrome
   // doesn't sit as a bright bar above a dark app.
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fafaf7" },
-    { media: "(prefers-color-scheme: dark)", color: "#141917" },
+    { media: "(prefers-color-scheme: light)", color: "#fbf5ea" },
+    { media: "(prefers-color-scheme: dark)", color: "#17110a" },
   ],
 };
 

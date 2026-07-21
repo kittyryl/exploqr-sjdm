@@ -81,6 +81,7 @@ const EN_UI = {
   "spot.amenities": "Amenities",
   "spot.photos": "Photos",
   "spot.view360": "360° View",
+  "spot.no360": "360° tour coming soon",
 
   "status.open": "Open now",
   "status.closed": "Closed now",
@@ -112,7 +113,7 @@ const EN_UI = {
   "install.dismiss": "Dismiss",
 
   "front.hero.body":
-    "{count} shrines, waterfalls, resorts, and parks across San Jose del Monte — each one mapped, photographed, and previewable in 360°. No download required: scan the QR code and the whole guide opens in your phone's browser.",
+    "From pilgrim shrines to hidden waterfalls — {count} destinations across San Jose del Monte, every one mapped, photographed, and walkable in 360°. No app, no download: scan the code and the whole guide opens in your phone.",
 
   "front.stat.destinations": "Tourist Destinations",
   "front.stat.categories": "Destination Categories",
@@ -121,6 +122,31 @@ const EN_UI = {
 
   "front.qr.eyebrow": "Scan to Explore",
   "front.qr.body": "One scan. No app to install — just point your camera and go.",
+
+  "hero.kicker": "Find your",
+  "hero.feature.gallery": "Photo galleries",
+  "hero.feature.tour": "Immersive 360° tours",
+  "hero.feature.directions": "One-tap directions",
+
+  "map.cap.eyebrow": "Interactive Map",
+  "map.cap.meta": "{count} pins · {categories} categories",
+
+  "feedback.eyebrow": "We're listening",
+  "feedback.title": "Been somewhere we missed?",
+  "feedback.body":
+    "Tell the City Tourism Office what to add, fix, or feature next — a hidden falls, a new café, a better photo. Every note lands straight in our inbox.",
+  "feedback.name": "Your name",
+  "feedback.name.placeholder": "Juan dela Cruz",
+  "feedback.email": "Email",
+  "feedback.email.placeholder": "you@email.com",
+  "feedback.message": "Message",
+  "feedback.message.placeholder": "Share a spot, a photo, or feedback…",
+  "feedback.submit": "Send feedback",
+  "feedback.sending": "Sending…",
+  "feedback.note": "Sent securely to the tourism office inbox",
+  "feedback.success": "Salamat! Your feedback is on its way.",
+  "feedback.error": "Something went wrong — please try again, or email us directly.",
+  "feedback.config": "Feedback isn't configured yet. Add your Web3Forms key to enable it.",
 } as const;
 
 export type UIKey = keyof typeof EN_UI;
@@ -178,6 +204,7 @@ const TL_UI: Partial<Record<UIKey, string>> = {
   "spot.amenities": "Mga Amenity",
   "spot.photos": "Mga Litrato",
   "spot.view360": "360° na Tanawin",
+  "spot.no360": "Malapit nang magkaroon ng 360°",
 
   "status.open": "Bukas ngayon",
   "status.closed": "Sarado ngayon",
@@ -209,7 +236,7 @@ const TL_UI: Partial<Record<UIKey, string>> = {
   "install.dismiss": "Isara",
 
   "front.hero.body":
-    "{count} dambana, talon, resort, at parke sa buong San Jose del Monte — bawat isa ay minapa, may larawan, at mapapanood sa 360°. Walang kailangang i-download: i-scan ang QR code at bubukas agad ang buong gabay sa browser ng iyong telepono.",
+    "Mula sa mga dambana hanggang sa tagong talon — {count} destinasyon sa buong San Jose del Monte, bawat isa'y minapa, may larawan, at malalakbay sa 360°. Walang app, walang download: i-scan ang code at bubukas agad ang buong gabay sa iyong telepono.",
 
   "front.stat.destinations": "Mga Destinasyon",
   "front.stat.categories": "Kategorya ng Lugar",
@@ -218,6 +245,31 @@ const TL_UI: Partial<Record<UIKey, string>> = {
 
   "front.qr.eyebrow": "I-scan Para Mag-explore",
   "front.qr.body": "Isang scan lang. Walang app na i-i-install — itutok lang ang kamera at handa na.",
+
+  "hero.kicker": "Hanapin ang iyong",
+  "hero.feature.gallery": "Mga larawan",
+  "hero.feature.tour": "360° na tour",
+  "hero.feature.directions": "Direksyon sa isang pindot",
+
+  "map.cap.eyebrow": "Interaktibong Mapa",
+  "map.cap.meta": "{count} pin · {categories} kategorya",
+
+  "feedback.eyebrow": "Nakikinig kami",
+  "feedback.title": "May napuntahan ka bang hindi namin nailista?",
+  "feedback.body":
+    "Sabihin sa City Tourism Office kung ano ang idaragdag, aayusin, o itatampok — isang tagong talon, bagong café, o mas magandang litrato. Diretso sa aming inbox ang bawat mensahe.",
+  "feedback.name": "Iyong pangalan",
+  "feedback.name.placeholder": "Juan dela Cruz",
+  "feedback.email": "Email",
+  "feedback.email.placeholder": "ikaw@email.com",
+  "feedback.message": "Mensahe",
+  "feedback.message.placeholder": "Magbahagi ng lugar, litrato, o puna…",
+  "feedback.submit": "Ipadala",
+  "feedback.sending": "Ipinapadala…",
+  "feedback.note": "Ligtas na ipinapadala sa inbox ng tourism office",
+  "feedback.success": "Salamat! Papunta na ang iyong mensahe.",
+  "feedback.error": "May naganap na mali — subukan muli, o mag-email sa amin nang diretso.",
+  "feedback.config": "Hindi pa naka-set up ang feedback. Idagdag ang Web3Forms key.",
 };
 
 const UI: Record<Locale, Partial<Record<UIKey, string>>> = { en: EN_UI, tl: TL_UI };

@@ -7,7 +7,9 @@ import SpotAmenities from "@/components/spot/SpotAmenities";
 import SpotPhotoStrip from "@/components/spot/SpotPhotoStrip";
 import SpotActions from "@/components/spot/SpotActions";
 import PhotoLightbox from "@/components/spot/PhotoLightbox";
+import PanoOverlay from "@/components/spot/PanoOverlay";
 import { useSpotMedia } from "@/lib/hooks/useSpotMedia";
+import { CATEGORIES } from "@/lib/categories";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import type { Spot } from "@/lib/types";
 
@@ -32,6 +34,7 @@ export default function SpotDetailCard({
 }: SpotDetailCardProps) {
   const { text } = useLocale();
   const media = useSpotMedia(spot);
+  const cat = CATEGORIES[spot.category];
 
   return (
     <article className="spot-card">
@@ -43,7 +46,13 @@ export default function SpotDetailCard({
       />
 
       <div className="flex flex-col gap-6 p-5 sm:p-6">
-        <p className="max-w-prose text-[15px] leading-relaxed text-ink/80">
+        {/* The lead paragraph carries a category-coloured rule — a quiet echo
+            of the pin that opened this spot, and a bit of editorial weight on
+            what is otherwise plain body copy. */}
+        <p
+          className="max-w-prose border-l-2 pl-4 text-[15px] leading-relaxed text-ink/80"
+          style={{ borderColor: cat.accent }}
+        >
           {text(spot.description)}
         </p>
 
@@ -53,12 +62,11 @@ export default function SpotDetailCard({
         <SpotActions spot={spot} media={media} />
       </div>
 
-      {/* AnimatePresence delays PhotoLightbox's actual unmount until its own
-          exit animation finishes — required for the shared-layout photo
-          transition (see PhotoLightbox) to FLIP back to the hero on close
-          instead of just vanishing. */}
+      {/* AnimatePresence delays each overlay's unmount until its own exit
+          animation finishes. Only one is ever open at a time — opening the
+          lightbox closes the panorama and vice-versa (see useSpotMedia). */}
       <AnimatePresence>
-        {media.lightboxOpen && media.active !== "pano" && (
+        {media.lightboxOpen && (
           <PhotoLightbox
             key="photo-lightbox"
             images={media.images}
@@ -69,6 +77,17 @@ export default function SpotDetailCard({
             onClose={media.closeLightbox}
             onPrev={() => media.step(-1)}
             onNext={() => media.step(1)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {media.panoOpen && spot.pano360 && (
+          <PanoOverlay
+            key="pano-overlay"
+            src={spot.pano360}
+            title={text(spot.name)}
+            onClose={media.closePano}
           />
         )}
       </AnimatePresence>

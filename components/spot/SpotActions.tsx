@@ -38,16 +38,18 @@ export default function SpotActions({
           <Navigation size={15} aria-hidden="true" />
           {t("spot.directions")}
         </a>
-        {media.hasPano && (
-          <button
-            type="button"
-            onClick={media.openPano}
-            className={`${ACTION} border border-line bg-surface text-ink hover:bg-ink/4`}
-          >
-            <Rotate3d size={15} aria-hidden="true" />
-            {t("spot.view360")}
-          </button>
-        )}
+        {/* Always shown so the panorama is a discoverable feature; disabled
+            and greyed when this spot has no 360° yet, rather than vanishing. */}
+        <button
+          type="button"
+          onClick={media.openPano}
+          disabled={!media.hasPano}
+          title={media.hasPano ? undefined : t("spot.no360")}
+          className={`${ACTION} border border-line bg-surface text-ink hover:bg-ink/4 disabled:cursor-not-allowed disabled:border-dashed disabled:bg-transparent disabled:text-ink/40 disabled:hover:translate-y-0 disabled:hover:bg-transparent`}
+        >
+          <Rotate3d size={15} aria-hidden="true" />
+          {media.hasPano ? t("spot.view360") : t("spot.no360")}
+        </button>
       </div>
     </div>
   );

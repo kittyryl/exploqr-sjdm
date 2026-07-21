@@ -12,6 +12,7 @@ import CategoryFilter, { type CategoryFilterKey } from "@/components/controls/Ca
 import NearMeToggle from "@/components/controls/NearMeToggle";
 import SpotModal from "@/components/spot/SpotModal";
 import HomeTopBar from "@/components/home/HomeTopBar";
+import FeedbackForm from "@/components/home/FeedbackForm";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import type { Spot, UserLocation } from "@/lib/types";
 
@@ -126,7 +127,7 @@ export default function Home() {
 
   return (
     <MotionConfig reducedMotion="user" transition={{ duration: 0.3 }}>
-      <header className="sticky top-0 z-10 border-b border-line bg-paper/90 backdrop-blur">
+      <header className="sticky top-0 z-20 border-b border-line/70 bg-paper/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl flex-col gap-y-2.5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-x-6 sm:px-6">
           <div className="flex items-center justify-between gap-2">
             <Wordmark />
@@ -147,30 +148,70 @@ export default function Home() {
             </div>
           </div>
         </div>
+        {/* The category spectrum as a hairline — the same legend the pins and
+            headline use, threaded under the whole top bar. */}
+        <div
+          aria-hidden="true"
+          className="cat-rainbow pointer-events-none absolute inset-x-0 bottom-0 h-[2px] opacity-60"
+        />
       </header>
 
       <main className="flex-1">
-        <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-          <HomeTopBar />
-
-          <div className="mb-3 mt-5 flex justify-end">
-            <NearMeToggle
-              active={Boolean(userLocation)}
-              loading={locating}
-              error={locationError}
-              onClick={handleNearMe}
-            />
-          </div>
-
-          <div className="rise-in relative z-0 mb-8 h-[440px] overflow-hidden rounded-2xl border border-line sm:h-[560px]">
-            <SpotMap
-              spots={orderedVisible}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-              userLocation={userLocation}
-            />
+        {/* Full-bleed dawn band: the hero's sunrise gradient and contour
+            rings break out of the max-width column, then fade into the paper
+            so the map below sits on calm ground (see .hero-band). */}
+        <div className="hero-band">
+          <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+            <HomeTopBar />
           </div>
         </div>
+
+        <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+          <div className="mb-3 mt-9 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+            <div className="min-w-0">
+              <p
+                className="font-mono text-[11px] uppercase tracking-widest"
+                style={{ color: "var(--cat-nature-accent)" }}
+              >
+                {t("map.cap.eyebrow")}
+              </p>
+              <h2 className="mt-1 font-display text-lg font-bold tracking-[-0.02em] text-ink sm:text-2xl">
+                <span aria-hidden="true" style={{ color: "var(--cat-leisure-fill)" }}>
+                  ◉{" "}
+                </span>
+                San Jose del Monte, Bulacan
+              </h2>
+            </div>
+            <div className="shrink-0">
+              <NearMeToggle
+                active={Boolean(userLocation)}
+                loading={locating}
+                error={locationError}
+                onClick={handleNearMe}
+              />
+            </div>
+          </div>
+
+          {/* The map sits in a warm mat with four survey ticks — the same
+              cartographic lineage as the pins' printed-map shape. */}
+          <div className="map-shell relative mb-4 rounded-3xl border border-line p-3 shadow-[0_1px_2px_rgba(58,38,16,0.06),0_10px_30px_-14px_rgba(58,38,16,0.3)] sm:p-4">
+            <span className="survey-tick" style={{ top: 14, left: 14, borderTopWidth: 1.5, borderLeftWidth: 1.5 }} />
+            <span className="survey-tick" style={{ top: 14, right: 14, borderTopWidth: 1.5, borderRightWidth: 1.5 }} />
+            <span className="survey-tick" style={{ bottom: 14, left: 14, borderBottomWidth: 1.5, borderLeftWidth: 1.5 }} />
+            <span className="survey-tick" style={{ bottom: 14, right: 14, borderBottomWidth: 1.5, borderRightWidth: 1.5 }} />
+
+            <div className="rise-in relative z-0 h-[440px] overflow-hidden rounded-2xl border border-line sm:h-[560px]">
+              <SpotMap
+                spots={orderedVisible}
+                selectedId={selectedId}
+                onSelect={setSelectedId}
+                userLocation={userLocation}
+              />
+            </div>
+          </div>
+        </div>
+
+        <FeedbackForm />
       </main>
 
       <SpotModal

@@ -12,11 +12,31 @@
    On muted text: /70 is the floor for AA. /60 composites to 4.2:1 on paper —
    close enough to look fine and still fail. Measure before lowering it. */
 :root {
-  --paper: #fafaf7;
-  --ink: #1c2321;
-  --line: #e6e6df;
-  --surface: #ffffff;
-  --map-backdrop: #f2f2ee;
+  --paper: #fbf5ea;
+  --ink: #2a1e12;
+  --line: #e7d8c0;
+  --line-strong: #d8c4a4;
+  --surface: #fffdf8;
+  --map-backdrop: #f2ead9;
+
+  /* Sierra Dawn: the sunrise gradient behind the hero and the sun that lights
+     it. Warm and loud on purpose — this band is the page's one bold moment,
+     and everything below it stays quiet paper. */
+  --dawn-top: #ffe7c6;
+  --dawn-mid: #fbc488;
+  --dawn-low: #f3a67b;
+  --sun: #ffdd97;
+
+  /* A decor palette beyond the five category hues — used for the stat cards,
+     hero washes, feature marks, and the feedback panel so the surface reads
+     as colourful rather than a single accent on cream. Legible as text on
+     both grounds; the dark block relightens them. */
+  --coral: #d85f3c;
+  --teal: #0e8f80;
+  --gold: #c98a12;
+  --rose: #d64e83;
+  --violet: #6a54c9;
+  --sky: #2f7fc0;
 
   /* Deliberately NOT themed. Scrims behind the modal and the photo lightbox
      have to stay dark in both modes — they're derived from `ink` no longer,
@@ -86,11 +106,26 @@
    rule, and this is small enough that an indirection layer isn't worth it. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #141917;
-    --ink: #eceee9;
-    --line: #2c3532;
-    --surface: #1b211f;
-    --map-backdrop: #101413;
+    --paper: #17110a;
+    --ink: #f4e8d6;
+    --line: #3a2a18;
+    --line-strong: #4e3a22;
+    --surface: #221a11;
+    --map-backdrop: #14100a;
+
+    /* Sierra Dusk: the sunrise becomes an ember glow over a warm night. */
+    --dawn-top: #241708;
+    --dawn-mid: #3e2612;
+    --dawn-low: #582f17;
+    --sun: #b4711f;
+
+    /* Decor hues relit for a dark ground. */
+    --coral: #f0a081;
+    --teal: #43c9ba;
+    --gold: #edbd52;
+    --rose: #f39cc0;
+    --violet: #b3aef2;
+    --sky: #79b6e6;
 
     /* Accents lighten and tints darken, keeping each pair's contrast. The
        directions button flips with them: a light accent needs dark text. */
@@ -117,11 +152,24 @@
 }
 
 :root[data-theme="dark"] {
-  --paper: #141917;
-  --ink: #eceee9;
-  --line: #2c3532;
-  --surface: #1b211f;
-  --map-backdrop: #101413;
+  --paper: #17110a;
+  --ink: #f4e8d6;
+  --line: #3a2a18;
+  --line-strong: #4e3a22;
+  --surface: #221a11;
+  --map-backdrop: #14100a;
+
+  --dawn-top: #241708;
+  --dawn-mid: #3e2612;
+  --dawn-low: #582f17;
+  --sun: #b4711f;
+
+  --coral: #f0a081;
+  --teal: #43c9ba;
+  --gold: #edbd52;
+  --rose: #f39cc0;
+  --violet: #b3aef2;
+  --sky: #79b6e6;
 
   --cat-religious-accent: #b9b4f5;
   --cat-religious-tint: #2a2748;
@@ -148,10 +196,21 @@
   --color-paper: var(--paper);
   --color-ink: var(--ink);
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-surface: var(--surface);
   --color-scrim: var(--scrim);
 
-  --font-display: var(--font-bricolage), ui-sans-serif, sans-serif;
+  --color-coral: var(--coral);
+  --color-teal: var(--teal);
+  --color-gold: var(--gold);
+  --color-rose: var(--rose);
+  --color-violet: var(--violet);
+  --color-sky: var(--sky);
+
+  /* Display is now the Fraunces serif (see app/layout.tsx). The variable is
+     still named for the face it loads; every `font-display` use-site inherits
+     the swap for free. */
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono-face), ui-monospace, monospace;
 }
@@ -186,6 +245,24 @@ body {
     );
   background-size: 200px 200px, 200px 200px, 40px 40px, 40px 40px;
   color: var(--ink);
+}
+
+/* Ambient gradient wash: soft pools of the decor hues in the page's corners,
+   a fixed layer behind all content so the body reads as coloured light rather
+   than flat cream. The grid paper shows through it (the pools are translucent),
+   and opaque surfaces — the hero band, the map, the panels — paint over it, so
+   the colour lives in the calm gaps and pools most at the bottom of the page. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 52% at 100% 100%, color-mix(in srgb, var(--violet) 15%, transparent), transparent 66%),
+    radial-gradient(58% 50% at 0% 96%, color-mix(in srgb, var(--teal) 14%, transparent), transparent 64%),
+    radial-gradient(54% 44% at 100% 2%, color-mix(in srgb, var(--gold) 11%, transparent), transparent 70%),
+    radial-gradient(48% 40% at 0% 4%, color-mix(in srgb, var(--rose) 9%, transparent), transparent 72%);
 }
 
 /* The full-bleed band under the spot grid. A translucent wash rather than an
@@ -685,3 +762,167 @@ body {
 /* The spot modal's and photo lightbox's open/close animations both live in
    their own components now (SpotModal.tsx, PhotoLightbox.tsx) via Motion's
    AnimatePresence. */
+
+/* ============================================================
+   Sierra Dawn — the redesign's own surfaces
+   ============================================================ */
+
+/* Full-bleed dawn band behind the hero/top bar. The warm gradient is the
+   page's single loud moment; the ::before layers topographic contour rings
+   (repeating-radial-gradient from the sun in the upper-right — the survey grid
+   grown up into elevation lines), and the ::after fades the whole thing into
+   the paper so the map below lands on calm ground. `isolation` pins the
+   pseudo-layers behind the content without a z-index fight. */
+.hero-band {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(75% 65% at 8% -18%, color-mix(in srgb, var(--violet) 55%, transparent) 0%, transparent 46%),
+    radial-gradient(120% 95% at 84% -12%, var(--sun) 0%, transparent 48%),
+    radial-gradient(85% 82% at 68% 132%, color-mix(in srgb, var(--rose) 42%, transparent) 0%, transparent 58%),
+    radial-gradient(62% 62% at 26% 124%, color-mix(in srgb, var(--teal) 30%, transparent) 0%, transparent 60%),
+    linear-gradient(180deg, var(--dawn-top) 0%, var(--dawn-mid) 46%, var(--dawn-low) 100%);
+}
+.hero-band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: repeating-radial-gradient(
+    circle at 86% -8%,
+    transparent 0 46px,
+    color-mix(in srgb, var(--ink) 7%, transparent) 46px 47px,
+    transparent 47px 92px
+  );
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 92%);
+  mask-image: linear-gradient(180deg, #000 0%, transparent 92%);
+}
+.hero-band::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, transparent 44%, var(--paper) 100%);
+}
+:root[data-theme="dark"] .hero-band::before,
+:root:not([data-theme="light"]) .hero-band::before {
+  background: repeating-radial-gradient(
+    circle at 86% -8%,
+    transparent 0 46px,
+    color-mix(in srgb, var(--sun) 22%, transparent) 46px 47px,
+    transparent 47px 92px
+  );
+}
+
+/* Colored stat tiles. Each carries a category/decor hue via --c set inline:
+   a 10% wash ground, a matching hairline, and a 3px top rule, with the number
+   pulled toward the hue. Legible in both themes because --c relights in dark. */
+.stat-card {
+  background: color-mix(in srgb, var(--c, var(--ink)) 10%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--c, var(--line)) 30%, var(--line));
+  border-top: 3px solid var(--c, var(--line));
+  border-radius: 14px;
+}
+.stat-card b {
+  color: color-mix(in srgb, var(--c, var(--ink)) 68%, var(--ink));
+}
+
+/* The one highlighted phrase in the hero lede — a soft gold marker-wash under
+   the baseline rather than a solid fill, so it reads as emphasis, not a chip. */
+.lede-hi {
+  color: var(--ink);
+  box-shadow: inset 0 -0.42em 0 color-mix(in srgb, var(--gold) 32%, transparent);
+}
+
+/* Hero italic bits lean on Fraunces' real italic. */
+.hero-kicker {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* The map cartouche's survey ticks — four L-shaped corner marks on the mat,
+   the same cartographic language as the pins' printed-map lineage. */
+.survey-tick {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  z-index: 2;
+  pointer-events: none;
+  border: 0 solid var(--line-strong);
+}
+
+/* The map's mat and the feedback panel share a cool jade-and-sage wash — the
+   "out exploring the foothills" zone, deliberately green against the warm dawn
+   hero above. On the map the face paints opaque over the centre, so the
+   gradient reads as a coloured frame glowing through the rounded corners. */
+.map-shell {
+  background:
+    radial-gradient(78% 98% at 0% 0%, color-mix(in srgb, var(--cat-nature-fill) 26%, transparent), transparent 58%),
+    radial-gradient(78% 98% at 100% 100%, color-mix(in srgb, var(--cat-parks-fill) 24%, transparent), transparent 58%),
+    radial-gradient(66% 88% at 100% 0%, color-mix(in srgb, var(--teal) 22%, transparent), transparent 60%),
+    radial-gradient(60% 80% at 0% 100%, color-mix(in srgb, var(--teal) 16%, transparent), transparent 62%),
+    var(--surface);
+}
+
+.fb-panel {
+  background:
+    radial-gradient(92% 122% at 100% 0%, color-mix(in srgb, var(--cat-nature-fill) 18%, transparent), transparent 60%),
+    radial-gradient(82% 122% at 0% 100%, color-mix(in srgb, var(--cat-parks-fill) 16%, transparent), transparent 55%),
+    radial-gradient(72% 120% at 50% 122%, color-mix(in srgb, var(--teal) 14%, transparent), transparent 62%),
+    var(--surface);
+}
+.fb-submit {
+  background: linear-gradient(135deg, var(--teal), color-mix(in srgb, var(--cat-nature-fill) 72%, var(--teal)));
+  box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--teal) 70%, transparent);
+}
+.fb-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+.fb-submit:disabled {
+  opacity: 0.75;
+  cursor: default;
+}
+.fb-field {
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.fb-field:focus {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 22%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fb-submit:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* A hairline spectrum of the five category fills — the map legend rendered as
+   a thread. It underlines the top bar and crowns the footer, so the app is
+   bookended by the same colour system the pins and headline speak. */
+.cat-rainbow {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--cat-religious-fill) 14%,
+    var(--cat-nature-fill) 35%,
+    var(--cat-parks-fill) 53%,
+    var(--cat-resorts-fill) 71%,
+    var(--cat-leisure-fill) 88%,
+    transparent 100%
+  );
+}
+
+/* Footer ground: the page closes on a fuller gradient than it opened — gold,
+   violet, and teal pooled into the corners so the bottom of the page carries
+   real colour, not just a whisper. */
+.app-footer {
+  background:
+    radial-gradient(95% 135% at 0% 0%, color-mix(in srgb, var(--gold) 15%, transparent), transparent 55%),
+    radial-gradient(85% 125% at 100% 100%, color-mix(in srgb, var(--violet) 15%, transparent), transparent 55%),
+    radial-gradient(75% 120% at 55% 100%, color-mix(in srgb, var(--teal) 12%, transparent), transparent 60%),
+    color-mix(in srgb, var(--ink) 3%, var(--paper));
+}
