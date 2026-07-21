@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { LocateFixed, Loader2 } from "lucide-react";
 import { CATEGORIES } from "@/lib/categories";
 import {
@@ -20,6 +21,17 @@ interface NearMeToggleProps {
 // plus an inline error line (e.g. permission denied) when geolocation fails.
 export default function NearMeToggle({ active, loading, error, onClick }: NearMeToggleProps) {
   const { t } = useLocale();
+  const wasActive = useRef(active);
+  const [burst, setBurst] = useState(0);
+
+  // Fires once per successful location lock (false→true) — not on every
+  // re-render while `active` stays true, and not on mount if `active` ever
+  // started out true.
+  useEffect(() => {
+    if (active && !wasActive.current) setBurst((n) => n + 1);
+    wasActive.current = active;
+  }, [active]);
+
   return (
     <div className="flex flex-col items-end gap-1">
       <button
@@ -27,10 +39,18 @@ export default function NearMeToggle({ active, loading, error, onClick }: NearMe
         onClick={onClick}
         disabled={loading}
         aria-pressed={active}
-        className={`${PILL_BUTTON_BASE} disabled:opacity-60 ${
+        className={`relative ${PILL_BUTTON_BASE} disabled:opacity-60 ${
           active ? PILL_BUTTON_ACTIVE : PILL_BUTTON_INACTIVE
         }`}
       >
+        {burst > 0 && (
+          <span
+            key={burst}
+            aria-hidden="true"
+            className="locate-pulse"
+            style={{ color: CATEGORIES.nature.fill }}
+          />
+        )}
         {loading ? (
           <Loader2 size={14} className="animate-spin" aria-hidden="true" />
         ) : (

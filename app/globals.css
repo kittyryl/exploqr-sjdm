@@ -608,6 +608,21 @@ body {
   }
 }
 
+/* One-shot celebratory ring for Near Me's successful location lock — same
+   visual language as the map's own selected-pin pulse (.spot-marker-pulse),
+   reused here because "you've been found" deserves the same small
+   flourish. Runs once per lock: NearMeToggle gives the element a fresh
+   `key` on each false→true transition, which replays the animation on
+   mount rather than looping. */
+.locate-pulse {
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  border: 2px solid currentColor;
+  pointer-events: none;
+  animation: marker-pulse 0.9s ease-out 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rise-in {
     animation: none;
@@ -638,6 +653,9 @@ body {
   }
   .chip-select-pop {
     animation: none;
+  }
+  .locate-pulse {
+    display: none;
   }
 }
 
