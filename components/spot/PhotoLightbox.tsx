@@ -142,7 +142,7 @@ export default function PhotoLightbox({
           onClick={(e) => e.stopPropagation()}
           className="relative h-[80vh] w-full max-w-5xl"
         >
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={img.src}
               initial={{ opacity: 0 }}

@@ -15,13 +15,14 @@ import { useLocale } from "@/components/providers/LocaleProvider";
 // animation) when `enabled` is false, so the numbers never look "stuck" for
 // anyone who's asked their OS for less motion.
 function useCountUp(target: number, enabled: boolean): number {
-  const [display, setDisplay] = useState(enabled ? 0 : target);
+  const [display, setDisplay] = useState(target);
 
   useEffect(() => {
     if (!enabled) {
       setDisplay(target);
       return;
     }
+    setDisplay(0);
     const controls = animate(0, target, {
       duration: 0.9,
       ease: "easeOut",
