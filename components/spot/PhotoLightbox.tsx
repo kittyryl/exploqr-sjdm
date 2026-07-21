@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
+import { AnimatePresence, motion } from "motion/react";
 import { X, ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
 import { useFocusTrap } from "@/lib/hooks/useFocusTrap";
 import { useImageFallback } from "@/lib/hooks/useImageFallback";
@@ -11,6 +12,7 @@ import type { SpotImage } from "@/lib/types";
 interface PhotoLightboxProps {
   images: SpotImage[];
   index: number;
+  spotId: string;
   spotName: string;
   // Whether the surrounding media set has more than one item to page through.
   // Passed in because the cycle can include a 360° panorama, which isn't part
@@ -25,9 +27,19 @@ interface PhotoLightboxProps {
 // SpotModal (the lightbox only ever opens from inside it); this only owns
 // its own Escape/arrow-key handling, captured ahead of the modal's Escape
 // listener so closing the lightbox doesn't also close the modal underneath.
+//
+// The photo itself shares a layoutId with SpotHero's still image
+// (`spot-photo-${spotId}`) — SpotHero hands the id off the moment this opens
+// and reclaims it once this unmounts, so Motion FLIPs the photo between the
+// hero's position and full-screen in both directions. SpotDetailCard wraps
+// this component in AnimatePresence, which is what gives the closing FLIP
+// time to play before the DOM node is actually removed. Stepping prev/next
+// keeps that outer box's layoutId fixed and just crossfades the image
+// inside it, via the nested AnimatePresence below.
 export default function PhotoLightbox({
   images,
   index,
+  spotId,
   spotName,
   navigable,
   onClose,
@@ -65,13 +77,17 @@ export default function PhotoLightbox({
   if (!img) return null;
 
   return (
-    <div
+    <motion.div
       ref={panelRef}
       role="dialog"
       aria-modal="true"
       aria-label={t("media.alt", { name: spotName, index: index + 1, total: images.length })}
       tabIndex={-1}
-      className="overlay-fade-in fixed inset-0 z-[60] flex flex-col items-center justify-center bg-scrim/95 p-4 outline-none backdrop-blur-sm"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.18, ease: "easeOut" }}
+      className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-scrim/95 p-4 outline-none backdrop-blur-sm"
       onClick={onClose}
     >
       <button
@@ -121,21 +137,33 @@ export default function PhotoLightbox({
           </p>
         </div>
       ) : (
-        <div
+        <motion.div
+          layoutId={`spot-photo-${spotId}`}
           onClick={(e) => e.stopPropagation()}
           className="relative h-[80vh] w-full max-w-5xl"
         >
-          <Image
-            src={img.src}
-            alt={t("media.alt", { name: spotName, index: index + 1, total: images.length })}
-            fill
-            sizes="100vw"
-            priority
-            ref={checkOnMount}
-            onError={onError}
-            className="object-contain drop-shadow-2xl"
-          />
-        </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={img.src}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="absolute inset-0"
+            >
+              <Image
+                src={img.src}
+                alt={t("media.alt", { name: spotName, index: index + 1, total: images.length })}
+                fill
+                sizes="100vw"
+                priority
+                ref={checkOnMount}
+                onError={onError}
+                className="object-contain drop-shadow-2xl"
+              />
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
       )}
       {!failed && (
         <p
@@ -145,6 +173,6 @@ export default function PhotoLightbox({
           {img.credit} · {img.license} · Wikimedia Commons
         </p>
       )}
-    </div>
+    </motion.div>
   );
 }

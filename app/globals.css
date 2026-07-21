@@ -682,26 +682,6 @@ body {
    me" and animating tiles that React has already unmounted are things CSS
    can't express. Nothing here should try to animate .spot-tile as well. */
 
-/* Spot modal + photo lightbox */
-.overlay-fade-in {
-  animation: overlay-fade-in 0.18s ease-out;
-}
-
-@keyframes overlay-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* The spot modal's own open/close animation now lives in SpotModal.js via
-   Motion's AnimatePresence (it needed a real *exit*, which CSS can't drive on
-   unmount). Only the shared .overlay-fade-in below remains — the photo
-   lightbox still uses it. */
-@media (prefers-reduced-motion: reduce) {
-  .overlay-fade-in {
-    animation: none;
-  }
-}
+/* The spot modal's and photo lightbox's open/close animations both live in
+   their own components now (SpotModal.tsx, PhotoLightbox.tsx) via Motion's
+   AnimatePresence. */

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import { motion } from "motion/react";
 import { ImageOff, LocateFixed, MapPin, Minimize2, ZoomIn } from "lucide-react";
 import { CATEGORIES, spotIcon, barangayLabel } from "@/lib/categories";
 import { formatDistance } from "@/lib/geo";
@@ -57,42 +58,56 @@ export default function SpotHero({ spot, media, titleId, distanceKm }: SpotHeroP
   const showStill = Boolean(stillSrc) && !failed;
   const photoIndex = active === "pano" ? null : active;
 
+  // The still photo and PhotoLightbox's photo share this id so Motion can
+  // FLIP the photo between them. Exactly one of the two ever claims it:
+  // this hero holds it while the lightbox is closed, and hands it off
+  // (sets its own layoutId to undefined) the instant the lightbox opens —
+  // see PhotoLightbox for the other half of the hand-off.
+  const photoLayoutId = `spot-photo-${spot.id}`;
+
   return (
     <div className="relative h-47.5 shrink-0 overflow-hidden bg-ink/4">
       {panoOpen && hasPano ? (
-        <>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className="absolute inset-0"
+        >
           <Pano360Viewer src={spot.pano360!} title={text(spot.name)} />
           <button
             type="button"
             onClick={media.closePano}
             aria-label={t("media.exit360")}
-            className="absolute left-3 top-3 z-3 flex h-8 w-8 items-center justify-center rounded-full bg-scrim/80 text-white backdrop-blur-sm transition-colors hover:bg-scrim/95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="tactile absolute left-3 top-3 z-3 flex h-8 w-8 items-center justify-center rounded-full bg-scrim/80 text-white backdrop-blur-sm transition-colors hover:bg-scrim/95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             <Minimize2 size={15} aria-hidden="true" />
           </button>
-        </>
+        </motion.div>
       ) : showStill ? (
-        <Image
-          src={stillSrc!}
-          alt={
-            photoIndex == null
-              ? t("media.panoLabel", { name: text(spot.name) })
-              : t("media.alt", {
-                  name: text(spot.name),
-                  index: photoIndex + 1,
-                  total: images.length,
-                })
-          }
-          fill
-          sizes="(min-width: 640px) 42rem, 100vw"
-          // Next 16 deprecated `priority` in favour of `preload`; for an
-          // above-the-fold image inside an on-demand panel, eager loading is
-          // the honest signal — the panel only mounts once it's wanted.
-          loading="eager"
-          ref={checkOnMount(stillSrc!)}
-          onError={() => markFailed(stillSrc!)}
-          className="object-cover"
-        />
+        <motion.div
+          layoutId={media.lightboxOpen ? undefined : photoLayoutId}
+          className="absolute inset-0"
+        >
+          <Image
+            src={stillSrc!}
+            alt={
+              photoIndex == null
+                ? t("media.panoLabel", { name: text(spot.name) })
+                : t("media.alt", {
+                    name: text(spot.name),
+                    index: photoIndex + 1,
+                    total: images.length,
+                  })
+            }
+            fill
+            sizes="(min-width: 640px) 42rem, 100vw"
+            loading="eager"
+            ref={checkOnMount(stillSrc!)}
+            onError={() => markFailed(stillSrc!)}
+            className="object-cover"
+          />
+        </motion.div>
       ) : failed ? (
         <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-ink/70">
           <ImageOff size={22} aria-hidden="true" />

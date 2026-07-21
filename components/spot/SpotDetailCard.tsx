@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence } from "motion/react";
 import SpotHero from "@/components/spot/SpotHero";
 import SpotFactGrid from "@/components/spot/SpotFactGrid";
 import SpotAmenities from "@/components/spot/SpotAmenities";
@@ -52,17 +53,25 @@ export default function SpotDetailCard({
         <SpotActions spot={spot} media={media} />
       </div>
 
-      {media.lightboxOpen && media.active !== "pano" && (
-        <PhotoLightbox
-          images={media.images}
-          index={media.active}
-          spotName={text(spot.name)}
-          navigable={media.total > 1}
-          onClose={media.closeLightbox}
-          onPrev={() => media.step(-1)}
-          onNext={() => media.step(1)}
-        />
-      )}
+      {/* AnimatePresence delays PhotoLightbox's actual unmount until its own
+          exit animation finishes — required for the shared-layout photo
+          transition (see PhotoLightbox) to FLIP back to the hero on close
+          instead of just vanishing. */}
+      <AnimatePresence>
+        {media.lightboxOpen && media.active !== "pano" && (
+          <PhotoLightbox
+            key="photo-lightbox"
+            images={media.images}
+            index={media.active}
+            spotId={spot.id}
+            spotName={text(spot.name)}
+            navigable={media.total > 1}
+            onClose={media.closeLightbox}
+            onPrev={() => media.step(-1)}
+            onNext={() => media.step(1)}
+          />
+        )}
+      </AnimatePresence>
     </article>
   );
 }
