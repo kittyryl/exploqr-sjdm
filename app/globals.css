@@ -577,6 +577,18 @@ body {
     0 6px 14px rgba(0, 0, 0, 0.35);
 }
 
+/* A little life before the click: pins rock slightly on hover. Written as
+   full transform values per state (not a bare rotate() layered on top),
+   because `transform` doesn't compose across rules — the selected state's
+   scale and the hover rotation each need their combined value spelled
+   out. */
+.spot-marker__dot:hover {
+  transform: rotate(-3deg);
+}
+.spot-marker--selected .spot-marker__dot:hover {
+  transform: scale(1.18) rotate(-3deg);
+}
+
 /* The ring that keeps breathing around the selected pin — the map's only
    looping animation, and it earns it by marking what's currently open. Hidden
    until selected. */
@@ -656,6 +668,12 @@ body {
   }
   .locate-pulse {
     display: none;
+  }
+  .spot-marker__dot:hover {
+    transform: none;
+  }
+  .spot-marker--selected .spot-marker__dot:hover {
+    transform: scale(1.18);
   }
 }
 
