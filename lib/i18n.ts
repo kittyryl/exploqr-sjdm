@@ -116,9 +116,7 @@ const EN_UI = {
 
   "front.stat.destinations": "Tourist Destinations",
   "front.stat.categories": "Destination Categories",
-  "front.stat.tour360.value": "360°",
   "front.stat.tour360.label": "Virtual Tour Preview",
-  "front.stat.free.value": "100%",
   "front.stat.free.label": "Free & Mobile-Friendly",
 
   "front.qr.eyebrow": "Scan to Explore",
@@ -215,9 +213,7 @@ const TL_UI: Partial<Record<UIKey, string>> = {
 
   "front.stat.destinations": "Mga Destinasyon",
   "front.stat.categories": "Kategorya ng Lugar",
-  "front.stat.tour360.value": "360°",
   "front.stat.tour360.label": "Preview ng Virtual Tour",
-  "front.stat.free.value": "100%",
   "front.stat.free.label": "Libre at Mobile-Friendly",
 
   "front.qr.eyebrow": "I-scan Para Mag-explore",
