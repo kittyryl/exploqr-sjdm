@@ -219,6 +219,15 @@ body {
   transform: scale(0.94);
 }
 
+@keyframes chip-select-pop {
+  45% {
+    transform: scale(1.08);
+  }
+}
+.chip-select-pop {
+  animation: chip-select-pop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 /* Leaflet chrome, tuned to the page */
 .leaflet-container {
   font-family: var(--font-sans);
@@ -626,6 +635,9 @@ body {
   .leaflet-bar a:not(.leaflet-disabled):hover,
   .leaflet-bar a:not(.leaflet-disabled):active {
     transform: none;
+  }
+  .chip-select-pop {
+    animation: none;
   }
 }
 

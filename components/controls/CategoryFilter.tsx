@@ -60,7 +60,7 @@ export default function CategoryFilter({ spots, active, onChange }: CategoryFilt
                     }
                   : undefined
               }
-              className={`${PILL_BUTTON_BASE} ${
+              className={`${PILL_BUTTON_BASE} ${isActive ? "chip-select-pop" : ""} ${
                 isActive
                   ? chip.block
                     ? ""
