@@ -623,7 +623,8 @@ body {
   .tactile:active {
     transform: none;
   }
-  .leaflet-bar a {
+  .leaflet-bar a:not(.leaflet-disabled):hover,
+  .leaflet-bar a:not(.leaflet-disabled):active {
     transform: none;
   }
 }
