@@ -7,6 +7,7 @@ import InstallPrompt from "@/components/layout/InstallPrompt";
 import Footer from "@/components/layout/Footer";
 import { LocaleProvider } from "@/components/providers/LocaleProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { Analytics } from "@vercel/analytics/next";
 
 // Sierra Dawn's display face: an expressive high-contrast oldstyle serif.
 // Italic is loaded too — the hero's "Find your" kicker and the ampersand
@@ -83,6 +84,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <Footer />
           </LocaleProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
