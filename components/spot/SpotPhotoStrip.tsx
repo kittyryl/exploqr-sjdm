@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Camera, ImageOff, ZoomIn } from "lucide-react";
 import SectionTitle from "@/components/spot/SectionTitle";
 import { useLocale } from "@/components/providers/LocaleProvider";
+import { proxiedSrc } from "@/lib/images";
 import type { SpotMediaState } from "@/lib/hooks/useSpotMedia";
 import type { Spot } from "@/lib/types";
 
@@ -61,7 +62,7 @@ export default function SpotPhotoStrip({
             ) : (
               <>
                 <Image
-                  src={img.src}
+                  src={proxiedSrc(img.src)}
                   alt=""
                   fill
                   sizes="(min-width: 640px) 10rem, 45vw"

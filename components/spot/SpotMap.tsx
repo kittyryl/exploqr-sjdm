@@ -15,6 +15,7 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { CATEGORIES, spotIcon } from "@/lib/categories";
+import { proxiedSrc } from "@/lib/images";
 import { sjdmBoundary } from "@/data/sjdmBoundary";
 import { barangays } from "@/data/barangays";
 import { barangaysWithSpots } from "@/lib/barangays";
@@ -108,7 +109,7 @@ function markerIcon(spot: Spot, index: number): L.DivIcon {
   const photo = spot.images?.[0]?.src;
   const img = photo
     ? `<img class="spot-marker__img" alt="" loading="lazy" decoding="async"
-        src="/_next/image?url=${encodeURIComponent(photo)}&w=96&q=70"
+        src="/_next/image?url=${encodeURIComponent(proxiedSrc(photo))}&w=96&q=70"
         onerror="this.remove()">`
     : "";
   // The aria-label isn't localized to the current UI language — this HTML

@@ -7,6 +7,7 @@ import { X, ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
 import { useFocusTrap } from "@/lib/hooks/useFocusTrap";
 import { useImageFallback } from "@/lib/hooks/useImageFallback";
 import { useLocale } from "@/components/providers/LocaleProvider";
+import { proxiedSrc } from "@/lib/images";
 import type { SpotImage } from "@/lib/types";
 
 interface PhotoLightboxProps {
@@ -152,7 +153,7 @@ export default function PhotoLightbox({
               className="absolute inset-0"
             >
               <Image
-                src={img.src}
+                src={proxiedSrc(img.src)}
                 alt={t("media.alt", { name: spotName, index: index + 1, total: images.length })}
                 fill
                 sizes="100vw"

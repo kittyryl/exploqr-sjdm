@@ -7,6 +7,7 @@ import { CATEGORIES, spotIcon, barangayLabel } from "@/lib/categories";
 import { formatDistance } from "@/lib/geo";
 import { useImageFallback } from "@/lib/hooks/useImageFallback";
 import { useLocale } from "@/components/providers/LocaleProvider";
+import { proxiedSrc } from "@/lib/images";
 import type { Spot } from "@/lib/types";
 
 // One spring for the whole grid, so tiles that are arriving, leaving, and
@@ -83,7 +84,7 @@ function SpotTile({ spot, index, selected, onSelect, distanceKm, ref }: SpotTile
         {showPhoto && src ? (
           <>
             <Image
-              src={src}
+              src={proxiedSrc(src)}
               alt=""
               fill
               sizes="(min-width: 1024px) 320px, 45vw"

@@ -7,15 +7,25 @@ const nextConfig = {
   // affects `next dev` — production builds have no such restriction.
   allowedDevOrigins: ["192.168.*.*", "10.*.*.*"],
 
-  // Spot photos are hotlinked from Wikimedia Commons; without this the
-  // optimizer refuses them and next/image throws at render.
+  // Spot photos are hotlinked from Wikimedia Commons, but next/image's
+  // built-in optimizer fetches remote sources with no User-Agent header —
+  // Wikimedia rejects those outright. Every photo goes through
+  // /api/spot-photo instead (see that route), which re-fetches with a
+  // descriptive UA, so next/image never talks to Wikimedia directly and
+  // no remotePatterns entry is needed here.
+  //
+  // localPatterns is required for that: Next 16 defaults local images to
+  // `search: ''`, i.e. no query string allowed, so /api/spot-photo?src=...
+  // gets a flat 400 unless explicitly allowlisted. `src`'s actual value is
+  // validated inside the route itself (https + upload.wikimedia.org only),
+  // so leaving `search` unset here (allow any query string) is safe. The
+  // `**`/search:'' entry is Next's own default for every other local
+  // image (no query string) — spelling it out here since setting
+  // `localPatterns` at all replaces that default instead of adding to it.
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "upload.wikimedia.org",
-        pathname: "/wikipedia/commons/**",
-      },
+    localPatterns: [
+      { pathname: "**", search: "" },
+      { pathname: "/api/spot-photo" },
     ],
   },
 
