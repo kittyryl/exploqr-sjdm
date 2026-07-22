@@ -6,6 +6,7 @@ import SpotFactGrid from "@/components/spot/SpotFactGrid";
 import SpotAmenities from "@/components/spot/SpotAmenities";
 import SpotPhotoStrip from "@/components/spot/SpotPhotoStrip";
 import SpotActions from "@/components/spot/SpotActions";
+import SpotReviews from "@/components/spot/SpotReviews";
 import PhotoLightbox from "@/components/spot/PhotoLightbox";
 import PanoOverlay from "@/components/spot/PanoOverlay";
 import { useSpotMedia } from "@/lib/hooks/useSpotMedia";
@@ -60,6 +61,7 @@ export default function SpotDetailCard({
         <SpotAmenities spot={spot} />
         <SpotPhotoStrip spot={spot} media={media} />
         <SpotActions spot={spot} media={media} />
+        <SpotReviews spot={spot} />
       </div>
 
       {/* AnimatePresence delays each overlay's unmount until its own exit

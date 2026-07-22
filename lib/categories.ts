@@ -12,7 +12,7 @@ import {
 import type { CategoryKey, Spot } from "@/lib/types";
 import type { UIKey } from "@/lib/i18n";
 
-interface CategoryTokens {
+export interface CategoryTokens {
   fill: string;
   accent: string;
   tint: string;

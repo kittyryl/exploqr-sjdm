@@ -63,3 +63,15 @@ export interface UserLocation {
   lat: number;
   lng: number;
 }
+
+// A visitor's heart rating + optional comment on a spot. Persisted in
+// Supabase (see supabase/schema.sql); `device_id` is an anonymous per-browser
+// id (lib/hooks/useDeviceId.ts), not a real account.
+export interface Review {
+  id: string;
+  device_id: string;
+  name: string | null;
+  hearts: number;
+  comment: string | null;
+  created_at: string;
+}
