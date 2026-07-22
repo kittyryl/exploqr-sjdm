@@ -109,7 +109,7 @@ function markerIcon(spot: Spot, index: number): L.DivIcon {
   const photo = spot.images?.[0]?.src;
   const img = photo
     ? `<img class="spot-marker__img" alt="" loading="lazy" decoding="async"
-        src="/_next/image?url=${encodeURIComponent(proxiedSrc(photo))}&w=96&q=70"
+        src="/_next/image?url=${encodeURIComponent(proxiedSrc(photo))}&w=96&q=75"
         onerror="this.remove()">`
     : "";
   // The aria-label isn't localized to the current UI language — this HTML
@@ -184,7 +184,10 @@ function BarangayLayer({ spots }: { spots: Spot[] }) {
             key={b.name}
             positions={b.rings as L.LatLngExpression[][]}
             interactive={false}
-            pathOptions={{ className: `map-brgy map-brgy--${b.tint}` }}
+            eventHandlers={{
+              add: (e) =>
+                e.target.getElement()?.classList.add("map-brgy", `map-brgy--${b.tint}`),
+            }}
           >
             {(hasSpot || zoom >= b.minZoom) && (
               <Tooltip
@@ -301,12 +304,18 @@ export default function SpotMap({ spots, selectedId, onSelect, userLocation }: S
       <BarangayLayer spots={spots} />
       {/* Dim everything outside the city. fillColor/color are dead values that
           the .map-dim-mask / .map-boundary CSS rules override — Leaflet can't
-          write a var() into an SVG attribute. */}
+          write a var() into an SVG attribute. className goes through
+          eventHandlers.add rather than pathOptions: react-leaflet's
+          setStyle-based pathOptions update never touches the DOM class
+          attribute (only Leaflet's own _initPath does, once, before that
+          update runs), so a className in pathOptions is silently a no-op —
+          the path was rendering with Leaflet's stock blue until this
+          switched to the same getElement()-on-add pattern the markers use. */}
       <Polygon
         positions={[WORLD_RING, ...sjdmBoundary] as L.LatLngExpression[][]}
         interactive={false}
+        eventHandlers={{ add: (e) => e.target.getElement()?.classList.add("map-dim-mask") }}
         pathOptions={{
-          className: "map-dim-mask",
           stroke: false,
           // Enough wash to make the city read as the subject, not so much that
           // the surrounding terrain becomes more blank page. Worth less now
@@ -318,8 +327,8 @@ export default function SpotMap({ spots, selectedId, onSelect, userLocation }: S
       <Polygon
         positions={sjdmBoundary as L.LatLngExpression[][]}
         interactive={false}
+        eventHandlers={{ add: (e) => e.target.getElement()?.classList.add("map-boundary") }}
         pathOptions={{
-          className: "map-boundary",
           weight: 1.5,
           opacity: 0.55,
           dashArray: "5 5",
