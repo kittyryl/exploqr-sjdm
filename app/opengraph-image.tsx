@@ -15,9 +15,9 @@ export const alt =
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const PAPER = "#fafaf7";
-const INK = "#1c2321";
-const INK_MUTED = "rgba(28, 35, 33, 0.7)";
+const PAPER = "#F8F9FA";
+const INK = "#04191C";
+const INK_MUTED = "rgba(4, 25, 28, 0.7)";
 const RELIGIOUS = CATEGORY_HEX.religious;
 const NATURE = CATEGORY_HEX.nature;
 const LEISURE = CATEGORY_HEX.leisure;

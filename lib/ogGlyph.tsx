@@ -9,12 +9,12 @@ import type { CSSProperties } from "react";
 // one place those values are hardcoded, so they only need to stay in sync
 // with app/globals.css in one spot instead of three.
 export const CATEGORY_HEX = {
-  religious: { fill: "#7f77dd", accent: "#3c3489" },
-  nature: { fill: "#1d9e75", accent: "#0f6e56" },
-  leisure: { fill: "#d85a30", accent: "#993c1d" },
+  religious: { fill: "#5A51B8", accent: "#7066D3" },
+  nature: { fill: "#51B897", accent: "#268366" },
+  leisure: { fill: "#B86B51", accent: "#BB5836" },
 };
 
-const INK = "#1c2321";
+const INK = "#04191C";
 
 function square(
   x: number,

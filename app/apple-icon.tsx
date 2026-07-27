@@ -14,7 +14,7 @@ export default function AppleIcon() {
 
   return new ImageResponse(
     (
-      <div style={{ width: canvas, height: canvas, background: "#fafaf7", display: "flex" }}>
+      <div style={{ width: canvas, height: canvas, background: "#F8F9FA", display: "flex" }}>
         <div
           style={{
             position: "relative",

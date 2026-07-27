@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
-/* Field-guide palette: warm paper, green-tinted ink, hairline rule.
+/* Rose Quartz palette: cool platinum paper, petrol ink, hairline rule.
    Category colors live in lib/categories.js and are applied inline.
 
    Dark mode keeps the same three roles rather than inverting literally —
-   paper becomes a warm near-black, ink a warm off-white, and `line` lifts
+   paper becomes Midnight Navy, ink becomes Cloud White, and `line` lifts
    instead of darkening (a hairline that's *lighter* than its surface is what
    reads as a rule on a dark ground). Every `text-ink/70`-style opacity in the
    app therefore keeps working in both themes with no `dark:` variant.
@@ -12,37 +12,52 @@
    On muted text: /70 is the floor for AA. /60 composites to 4.2:1 on paper —
    close enough to look fine and still fail. Measure before lowering it. */
 :root {
-  --paper: #fbf5ea;
-  --ink: #2a1e12;
-  --line: #e7d8c0;
-  --line-strong: #d8c4a4;
-  --surface: #fffdf8;
-  --map-backdrop: #f2ead9;
+  /* Rose Quartz: Midnight Navy, Brush Platinum, Rose Gold, Cloud White. A cool,
+     editorial palette in place of the old field-guide cream — near-black
+     petrol ink, a platinum surface a half-step off white, and one warm metal
+     (rose gold) doing all the accent work instead of a rainbow of hues. */
+  --paper: #F8F9FA;
+  --ink: #04191C;
+  --line: #E0E3E4;
+  --line-strong: #C7CCCE;
+  --surface: #E5E4E2;
+  --map-backdrop: #E9ECED;
 
-  /* Sierra Dawn: the sunrise gradient behind the hero and the sun that lights
-     it. Warm and loud on purpose — this band is the page's one bold moment,
-     and everything below it stays quiet paper. */
-  --dawn-top: #ffe7c6;
-  --dawn-mid: #fbc488;
-  --dawn-low: #f3a67b;
-  --sun: #ffdd97;
+  /* The hero band is a dark forest-green wash, not the old Rose Gold panel —
+     deliberately NOT themed (like --scrim below): it's already dark, so it
+     reads the same in both light and dark mode instead of inverting.
+     `sun` is still a warm highlight tint for the contour-ring overlay. */
+  --hero-1: #1e4a3b;
+  --hero-2: #16302A;
+  --hero-3: #0f2620;
+  --sun: #EFDDBE;
+
+  /* Text painted directly on the hero band (not inside a card of its own)
+     needs a theme-constant light color, like --scrim: the band is dark green
+     in both light and dark mode now, so --ink's light-mode value (near-black)
+     reads almost invisibly on it. */
+  --hero-fg: #F8F9FA;
 
   /* A decor palette beyond the five category hues — used for the stat cards,
      hero washes, feature marks, and the feedback panel so the surface reads
-     as colourful rather than a single accent on cream. Legible as text on
+     as more than a single accent on platinum. `teal` is Midnight Navy's own
+     hue lifted to a usable lightness (the base color is a near-black teal,
+     just too dark to use directly); `rose` is Rose Gold itself; `gold` and
+     `violet` are its warm and cool metallic siblings. Legible as text on
      both grounds; the dark block relightens them. */
-  --coral: #d85f3c;
-  --teal: #0e8f80;
-  --gold: #c98a12;
-  --rose: #d64e83;
-  --violet: #6a54c9;
-  --sky: #2f7fc0;
+  --coral: #CB6B4D;
+  --teal: #1B6974;
+  --gold: #BE9137;
+  --rose: #B76E79;
+  --violet: #9651A4;
+  --sky: #7C98AB;
 
   /* Deliberately NOT themed. Scrims behind the modal and the photo lightbox
      have to stay dark in both modes — they're derived from `ink` no longer,
      because an inverted ink would turn the photo viewer into a white glare
-     panel. A dimmed backdrop is dark by definition. */
-  --scrim: #101413;
+     panel. A dimmed backdrop is dark by definition; Midnight Navy already
+     is one, so it doubles as the scrim exactly. */
+  --scrim: #04191C;
 
   /* Category colors, mirrored from lib/categories.js. They live here rather
      than in JS because components apply them as inline styles, where a JS
@@ -53,32 +68,34 @@
      (it's what the map markers and the logo are made of). `accent` and
      `tint` are a contrast pair and must swap: a color legible on paper is
      invisible on ink. */
-  --cat-religious-fill: #7f77dd;
-  --cat-religious-accent: #3c3489;
-  --cat-religious-tint: #eeedfe;
+  --cat-religious-fill: #5A51B8;
+  --cat-religious-accent: #7066D3;
+  --cat-religious-tint: #EDEDF8;
   --cat-religious-btn-fg: #ffffff;
 
-  --cat-nature-fill: #1d9e75;
-  --cat-nature-accent: #0f6e56;
-  --cat-nature-tint: #e1f5ee;
+  --cat-nature-fill: #51B897;
+  --cat-nature-accent: #268366;
+  --cat-nature-tint: #EDF8F4;
   --cat-nature-btn-fg: #ffffff;
 
   /* Olive-lime, not a second green: a landscaped city park and a Sierra Madre
      waterfall are different trips, and two greens read as one category. The
-     five fills sit at 245/161/73/333/15 degrees of hue — no pair adjacent. */
-  --cat-parks-fill: #8ba52b;
-  --cat-parks-accent: #4c6111;
-  --cat-parks-tint: #f1f6da;
+     five fills sit at 245/161/73/333/15 degrees of hue — no pair adjacent —
+     re-skinned to Rose Gold's muted, metallic saturation/lightness rather
+     than the old fully-saturated rainbow. */
+  --cat-parks-fill: #A2B851;
+  --cat-parks-accent: #697D24;
+  --cat-parks-tint: #F6F8ED;
   --cat-parks-btn-fg: #ffffff;
 
-  --cat-resorts-fill: #d1508a;
-  --cat-resorts-accent: #97305f;
-  --cat-resorts-tint: #fbe9f1;
+  --cat-resorts-fill: #B8517F;
+  --cat-resorts-accent: #C8437F;
+  --cat-resorts-tint: #F8EDF2;
   --cat-resorts-btn-fg: #ffffff;
 
-  --cat-leisure-fill: #d85a30;
-  --cat-leisure-accent: #993c1d;
-  --cat-leisure-tint: #faece7;
+  --cat-leisure-fill: #B86B51;
+  --cat-leisure-accent: #BB5836;
+  --cat-leisure-tint: #F8EFED;
   --cat-leisure-btn-fg: #ffffff;
 
   /* `block` is a saturated card-sized surface carrying white text — the spot
@@ -88,11 +105,11 @@
      staying recognisably the same hue.
      Theme-constant, like --scrim: a saturated block is a block in both modes,
      and `accent` can't be reused because it inverts. */
-  --cat-religious-block: #4f46b5;
-  --cat-nature-block: #0d7357;
-  --cat-parks-block: #4f6b12;
-  --cat-resorts-block: #a8306a;
-  --cat-leisure-block: #b8471f;
+  --cat-religious-block: #6A61CA;
+  --cat-nature-block: #297C62;
+  --cat-parks-block: #657627;
+  --cat-resorts-block: #BE3F79;
+  --cat-leisure-block: #AD563A;
   --cat-block-fg: #ffffff;
 }
 
@@ -106,89 +123,82 @@
    rule, and this is small enough that an indirection layer isn't worth it. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #17110a;
-    --ink: #f4e8d6;
-    --line: #3a2a18;
-    --line-strong: #4e3a22;
-    --surface: #221a11;
-    --map-backdrop: #14100a;
+    --paper: #04191C;
+    --ink: #F8F9FA;
+    --line: #354648;
+    --line-strong: #526163;
+    --surface: #1C2F32;
+    --map-backdrop: #031517;
 
-    /* Sierra Dusk: the sunrise becomes an ember glow over a warm night. */
-    --dawn-top: #241708;
-    --dawn-mid: #3e2612;
-    --dawn-low: #582f17;
-    --sun: #b4711f;
+    --sun: #BE7A37;
 
     /* Decor hues relit for a dark ground. */
-    --coral: #f0a081;
-    --teal: #43c9ba;
-    --gold: #edbd52;
-    --rose: #f39cc0;
-    --violet: #b3aef2;
-    --sky: #79b6e6;
+    --coral: #DFA390;
+    --teal: #2E9DAC;
+    --gold: #DDC188;
+    --rose: #DB9FA8;
+    --violet: #D2A9DA;
+    --sky: #AFBFCA;
 
     /* Accents lighten and tints darken, keeping each pair's contrast. The
        directions button flips with them: a light accent needs dark text. */
-    --cat-religious-accent: #b9b4f5;
-    --cat-religious-tint: #2a2748;
+    --cat-religious-accent: #7E75DA;
+    --cat-religious-tint: #1B183A;
     --cat-religious-btn-fg: #141917;
 
-    --cat-nature-accent: #5fd6ac;
-    --cat-nature-tint: #14352c;
+    --cat-nature-accent: #279370;
+    --cat-nature-tint: #183A2F;
     --cat-nature-btn-fg: #141917;
 
-    --cat-parks-accent: #c3dd6a;
-    --cat-parks-tint: #2b330f;
+    --cat-parks-accent: #748B25;
+    --cat-parks-tint: #333A18;
     --cat-parks-btn-fg: #141917;
 
-    --cat-resorts-accent: #f5a0c4;
-    --cat-resorts-tint: #3d1a2b;
+    --cat-resorts-accent: #D2568D;
+    --cat-resorts-tint: #3A1827;
     --cat-resorts-btn-fg: #141917;
 
-    --cat-leisure-accent: #f5a283;
-    --cat-leisure-tint: #3a2018;
+    --cat-leisure-accent: #CC6441;
+    --cat-leisure-tint: #3A2018;
     --cat-leisure-btn-fg: #141917;
   }
 }
 
 :root[data-theme="dark"] {
-  --paper: #17110a;
-  --ink: #f4e8d6;
-  --line: #3a2a18;
-  --line-strong: #4e3a22;
-  --surface: #221a11;
-  --map-backdrop: #14100a;
+  --paper: #04191C;
+  --ink: #F8F9FA;
+  --line: #354648;
+  --line-strong: #526163;
+  --surface: #1C2F32;
+  --map-backdrop: #031517;
 
-  --dawn-top: #241708;
-  --dawn-mid: #3e2612;
-  --dawn-low: #582f17;
-  --sun: #b4711f;
+  --sun: #BE7A37;
 
-  --coral: #f0a081;
-  --teal: #43c9ba;
-  --gold: #edbd52;
-  --rose: #f39cc0;
-  --violet: #b3aef2;
-  --sky: #79b6e6;
+  --coral: #DFA390;
+  --teal: #2E9DAC;
+  --gold: #DDC188;
+  --rose: #DB9FA8;
+  --violet: #D2A9DA;
+  --sky: #AFBFCA;
 
-  --cat-religious-accent: #b9b4f5;
-  --cat-religious-tint: #2a2748;
+  --cat-religious-accent: #7E75DA;
+  --cat-religious-tint: #1B183A;
   --cat-religious-btn-fg: #141917;
 
-  --cat-nature-accent: #5fd6ac;
-  --cat-nature-tint: #14352c;
+  --cat-nature-accent: #279370;
+  --cat-nature-tint: #183A2F;
   --cat-nature-btn-fg: #141917;
 
-  --cat-parks-accent: #c3dd6a;
-  --cat-parks-tint: #2b330f;
+  --cat-parks-accent: #748B25;
+  --cat-parks-tint: #333A18;
   --cat-parks-btn-fg: #141917;
 
-  --cat-resorts-accent: #f5a0c4;
-  --cat-resorts-tint: #3d1a2b;
+  --cat-resorts-accent: #D2568D;
+  --cat-resorts-tint: #3A1827;
   --cat-resorts-btn-fg: #141917;
 
-  --cat-leisure-accent: #f5a283;
-  --cat-leisure-tint: #3a2018;
+  --cat-leisure-accent: #CC6441;
+  --cat-leisure-tint: #3A2018;
   --cat-leisure-btn-fg: #141917;
 }
 
@@ -199,6 +209,7 @@
   --color-line-strong: var(--line-strong);
   --color-surface: var(--surface);
   --color-scrim: var(--scrim);
+  --color-hero-fg: var(--hero-fg);
 
   --color-coral: var(--coral);
   --color-teal: var(--teal);
@@ -211,47 +222,21 @@
      still named for the face it loads; every `font-display` use-site inherits
      the swap for free. */
   --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
-  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-fraunces), ui-serif, Georgia, serif;
   --font-mono: var(--font-mono-face), ui-monospace, monospace;
 }
 
-/* The page is a field guide to a surveyed city, so the ground it sits on is
-   grid paper. Flat paper read as an unfinished page; a graticule fills it with
-   something the subject actually implies.
-   Minor rules every 40px and a major rule every 200px — the 5:1 ratio is what
-   makes it read as a survey sheet rather than a table. Both stay hairline-thin
-   and under 9% ink: texture at a glance, never competing with type. They ride
-   the `ink` token, so the whole thing inverts with the theme for free. */
 body {
   font-family: var(--font-sans);
   background-color: var(--paper);
-  background-image: linear-gradient(
-      color-mix(in srgb, var(--ink) 8%, transparent) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--ink) 8%, transparent) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      color-mix(in srgb, var(--ink) 4%, transparent) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--ink) 4%, transparent) 1px,
-      transparent 1px
-    );
-  background-size: 200px 200px, 200px 200px, 40px 40px, 40px 40px;
   color: var(--ink);
 }
 
 /* Ambient gradient wash: soft pools of the decor hues in the page's corners,
    a fixed layer behind all content so the body reads as coloured light rather
-   than flat cream. The grid paper shows through it (the pools are translucent),
-   and opaque surfaces — the hero band, the map, the panels — paint over it, so
-   the colour lives in the calm gaps and pools most at the bottom of the page. */
+   than flat paper. Opaque surfaces — the hero band, the map, the panels —
+   paint over it, so the colour lives in the calm gaps and pools most at the
+   bottom of the page. */
 body::before {
   content: "";
   position: fixed;
@@ -424,22 +409,36 @@ body::before {
   color: color-mix(in srgb, var(--ink) 85%, transparent);
 }
 
-/* Hover preview on map pins */
-/* Ink-on-paper inverts with the theme for free: in dark mode this becomes a
-   light tooltip on the dark map, which is still the high-contrast pairing. */
+/* Standing name labels under every pin — not a hover preview. Thirteen dark
+   pills sitting on the map at once would read as clutter, so the resting label
+   is a pale paper chip that lets the map through; only the selected one takes
+   the old ink treatment. Paper-on-ink inverts with the theme for free. */
 .leaflet-tooltip.spot-tooltip {
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.14);
+  /* Permanent labels sit over the map; they must never eat a pan or a click
+     meant for the pin underneath. */
+  pointer-events: none;
+}
+/* The pin already points at its own coordinate — a tooltip arrow on top of it
+   is one arrow too many. */
+.leaflet-tooltip.spot-tooltip::before {
+  display: none;
+}
+/* Selected pin's label steps forward into the old ink chip. */
+.leaflet-tooltip.spot-tooltip--selected {
   background: var(--ink);
   color: var(--paper);
-  border: none;
-  border-radius: 8px;
-  padding: 5px 10px;
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 600;
+  border-color: transparent;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
-}
-.leaflet-tooltip.spot-tooltip.leaflet-tooltip-top::before {
-  border-top-color: var(--ink);
 }
 
 /* Tooltips are created fresh on each hover, so a plain entrance animation
@@ -764,25 +763,24 @@ body::before {
    AnimatePresence. */
 
 /* ============================================================
-   Sierra Dawn — the redesign's own surfaces
+   Rose Quartz — the redesign's own surfaces
    ============================================================ */
 
-/* Full-bleed dawn band behind the hero/top bar. The warm gradient is the
-   page's single loud moment; the ::before layers topographic contour rings
-   (repeating-radial-gradient from the sun in the upper-right — the survey grid
-   grown up into elevation lines), and the ::after fades the whole thing into
-   the paper so the map below lands on calm ground. `isolation` pins the
-   pseudo-layers behind the content without a z-index fight. */
+/* Full-bleed dawn band behind the hero/top bar. A flat Rose Gold panel is the
+   page's single loud moment now — no gradient wash, just one solid colour;
+   the ::before layers topographic contour rings (repeating-radial-gradient
+   from the sun in the upper-right — the survey grid grown up into elevation
+   lines), and the ::after fades the whole thing into the paper so the map
+   below lands on calm ground. `isolation` pins the pseudo-layers behind the
+   content without a z-index fight. */
 .hero-band {
   position: relative;
   isolation: isolate;
-  background:
-    radial-gradient(75% 65% at 8% -18%, color-mix(in srgb, var(--violet) 55%, transparent) 0%, transparent 46%),
-    radial-gradient(120% 95% at 84% -12%, var(--sun) 0%, transparent 48%),
-    radial-gradient(85% 82% at 68% 132%, color-mix(in srgb, var(--rose) 42%, transparent) 0%, transparent 58%),
-    radial-gradient(62% 62% at 26% 124%, color-mix(in srgb, var(--teal) 30%, transparent) 0%, transparent 60%),
-    linear-gradient(180deg, var(--dawn-top) 0%, var(--dawn-mid) 46%, var(--dawn-low) 100%);
+  background: radial-gradient(120% 90% at 15% 0%, var(--hero-1) 0%, var(--hero-2) 55%, var(--hero-3) 100%);
 }
+/* The contour lines always use the light --sun tint now, not an --ink/--sun
+   swap per theme — the hero background is dark green in both light and dark
+   mode, so a dark-ink contour line would be nearly invisible. */
 .hero-band::before {
   content: "";
   position: absolute;
@@ -791,7 +789,7 @@ body::before {
   background: repeating-radial-gradient(
     circle at 86% -8%,
     transparent 0 46px,
-    color-mix(in srgb, var(--ink) 7%, transparent) 46px 47px,
+    color-mix(in srgb, var(--sun) 22%, transparent) 46px 47px,
     transparent 47px 92px
   );
   -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 92%);
@@ -803,15 +801,6 @@ body::before {
   inset: 0;
   z-index: -1;
   background: linear-gradient(180deg, transparent 44%, var(--paper) 100%);
-}
-:root[data-theme="dark"] .hero-band::before,
-:root:not([data-theme="light"]) .hero-band::before {
-  background: repeating-radial-gradient(
-    circle at 86% -8%,
-    transparent 0 46px,
-    color-mix(in srgb, var(--sun) 22%, transparent) 46px 47px,
-    transparent 47px 92px
-  );
 }
 
 /* Colored stat tiles. Each carries a category/decor hue via --c set inline:
@@ -853,9 +842,9 @@ body::before {
 }
 
 /* The map's mat and the feedback panel share a cool jade-and-sage wash — the
-   "out exploring the foothills" zone, deliberately green against the warm dawn
-   hero above. On the map the face paints opaque over the centre, so the
-   gradient reads as a coloured frame glowing through the rounded corners. */
+   "out exploring the foothills" zone, deliberately green against the flat
+   Rose Gold hero above. On the map the face paints opaque over the centre, so
+   the gradient reads as a coloured frame glowing through the rounded corners. */
 .map-shell {
   background:
     radial-gradient(78% 98% at 0% 0%, color-mix(in srgb, var(--cat-nature-fill) 26%, transparent), transparent 58%),
@@ -916,9 +905,9 @@ body::before {
   );
 }
 
-/* Footer ground: the page closes on a fuller gradient than it opened — gold,
-   violet, and teal pooled into the corners so the bottom of the page carries
-   real colour, not just a whisper. */
+/* Footer ground: the page closes on a soft multi-hue gradient, in contrast to
+   the flat hero panel it opened on — gold, violet, and teal pooled into the
+   corners so the bottom of the page still carries real colour. */
 .app-footer {
   background:
     radial-gradient(95% 135% at 0% 0%, color-mix(in srgb, var(--gold) 15%, transparent), transparent 55%),

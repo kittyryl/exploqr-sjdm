@@ -1,28 +1,10 @@
-import type { Locale, LocaleText } from "@/lib/types";
-
-// Bilingual support for a Bulacan tourism guide: English and Tagalog.
+// Single-language UI strings for a Bulacan tourism guide, in English.
 //
-// Any lookup missing from a locale's dictionary falls back to `en`, so the
-// app stays fully usable even if a future key is added to `en` and not yet
-// mirrored in `tl` — no half-broken intermediate state and no missing-key
-// crashes. `en` is the required source of truth (every key must exist there);
-// `tl` is a partial overlay, which is what lets that fallback design hold at
-// the type level too.
-//
-// Proper nouns (spot names, barangays, "SJDM") are not translated.
+// This app used to ship separate English and Tagalog dictionaries behind a
+// locale switch; that's gone now in favor of one language. Proper nouns (spot
+// names, barangays, "SJDM") are never translated.
 
-export const LOCALES: Locale[] = ["en", "tl"];
-export const DEFAULT_LOCALE: Locale = "en";
-export const LOCALE_STORAGE_KEY = "exploqr-locale";
-
-export const LOCALE_LABELS: Record<Locale, string> = {
-  en: "English",
-  tl: "Tagalog",
-};
-
-const EN_UI = {
-  "lang.switch": "Language",
-
+const UI = {
   "theme.switch": "Theme",
   "theme.light": "Light",
   "theme.dark": "Dark",
@@ -48,6 +30,11 @@ const EN_UI = {
 
   "filter.label": "Filter spots by category",
   "filter.all": "All spots",
+
+  "search.label": "Search destinations",
+  "search.placeholder": "Search by name, barangay, or amenity…",
+  "search.clear": "Clear search",
+  "search.empty": "No destinations match your search.",
 
   "cat.religious": "Religious",
   "cat.nature": "Nature",
@@ -134,7 +121,7 @@ const EN_UI = {
   "feedback.eyebrow": "We're listening",
   "feedback.title": "Been somewhere we missed?",
   "feedback.body":
-    "Tell the City Tourism Office what to add, fix, or feature next — a hidden falls, a new café, a better photo. Every note lands straight in our inbox.",
+    "Tell us what to add, fix, or feature next — a hidden falls, a new café, a better photo. Every note lands straight in our inbox.",
   "feedback.name": "Your name",
   "feedback.name.placeholder": "Juan dela Cruz",
   "feedback.email": "Email",
@@ -144,7 +131,7 @@ const EN_UI = {
   "feedback.submit": "Send feedback",
   "feedback.sending": "Sending…",
   "feedback.note": "Sent securely to the tourism office inbox",
-  "feedback.success": "Salamat! Your feedback is on its way.",
+  "feedback.success": "Thanks! Your feedback is on its way.",
   "feedback.error": "Something went wrong — please try again, or email us directly.",
   "feedback.config": "Feedback isn't configured yet. Add your Web3Forms key to enable it.",
 
@@ -171,169 +158,18 @@ const EN_UI = {
   "review.pick": "Pick a rating before posting.",
 } as const;
 
-export type UIKey = keyof typeof EN_UI;
-
-const TL_UI: Partial<Record<UIKey, string>> = {
-  "lang.switch": "Wika",
-
-  "theme.switch": "Tema",
-  "theme.light": "Maliwanag",
-  "theme.dark": "Madilim",
-  "theme.system": "Sistema",
-
-  "hero.eyebrow": "San Jose del Monte · Bulacan · Pilipinas",
-
-  "hero.word.shrines": "Dambana,",
-  "hero.word.summits": "mga taluktok,",
-  "hero.word.falls": "talon,",
-  "hero.word.fairways": "at golf.",
-
-  "hero.title":
-    "Isang gabay sa lungsod sa paanan ng Sierra Madre, isang maikling biyahe lang mula sa Metro Manila.",
-
-  "map.loading": "Kinakarga ang mapa…",
-
-  "filter.label": "Salain ang mga lugar ayon sa kategorya",
-  "filter.all": "Lahat ng lugar",
-
-  "cat.religious": "Relihiyoso",
-  "cat.nature": "Kalikasan",
-  "cat.parks": "Mga Parke",
-  "cat.resorts": "Resort",
-  "cat.leisure": "Libangan",
-
-  "nearme.idle": "Malapit sa akin",
-  "nearme.loading": "Hinahanap…",
-  "nearme.unsupported": "Hindi suportado ang geolocation sa device na ito.",
-  "nearme.denied": "Tinanggihan ang access sa lokasyon.",
-  "nearme.failed": "Hindi makuha ang iyong lokasyon.",
-  "nearme.here": "Narito ka",
-
-  "list.heading": "Lahat ng lugar",
-  "list.label": "Higit pang lugar",
-
-  "spot.barangay": "Brgy. {name}",
-  "spot.distance": "{distance} ang layo",
-  "spot.directions": "Kumuha ng direksyon",
-  "spot.fee": "Pasukan",
-  "spot.contact": "Tumawag sa {number}",
-  "spot.website": "Bisitahin ang website",
-  "spot.hours": "Oras",
-  "spot.contactLabel": "Kontak",
-  "spot.websiteLabel": "Website",
-  "spot.addressLabel": "Address",
-  "spot.facebookLabel": "Facebook Page",
-  "spot.amenities": "Mga Amenity",
-  "spot.photos": "Mga Litrato",
-  "spot.view360": "360° na Tanawin",
-  "spot.no360": "Malapit nang magkaroon ng 360°",
-
-  "status.open": "Bukas ngayon",
-  "status.closed": "Sarado ngayon",
-
-  "media.none": "Malapit nang magkaroon ng litrato",
-  "media.failed": "Hindi available ang litrato",
-  "media.zoom": "I-zoom",
-  "media.loading360": "Kinakarga ang 360°…",
-  "media.credit": "Litrato:",
-  "media.zoomLabel": "I-zoom ang litrato ng {name}, larawan {index} ng {total}",
-  "media.thumbLabel": "Ipakita ang larawan {index}",
-  "media.panoThumbLabel": "Ipakita ang 360° na panorama",
-  "media.alt": "{name} — larawan {index} ng {total}",
-  "media.panoLabel": "360° na panorama ng {name}",
-  "media.heroLabel": "Tingnan ang media ng {name}",
-  "media.exit360": "Lumabas sa 360° na tanawin",
-
-  "modal.back": "Bumalik sa mapa",
-  "modal.close": "Isara",
-
-  "lightbox.close": "Isara ang naka-zoom na larawan",
-  "lightbox.prev": "Nakaraang larawan",
-  "lightbox.next": "Susunod na larawan",
-
-  "install.title": "I-install ang ExploQR SJDM",
-  "install.ios": 'I-tap ang Share, pagkatapos ay "Add to Home Screen" para sa offline access sa mga lugar na mahina ang signal.',
-  "install.android": "Idagdag sa home screen para sa mas mabilis, offline-friendly na access.",
-  "install.button": "I-install",
-  "install.dismiss": "Isara",
-
-  "front.hero.body":
-    "Mula sa mga dambana hanggang sa tagong talon — {count} destinasyon sa buong San Jose del Monte, bawat isa'y minapa, may larawan, at malalakbay sa 360°. Walang app, walang download: i-scan ang code at bubukas agad ang buong gabay sa iyong telepono.",
-
-  "front.stat.destinations": "Mga Destinasyon",
-  "front.stat.categories": "Kategorya ng Lugar",
-  "front.stat.tour360.label": "Preview ng Virtual Tour",
-  "front.stat.free.label": "Libre at Mobile-Friendly",
-
-  "front.qr.eyebrow": "I-scan Para Mag-explore",
-  "front.qr.body": "Isang scan lang. Walang app na i-i-install — itutok lang ang kamera at handa na.",
-
-  "hero.kicker": "Hanapin ang iyong",
-  "hero.feature.gallery": "Mga larawan",
-  "hero.feature.tour": "360° na tour",
-  "hero.feature.directions": "Direksyon sa isang pindot",
-
-  "map.cap.eyebrow": "Interaktibong Mapa",
-  "map.cap.meta": "{count} pin · {categories} kategorya",
-
-  "feedback.eyebrow": "Nakikinig kami",
-  "feedback.title": "May napuntahan ka bang hindi namin nailista?",
-  "feedback.body":
-    "Sabihin sa City Tourism Office kung ano ang idaragdag, aayusin, o itatampok — isang tagong talon, bagong café, o mas magandang litrato. Diretso sa aming inbox ang bawat mensahe.",
-  "feedback.name": "Iyong pangalan",
-  "feedback.name.placeholder": "Juan dela Cruz",
-  "feedback.email": "Email",
-  "feedback.email.placeholder": "ikaw@email.com",
-  "feedback.message": "Mensahe",
-  "feedback.message.placeholder": "Magbahagi ng lugar, litrato, o puna…",
-  "feedback.submit": "Ipadala",
-  "feedback.sending": "Ipinapadala…",
-  "feedback.note": "Ligtas na ipinapadala sa inbox ng tourism office",
-  "feedback.success": "Salamat! Papunta na ang iyong mensahe.",
-  "feedback.error": "May naganap na mali — subukan muli, o mag-email sa amin nang diretso.",
-  "feedback.config": "Hindi pa naka-set up ang feedback. Idagdag ang Web3Forms key.",
-
-  "review.title": "Mga Rating at Review",
-  "review.anonymous": "Bisita",
-  "review.empty": "Ikaw ang unang magbahagi ng iyong opinyon.",
-  "review.count": "{count} review",
-  "review.you": "Ikaw",
-  "review.rating.label": "Iyong rating",
-  "review.heart.aria": "I-rate ng {n} sa 5 puso",
-  "review.cta": "I-rate ang lugar na ito",
-  "review.cta.edit": "I-edit ang iyong review",
-  "review.dialogLabel": "I-rate ang {name}",
-  "review.name": "Iyong pangalan (opsyonal)",
-  "review.name.placeholder": "Juan dela Cruz",
-  "review.comment": "Komento (opsyonal)",
-  "review.comment.placeholder": "Ano ang naiwang impresyon?",
-  "review.submit": "I-post ang review",
-  "review.update": "I-update ang iyong review",
-  "review.sending": "Pinopost…",
-  "review.success": "Salamat sa pag-rate ng lugar na ito!",
-  "review.error": "May naganap na mali — subukan muli.",
-  "review.config": "Hindi pa naka-set up ang reviews.",
-  "review.pick": "Pumili ng rating bago mag-post.",
-};
-
-const UI: Record<Locale, Partial<Record<UIKey, string>>> = { en: EN_UI, tl: TL_UI };
+export type UIKey = keyof typeof UI;
 
 // Look up a UI string. `vars` fills {placeholders}.
-export function t(
-  locale: Locale,
-  key: UIKey,
-  vars?: Record<string, string | number>
-): string {
-  const s = UI[locale]?.[key] ?? UI[DEFAULT_LOCALE][key] ?? key;
+export function t(key: UIKey, vars?: Record<string, string | number>): string {
+  const s = UI[key] ?? key;
   if (!vars) return s;
   return s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] != null ? String(vars[k]) : `{${k}}`));
 }
 
-// Resolve a content value from data/spots.js. Accepts either a plain string
-// (English-only, the shape every spot uses today) or { en, tl } — so spots can
-// be translated one at a time without a migration.
-export function text(value: LocaleText | null | undefined, locale: Locale): string {
-  if (value == null) return "";
-  if (typeof value === "string") return value;
-  return value[locale] || value[DEFAULT_LOCALE] || "";
+// Every spot field is a plain string now (no more { en, tl } shape) — this
+// stays as a thin pass-through so call sites like `text(spot.description)`
+// across the spot components didn't all need to change with the dictionary.
+export function text(value: string | null | undefined): string {
+  return value ?? "";
 }

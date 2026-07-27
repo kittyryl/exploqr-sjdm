@@ -10,6 +10,16 @@ import { HEADLINE } from "@/lib/heroWords";
 import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
+// The headline's four nouns are no longer tinted by category (see
+// lib/heroWords.ts) — this is a deliberate one-off styling request for the
+// hero, not the map legend anymore.
+const HEADLINE_STYLE: Record<string, { color: string; italic?: boolean }> = {
+  "hero.word.shrines": { color: "#F2EDE1" },
+  "hero.word.summits": { color: "#E3A857", italic: true },
+  "hero.word.falls": { color: "#E3A857", italic: true },
+  "hero.word.fairways": { color: "#F2EDE1" },
+};
+
 // Counts a number up from 0 to `target` once, on mount — a first-impression
 // flourish for the stat strip. Renders the final value immediately (no
 // animation) when `enabled` is false, so the numbers never look "stuck" for
@@ -88,21 +98,14 @@ export default function HomeTopBar() {
   // the .stat-card rule turns into a wash, a hairline, and a top rule.
   const stats: { value: string; label: string; color: string }[] = [
     { value: `${destinationsCount}`, label: t("front.stat.destinations"), color: "var(--teal)" },
-    { value: `${categoriesCount}`, label: t("front.stat.categories"), color: "var(--violet)" },
     { value: `${tourDegrees}°`, label: t("front.stat.tour360.label"), color: "var(--gold)" },
     { value: `${freePercent}%`, label: t("front.stat.free.label"), color: "var(--coral)" },
-  ];
-
-  const features: { key: "hero.feature.gallery" | "hero.feature.tour" | "hero.feature.directions"; color: string }[] = [
-    { key: "hero.feature.gallery", color: "var(--teal)" },
-    { key: "hero.feature.tour", color: "var(--violet)" },
-    { key: "hero.feature.directions", color: "var(--coral)" },
   ];
 
   return (
     <section className="rise-in flex flex-col gap-6 pb-10 pt-8 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:pb-14 sm:pt-12">
       <div className="min-w-0">
-        <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest text-ink/70">
+        <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest text-hero-fg/75">
           <span
             className="inline-block h-[7px] w-[7px] flex-none rounded-full"
             style={{ background: "var(--cat-leisure-fill)", boxShadow: "0 0 0 3px color-mix(in srgb, var(--cat-leisure-fill) 26%, transparent)" }}
@@ -110,25 +113,29 @@ export default function HomeTopBar() {
           {t("hero.eyebrow")}
         </p>
         <h1 className="mt-2.5 max-w-2xl font-display text-[32px] font-extrabold leading-[0.98] tracking-[-0.03em] text-ink sm:text-[52px]">
-          <span className="hero-kicker mb-0.5 block text-[0.6em] font-medium text-ink/60">
+          <span className="hero-kicker mb-0.5 block text-[0.6em] font-medium text-hero-fg/70">
             {t("hero.kicker")}
           </span>
-          {HEADLINE.map(({ key, category }, i) => (
-            <Fragment key={key}>
-              <span
-                className="rise-in inline-block whitespace-nowrap"
-                style={{
-                  color: CATEGORIES[category].accent,
-                  animationDelay: `${80 + i * 70}ms`,
-                }}
-              >
-                {t(key)}
-              </span>{" "}
-            </Fragment>
-          ))}
+          {HEADLINE.map(({ key }, i) => {
+            const style = HEADLINE_STYLE[key];
+            return (
+              <Fragment key={key}>
+                <span
+                  className="rise-in inline-block whitespace-nowrap"
+                  style={{
+                    color: style.color,
+                    fontStyle: style.italic ? "italic" : undefined,
+                    animationDelay: `${80 + i * 70}ms`,
+                  }}
+                >
+                  {t(key)}
+                </span>{" "}
+              </Fragment>
+            );
+          })}
         </h1>
         <p
-          className="rise-in mt-3 max-w-md text-[15px] leading-relaxed text-ink/80"
+          className="rise-in mt-3 max-w-md text-[15px] leading-relaxed text-hero-fg/85"
           style={{ animationDelay: "300ms" }}
         >
           {t("front.hero.body", { count: spots.length })}
@@ -153,18 +160,6 @@ export default function HomeTopBar() {
             </div>
           ))}
         </div>
-
-        <ul
-          className="rise-in mt-4 flex flex-wrap gap-x-4 gap-y-1.5 font-mono text-[11px] uppercase tracking-wider text-ink/75"
-          style={{ animationDelay: "420ms" }}
-        >
-          {features.map((f) => (
-            <li key={f.key} className="flex items-center gap-2">
-              <span className="h-2 w-2 rotate-45 rounded-[2px]" style={{ background: f.color }} />
-              {t(f.key)}
-            </li>
-          ))}
-        </ul>
       </div>
 
       <div className="rise-in shrink-0" style={{ animationDelay: "480ms" }}>
@@ -190,7 +185,7 @@ export default function HomeTopBar() {
                 the category `block` tokens in globals.css: some things are
                 theme-constant on purpose. */}
             {origin && (
-              <QRCode value={origin} size={92} bgColor="#ffffff" fgColor="#1c2321" />
+              <QRCode value={origin} size={92} bgColor="#ffffff" fgColor="#04191C" />
             )}
           </div>
           <div className="max-w-[9.5rem]">

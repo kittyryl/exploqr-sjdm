@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Instrument_Sans, Space_Mono } from "next/font/google";
+import { Fraunces, Space_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 import "./globals.css";
 import ServiceWorkerRegister from "@/components/layout/ServiceWorkerRegister";
@@ -16,11 +16,6 @@ const display = Fraunces({
   subsets: ["latin"],
   style: ["normal", "italic"],
   display: "swap",
-});
-
-const body = Instrument_Sans({
-  variable: "--font-body",
-  subsets: ["latin"],
 });
 
 const mono = Space_Mono({
@@ -72,7 +67,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${display.variable} ${body.variable} ${mono.variable} h-full antialiased`}
+      className={`${display.variable} ${mono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-paper text-ink">
         <ThemeProvider>

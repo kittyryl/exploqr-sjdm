@@ -1,66 +1,27 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, type ReactNode } from "react";
-import {
-  DEFAULT_LOCALE,
-  LOCALES,
-  LOCALE_STORAGE_KEY,
-  t,
-  text,
-  type UIKey,
-} from "@/lib/i18n";
-import { usePersistentChoice } from "@/lib/hooks/usePersistentChoice";
-import type { Locale, LocaleText } from "@/lib/types";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { t, text, type UIKey } from "@/lib/i18n";
 
-interface LocaleContextValue {
-  locale: Locale;
-  setLocale: (next: Locale) => void;
-}
-
-interface UseLocaleResult extends LocaleContextValue {
+interface UseLocaleResult {
   t: (key: UIKey, vars?: Record<string, string | number>) => string;
-  text: (value: LocaleText | null | undefined) => string;
+  text: (value: string | null | undefined) => string;
 }
 
-const LocaleContext = createContext<LocaleContextValue | null>(null);
+// There's only one language now (English), so this context no longer holds
+// any switchable state — it exists purely so every spot/detail component can
+// keep calling `useLocale()` for `t`/`text` without threading them as props.
+const LocaleContext = createContext<UseLocaleResult | null>(null);
 
-// The page is fully static, so the locale can't be read on the server without
-// making it dynamic — it comes from localStorage after mount instead. A reader
-// with Tagalog saved sees English for one frame; that's the trade for keeping
-// the whole app prerendered, and it's invisible next to the map's own load.
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = usePersistentChoice(
-    LOCALE_STORAGE_KEY,
-    LOCALES,
-    DEFAULT_LOCALE
-  );
-
-  useEffect(() => {
-    document.documentElement.lang = locale;
-  }, [locale]);
-
+  const value = useMemo<UseLocaleResult>(() => ({ t, text }), []);
   return (
-    <LocaleContext.Provider value={{ locale, setLocale }}>
-      {children}
-    </LocaleContext.Provider>
+    <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>
   );
 }
 
-// Returns the active locale plus pre-bound helpers, so callers write
-// `t("filter.all")` instead of threading `locale` through every call.
-// Memoized on `locale` so consumers that list `t`/`text` in a dependency
-// array (useMemo/useCallback) don't invalidate on every unrelated re-render.
 export function useLocale(): UseLocaleResult {
   const ctx = useContext(LocaleContext);
   if (!ctx) throw new Error("useLocale must be used inside <LocaleProvider>");
-  const { locale, setLocale } = ctx;
-  return useMemo(
-    () => ({
-      locale,
-      setLocale,
-      t: (key: UIKey, vars?: Record<string, string | number>) => t(locale, key, vars),
-      text: (value: LocaleText | null | undefined) => text(value, locale),
-    }),
-    [locale, setLocale]
-  );
+  return ctx;
 }

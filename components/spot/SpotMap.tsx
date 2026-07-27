@@ -19,7 +19,7 @@ import { proxiedSrc } from "@/lib/images";
 import { sjdmBoundary } from "@/data/sjdmBoundary";
 import { barangays } from "@/data/barangays";
 import { barangaysWithSpots } from "@/lib/barangays";
-import { DEFAULT_LOCALE, text } from "@/lib/i18n";
+import { text } from "@/lib/i18n";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import type { Spot, UserLocation } from "@/lib/types";
@@ -115,7 +115,7 @@ function markerIcon(spot: Spot, index: number): L.DivIcon {
   // The aria-label isn't localized to the current UI language — this HTML
   // string is built outside React (no locale to read), so it always resolves
   // through lib/i18n's own English fallback chain via text().
-  const label = text(spot.name, DEFAULT_LOCALE).replace(/"/g, "&quot;");
+  const label = text(spot.name).replace(/"/g, "&quot;");
   // `color:${fill}` sets currentColor so the pulse ring and the selected halo
   // both pick up the category color without re-templating it.
   return L.divIcon({
@@ -369,12 +369,15 @@ export default function SpotMap({ spots, selectedId, onSelect, userLocation }: S
             eventHandlers={eventHandlersById[spot.id]}
           >
             <Tooltip
-              direction="top"
-              // Pins are anchored at the tail tip now, so the tooltip has to
-              // clear the whole pin height rather than half a dot.
-              offset={[0, selected ? -66 : -60]}
+              // Names are always on the map now rather than waiting for a
+              // hover — a printed map labels its places. Pins are anchored at
+              // the tail tip, so the label hangs just under that point and
+              // never covers the pin it belongs to.
+              permanent
+              direction="bottom"
+              offset={[0, 3]}
               opacity={1}
-              className="spot-tooltip"
+              className={`spot-tooltip${selected ? " spot-tooltip--selected" : ""}`}
             >
               <span className="flex items-center gap-1.5">
                 <span

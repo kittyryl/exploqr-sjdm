@@ -1,13 +1,6 @@
 // Shared domain types. `data/spots.js`'s own header comment documents the
 // authoritative shape in prose; this is that shape formalized.
 
-export type Locale = "en" | "tl";
-
-// A UI/content string that's either plain English (treated as the shape
-// everything still uses today) or translated per-locale. Missing `tl` falls
-// back to `en` — see lib/i18n.js's `text()`.
-export type LocaleText = string | { en: string; tl?: string };
-
 export type CategoryKey =
   | "religious"
   | "nature"
@@ -30,7 +23,7 @@ export interface SpotImage {
 
 export interface Spot {
   id: string;
-  name: LocaleText;
+  name: string;
   barangay: string;
   // Full street address as the city tourism office writes it. `barangay` stays
   // separate because the map, the labels, and the list all key off it — this is
@@ -39,13 +32,13 @@ export interface Spot {
   category: CategoryKey;
   lat: number;
   lng: number;
-  description: LocaleText;
-  hours: LocaleText;
+  description: string;
+  hours: string;
   openHours?: OpenHours;
   images?: SpotImage[];
   icon?: string; // key into ICON_OVERRIDES, lib/categories.js
   pano360?: string;
-  fee?: LocaleText;
+  fee?: string;
   contact?: string;
   website?: string;
   // The Facebook page's name, not a URL — that's how the tourism office
@@ -56,7 +49,7 @@ export interface Spot {
   // Short facilities on offer — parking, restrooms, wifi. Rendered as pills in
   // the detail modal; the whole section is omitted when this is absent, since
   // an empty amenities list reads as "none available" rather than "unconfirmed".
-  amenities?: LocaleText[];
+  amenities?: string[];
 }
 
 export interface UserLocation {

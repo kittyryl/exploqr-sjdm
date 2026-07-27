@@ -7,9 +7,9 @@ import { spots } from "@/data/spots";
 import { distanceKm } from "@/lib/geo";
 import Wordmark from "@/components/brand/Wordmark";
 import ThemeToggle from "@/components/controls/ThemeToggle";
-import LocaleToggle from "@/components/controls/LocaleToggle";
 import CategoryFilter, { type CategoryFilterKey } from "@/components/controls/CategoryFilter";
 import NearMeToggle from "@/components/controls/NearMeToggle";
+import SpotSearch from "@/components/controls/SpotSearch";
 import SpotModal from "@/components/spot/SpotModal";
 import HomeTopBar from "@/components/home/HomeTopBar";
 import FeedbackForm from "@/components/home/FeedbackForm";
@@ -28,10 +28,20 @@ const SpotMap = dynamic(() => import("@/components/spot/SpotMap"), {
   ),
 });
 
-function visibleIn(category: CategoryFilterKey): Spot[] {
-  return category === "all"
-    ? spots
-    : spots.filter((s) => s.category === category);
+// Matches name, barangay, and amenities — the fields a visitor is likely to
+// search by ("Tungtong", "Graceville", "swimming pool").
+function matchesQuery(spot: Spot, query: string): boolean {
+  if (!query.trim()) return true;
+  const haystack = [spot.name, spot.barangay, ...(spot.amenities ?? [])]
+    .join(" ")
+    .toLowerCase();
+  return haystack.includes(query.trim().toLowerCase());
+}
+
+function visibleIn(category: CategoryFilterKey, query: string): Spot[] {
+  const byCategory =
+    category === "all" ? spots : spots.filter((s) => s.category === category);
+  return byCategory.filter((s) => matchesQuery(s, query));
 }
 
 export default function Home() {
@@ -41,6 +51,7 @@ export default function Home() {
   // on desktop) over the still-visible map.
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [category, setCategory] = useState<CategoryFilterKey>("all");
+  const [query, setQuery] = useState("");
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -60,13 +71,27 @@ export default function Home() {
     window.history.replaceState(null, "", url);
   }, [selectedId]);
 
-  const handleCategory = useCallback((next: CategoryFilterKey) => {
-    setCategory(next);
-    const visible = visibleIn(next);
-    setSelectedId((current) =>
-      current && !visible.some((s) => s.id === current) ? null : current
-    );
-  }, []);
+  const handleCategory = useCallback(
+    (next: CategoryFilterKey) => {
+      setCategory(next);
+      const visible = visibleIn(next, query);
+      setSelectedId((current) =>
+        current && !visible.some((s) => s.id === current) ? null : current
+      );
+    },
+    [query]
+  );
+
+  const handleSearch = useCallback(
+    (next: string) => {
+      setQuery(next);
+      const visible = visibleIn(category, next);
+      setSelectedId((current) =>
+        current && !visible.some((s) => s.id === current) ? null : current
+      );
+    },
+    [category]
+  );
 
   // "Near me" toggles on/off; turning on asks the browser for a one-time
   // location fix (a user gesture, not requested on page load).
@@ -102,7 +127,7 @@ export default function Home() {
     );
   }, [userLocation, t]);
 
-  const visible = useMemo(() => visibleIn(category), [category]);
+  const visible = useMemo(() => visibleIn(category, query), [category, query]);
   const selected = useMemo(
     () => spots.find((s) => s.id === selectedId) || null,
     [selectedId]
@@ -133,7 +158,6 @@ export default function Home() {
             <Wordmark />
             <div className="flex items-center gap-1.5 sm:hidden">
               <ThemeToggle />
-              <LocaleToggle />
             </div>
           </div>
           <div className="flex min-w-0 items-center gap-3">
@@ -144,7 +168,6 @@ export default function Home() {
             />
             <div className="hidden items-center gap-2 sm:flex">
               <ThemeToggle />
-              <LocaleToggle />
             </div>
           </div>
         </div>
@@ -179,7 +202,7 @@ export default function Home() {
                 <span aria-hidden="true" style={{ color: "var(--cat-leisure-fill)" }}>
                   ◉{" "}
                 </span>
-                San Jose del Monte, Bulacan
+                City of San Jose Del Monte Top Tourist Destinations
               </h2>
             </div>
             <div className="shrink-0">
@@ -190,6 +213,10 @@ export default function Home() {
                 onClick={handleNearMe}
               />
             </div>
+          </div>
+
+          <div className="mb-3 max-w-md">
+            <SpotSearch value={query} onChange={handleSearch} />
           </div>
 
           {/* The map sits in a warm mat with four survey ticks — the same
@@ -207,6 +234,13 @@ export default function Home() {
                 onSelect={setSelectedId}
                 userLocation={userLocation}
               />
+              {orderedVisible.length === 0 && (
+                <div className="pointer-events-none absolute inset-0 z-[1000] flex items-center justify-center">
+                  <p className="rounded-full border border-line bg-surface/95 px-4 py-2 font-mono text-xs text-ink/65 shadow-sm">
+                    {t("search.empty")}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
