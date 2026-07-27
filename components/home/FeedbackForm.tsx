@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useLocale } from "@/components/providers/LocaleProvider";
+
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 
 // The visitor's note reaches the City Tourism Office by way of Web3Forms:
 // the form POSTs straight to their API with a public access key, and they
@@ -21,7 +23,39 @@ type Status = "idle" | "sending" | "success" | "error";
 export default function FeedbackForm() {
   const { t } = useLocale();
   const [status, setStatus] = useState<Status>("idle");
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const configured = Boolean(ACCESS_KEY);
+
+  function handlePhotoChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    if (!file) {
+      setPhoto(null);
+      setPhotoError(null);
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      setPhotoError(t("feedback.photo.error.type"));
+      setPhoto(null);
+      e.target.value = "";
+      return;
+    }
+    if (file.size > MAX_PHOTO_BYTES) {
+      setPhotoError(t("feedback.photo.error.size"));
+      setPhoto(null);
+      e.target.value = "";
+      return;
+    }
+    setPhotoError(null);
+    setPhoto(file);
+  }
+
+  function clearPhoto() {
+    setPhoto(null);
+    setPhotoError(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -34,27 +68,32 @@ export default function FeedbackForm() {
     if (data.get("botcheck")) {
       setStatus("success");
       form.reset();
+      clearPhoto();
       return;
     }
 
     setStatus("sending");
     try {
+      // Web3Forms only accepts file attachments over multipart/form-data
+      // (not the plain JSON body used before photos existed), so the whole
+      // request rides on the native FormData — no manual Content-Type
+      // header, or the browser can't attach the multipart boundary.
+      data.delete("botcheck");
+      data.append("access_key", ACCESS_KEY ?? "");
+      data.append("subject", "New ExploQR SJDM feedback");
+      data.append("from_name", "ExploQR SJDM");
+      if (!photo) data.delete("attachment");
+
       const res = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          access_key: ACCESS_KEY,
-          subject: "New ExploQR SJDM feedback",
-          from_name: "ExploQR SJDM",
-          name: data.get("name"),
-          email: data.get("email"),
-          message: data.get("message"),
-        }),
+        headers: { Accept: "application/json" },
+        body: data,
       });
       const json = await res.json();
       if (json.success) {
         setStatus("success");
         form.reset();
+        clearPhoto();
       } else {
         setStatus("error");
       }
@@ -125,6 +164,37 @@ export default function FeedbackForm() {
               placeholder={t("feedback.message.placeholder")}
               className="fb-field resize-y rounded-xl px-3.5 py-3 font-sans text-[15px] normal-case tracking-normal text-ink placeholder:text-ink/40"
             />
+          </label>
+
+          <label className="flex flex-col gap-1.5 font-mono text-[10.5px] uppercase tracking-widest text-ink/65">
+            {t("feedback.photo")}
+            <input
+              ref={fileInputRef}
+              type="file"
+              name="attachment"
+              accept="image/*"
+              disabled={status === "success"}
+              onChange={handlePhotoChange}
+              className="fb-field cursor-pointer rounded-xl px-3.5 py-2.5 font-sans text-[13px] normal-case tracking-normal text-ink/70 file:mr-3 file:rounded-lg file:border-0 file:px-3 file:py-1.5 file:font-sans file:text-[13px] file:font-semibold"
+            />
+            {photo && (
+              <span className="flex items-center gap-2 text-[12px] normal-case tracking-normal text-ink/65">
+                {photo.name}
+                <button
+                  type="button"
+                  onClick={clearPhoto}
+                  className="font-medium underline underline-offset-2"
+                  style={{ color: "var(--cat-leisure-accent)" }}
+                >
+                  {t("feedback.photo.remove")}
+                </button>
+              </span>
+            )}
+            {photoError && (
+              <span className="text-[12px] normal-case tracking-normal" style={{ color: "var(--cat-leisure-accent)" }}>
+                {photoError}
+              </span>
+            )}
           </label>
 
           <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-2">
