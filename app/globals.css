@@ -882,6 +882,14 @@ body::before {
   border-color: var(--teal);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 22%, transparent);
 }
+.fb-field::file-selector-button {
+  background: var(--teal);
+  color: #fff;
+  cursor: pointer;
+}
+.fb-field::file-selector-button:hover {
+  background: color-mix(in srgb, var(--teal) 85%, black);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .fb-submit:hover:not(:disabled) {
