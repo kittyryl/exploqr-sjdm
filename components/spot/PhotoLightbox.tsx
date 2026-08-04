@@ -15,28 +15,20 @@ interface PhotoLightboxProps {
   index: number;
   spotId: string;
   spotName: string;
-  // Whether the surrounding media set has more than one item to page through.
-  // Passed in because the cycle can include a 360° panorama, which isn't part
-  // of `images` — so `images.length` alone can't decide if arrows should show.
+  // Whether there's more than one photo (or a 360 view) to flip through,
+  // so we know whether to show the arrows.
   navigable: boolean;
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
 }
 
-// Full-screen zoom for a spot's photos. Body-scroll locking is left to
-// SpotModal (the lightbox only ever opens from inside it); this only owns
-// its own Escape/arrow-key handling, captured ahead of the modal's Escape
-// listener so closing the lightbox doesn't also close the modal underneath.
+// Full-screen photo view. Escape and arrow keys are handled here first, so
+// they only close or move this, not the spot window behind it.
 //
-// The photo itself shares a layoutId with SpotHero's still image
-// (`spot-photo-${spotId}`) — SpotHero hands the id off the moment this opens
-// and reclaims it once this unmounts, so Motion FLIPs the photo between the
-// hero's position and full-screen in both directions. SpotDetailCard wraps
-// this component in AnimatePresence, which is what gives the closing FLIP
-// time to play before the DOM node is actually removed. Stepping prev/next
-// keeps that outer box's layoutId fixed and just crossfades the image
-// inside it, via the nested AnimatePresence below.
+// The photo visually grows out of its small thumbnail into full-screen and
+// shrinks back the same way when closed. Stepping to the next/previous photo
+// just fades between images instead, so the frame stays put.
 export default function PhotoLightbox({
   images,
   index,

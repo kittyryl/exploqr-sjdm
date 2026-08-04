@@ -1,16 +1,13 @@
 import type { OpenHours } from "@/lib/types";
 
-// "Open now" is evaluated in Asia/Manila regardless of the visitor's own
-// timezone — the spot is in Bulacan, and someone browsing from abroad
-// still needs "open now" to mean open now *there*, not wherever their
-// device's clock is set.
+// "Open now" always uses Manila time, not the visitor's own clock — the spot is in the
+// Philippines, so that's the time that actually matters.
 const MANILA_TZ = "Asia/Manila";
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-// Module-level: isOpenNow runs on every render of a spot's detail card, and
-// constructing an Intl.DateTimeFormat is comparatively expensive to repeat
-// per call. hourCycle: "h23" avoids the well-known Intl quirk where
-// hour12:false can still yield "24" for midnight in some environments.
+// Built once and reused, since setting this up is slow and it would otherwise happen
+// every time a spot card is shown. The 24-hour setting avoids a bug where midnight can
+// show as "24:00" instead of "00:00" in some browsers.
 const MANILA_FORMATTER = new Intl.DateTimeFormat("en-US", {
   timeZone: MANILA_TZ,
   weekday: "short",
@@ -40,9 +37,7 @@ export function isOpenNow(
   const { open, close, closedDays = [] } = openHours;
   const { weekday, hhmm } = manilaParts(now);
   if (closedDays.includes(weekday)) return false;
-  // "HH:MM" strings zero-padded to the same length compare correctly as
-  // plain strings — no need to parse into minutes. This only holds for
-  // same-day windows (open < close); an overnight window like 20:00–02:00
-  // isn't representable yet — none of today's spots need one.
+  // Times like "09:00" can be compared as plain text since they're all the same length.
+  // This only works for hours that don't cross midnight — none of our spots do yet.
   return hhmm >= open && hhmm < close;
 }

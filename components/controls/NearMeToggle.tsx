@@ -17,16 +17,15 @@ interface NearMeToggleProps {
   onClick: () => void;
 }
 
-// Pill button matching the category chips: idle/active/loading states,
-// plus an inline error line (e.g. permission denied) when geolocation fails.
+// Rounded button matching the category filters, with a loading spinner and
+// an error message shown below if location access fails.
 export default function NearMeToggle({ active, loading, error, onClick }: NearMeToggleProps) {
   const { t } = useLocale();
   const wasActive = useRef(active);
   const [burst, setBurst] = useState(0);
 
-  // Fires once per successful location lock (false→true) — not on every
-  // re-render while `active` stays true, and not on mount if `active` ever
-  // started out true.
+  // Only plays the pulse animation the moment location is found, not every
+  // time the screen re-checks that it's still on.
   useEffect(() => {
     if (active && !wasActive.current) setBurst((n) => n + 1);
     wasActive.current = active;

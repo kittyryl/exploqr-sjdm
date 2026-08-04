@@ -7,8 +7,8 @@ import SegmentedToggle from "@/components/controls/SegmentedToggle";
 
 const ICONS: Record<Theme, LucideIcon> = { light: Sun, system: Monitor, dark: Moon };
 
-// Light/system/dark switch, styled to match LocaleToggle — the two sit
-// side by side in the header as the app's global preference controls.
+// Light/system/dark switch, styled to match the language switch since the
+// two sit side by side in the header.
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const { t } = useLocale();

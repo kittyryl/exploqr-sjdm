@@ -4,8 +4,8 @@ import SectionTitle from "@/components/spot/SectionTitle";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import type { Spot } from "@/lib/types";
 
-// Facilities on offer, as pills. Renders nothing at all when the spot has no
-// confirmed amenities — see the note on `Spot.amenities`.
+// Shows the spot's facilities as little tags. Shows nothing if none have
+// been confirmed.
 export default function SpotAmenities({ spot }: { spot: Spot }) {
   const { t, text } = useLocale();
   const amenities = spot.amenities || [];

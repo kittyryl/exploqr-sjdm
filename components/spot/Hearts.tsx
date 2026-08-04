@@ -4,11 +4,8 @@ import { useState } from "react";
 import { Heart } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
-// Five hearts, either a read-only display (a review's own rating, or the
-// spot's average) or an interactive picker (radiogroup semantics — one
-// rating at a time). `color` is a category token so the filled state matches
-// whatever accent the rest of the modal is using for this spot. Shared by
-// SpotReviews (read-only, inline) and RateOverlay (interactive picker).
+// Shows five hearts, either just for display or as a picker to choose a rating.
+// The colour matches whatever theme colour the spot's window is using.
 export default function Hearts({
   value,
   size = 16,

@@ -1,19 +1,14 @@
-// Barangay boundaries for the City of San Jose del Monte (59 barangays).
+// The shape data for the map: the 59 barangay boundaries of San Jose del Monte.
 //
-// Source: Philippine Statistics Authority administrative boundaries, via
-// github.com/faeldon/philippines-json-maps (MIT), 2019 medium-resolution set,
-// municipality PSGC 031420000. Coordinates are [lat, lng] pairs ready for
-// Leaflet, rounded to 5 decimals (~1 m) and reprojected from GeoJSON's
-// [lng, lat] order.
+// Source: official Philippine government map data (2019), City of San Jose del Monte.
+// Points are stored as [lat, lng] pairs, rounded to about 1 meter of precision.
 //
-// GENERATED FILE — do not hand-edit. `tint` is a palette slot (not a
-// category): the generator builds an adjacency graph from shared vertices and
-// greedy-colours it, so no two barangays that touch ever get the same tint.
-// `minZoom` is the zoom at which the barangay is finally wide enough to hold
-// its own name — labels appear progressively by size rather than all at once,
-// which is what keeps the Sapang Palay slivers from piling up. Barangays that
-// contain a destination are labelled regardless.
-// `center` is the area-weighted centroid of each barangay's largest ring.
+// This file is auto-generated — don't edit it by hand. `tint` is just a color
+// slot, picked so no two touching barangays share a color. `minZoom` controls
+// how far you must zoom in before a barangay's name label appears (small
+// barangays wait until there's room to show the text; barangays with a
+// destination inside always show their name). `center` is where the label
+// is placed.
 export interface Barangay {
   name: string;
   tint: number;

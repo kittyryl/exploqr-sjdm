@@ -130,7 +130,7 @@ const UI = {
   "feedback.message.placeholder": "Share a spot, a photo, or feedback…",
   "feedback.submit": "Send feedback",
   "feedback.sending": "Sending…",
-  "feedback.note": "Sent securely to the tourism office inbox",
+  "feedback.note": "Sent securely to our inbox",
   "feedback.success": "Thanks! Your feedback is on its way.",
   "feedback.error": "Something went wrong — please try again, or email us directly.",
   "feedback.config": "Feedback isn't configured yet. Add your Web3Forms key to enable it.",

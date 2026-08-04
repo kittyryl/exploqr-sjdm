@@ -21,8 +21,8 @@ interface PannellumGlobal {
   ) => PannellumViewer;
 }
 
-// Interactive 360° panorama viewer (Pannellum). Rendered only on the client
-// (imported with next/dynamic, ssr: false) because Pannellum needs `window`.
+// 360° photo viewer. Only loads in the browser, not on the server, since it
+// needs direct access to the browser window to work.
 export default function Pano360Viewer({ src, title }: { src: string; title: string }) {
   const { t } = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);

@@ -4,18 +4,15 @@ import { useState } from "react";
 import { useImageFallbackMap } from "@/lib/hooks/useImageFallback";
 import type { Spot } from "@/lib/types";
 
-// The media state for one spot, shared across the detail modal. The hero at the
-// top of the panel is a *static* cover; the photo gallery further down is where
-// a visitor actually opens imagery — tapping a photo zooms it in the lightbox,
-// and the 360° panorama sits at the end of the gallery and opens its own
-// full-screen viewer. The hero and the gallery sit far apart in the panel, so
-// this state can't live inside either of them.
+// Keeps track of all the photo and panorama state for one spot's detail
+// popup. The cover photo at the top and the gallery further down both need
+// this same state, so it lives here instead of inside either one.
 export function useSpotMedia(spot: Spot) {
   const images = spot.images || [];
   const hasPano = Boolean(spot.pano360);
 
-  // `active` is the photo index the lightbox is showing; it's meaningless until
-  // the lightbox opens. The panorama is a separate mode, never an index.
+  // `active` is which photo the zoomed-in viewer is showing; it only matters
+  // once that viewer is open. The 360 panorama is separate and not part of this.
   const [active, setActive] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [panoOpen, setPanoOpen] = useState(false);
@@ -24,13 +21,12 @@ export function useSpotMedia(spot: Spot) {
   const total = images.length;
   const isEmpty = total === 0 && !hasPano;
 
-  // The hero's static cover: the first photo, or the panorama's flat frame when
-  // a spot has only a 360°, so the banner is never a blank category tile while
-  // any imagery exists.
+  // The cover photo: the first photo, or a flat frame from the 360 panorama if
+  // that's all the spot has, so the banner is never blank when there's imagery.
   const coverSrc = images[0]?.src ?? spot.pano360 ?? null;
 
-  // Open the lightbox on a specific photo. Always leaves 360° mode first, so
-  // the two full-screen overlays are never stacked.
+  // Opens the zoomed-in photo viewer. Always closes the 360 viewer first, so
+  // the two full-screen views never show at the same time.
   const openLightboxAt = (index: number) => {
     setActive(index);
     setPanoOpen(false);
@@ -42,7 +38,7 @@ export function useSpotMedia(spot: Spot) {
     setPanoOpen(true);
   };
 
-  // Paging inside the lightbox — photos only; the panorama isn't part of it.
+  // Moves to the next or previous photo in the zoomed-in viewer; the panorama isn't part of this.
   const step = (dir: 1 | -1) => {
     if (total === 0) return;
     setActive((i) => (i + dir + total) % total);

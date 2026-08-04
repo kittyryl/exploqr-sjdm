@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// next/image's built-in optimizer fetches remote sources with no User-Agent
-// header at all. Wikimedia enforces its User-Agent policy and rejects those
-// requests outright, so every spot photo (map pins, hero, gallery, lightbox)
-// was silently failing and falling back to its "no photo yet" state. This
-// route re-fetches the original with a descriptive UA; next/image is pointed
-// at it (via /_next/image?url=/api/spot-photo?...) instead of Wikimedia
-// directly, so the optimizer still handles resizing/caching as before.
+// Wikimedia blocks photo requests that don't identify themselves, so our photos
+// were quietly failing to load. This fetches the photo ourselves with a proper
+// ID, so the rest of the site can keep loading images the normal way.
 const ALLOWED_HOST = "upload.wikimedia.org";
 
 export async function GET(request: NextRequest) {

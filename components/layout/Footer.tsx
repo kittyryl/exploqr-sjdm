@@ -1,15 +1,13 @@
-import Glyph from "@/components/brand/Glyph";
+import Image from "next/image";
 
-// Map/photo attribution has moved off the footer — the map's own Leaflet
-// control still carries the required CARTO/OpenStreetMap credit. The brand
-// tagline here is English-only (deliberately un-i18n'd), which is what lets
-// this stay a server component.
+// Map credit now lives on the map itself, not here. The tagline is
+// English-only on purpose.
 export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
     <footer className="app-footer relative border-t border-line">
-      {/* The category spectrum crowns the footer, mirroring the top bar. */}
+      {/* Thin colour strip along the top of the footer, matching the header. */}
       <div
         aria-hidden="true"
         className="cat-rainbow pointer-events-none absolute inset-x-0 top-0 h-[2px] opacity-50"
@@ -17,7 +15,13 @@ export default function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <div className="max-w-sm">
           <div className="flex items-center gap-2.5">
-            <Glyph size={22} />
+            <Image
+              src="/logo.png"
+              alt="ExploQR SJDM"
+              width={60}
+              height={60}
+              priority
+            />
             <span className="font-display text-base font-extrabold tracking-tight text-ink">
               ExploQR <span className="font-medium text-ink/55">SJDM</span>
             </span>

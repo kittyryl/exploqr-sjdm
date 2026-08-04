@@ -20,14 +20,12 @@ interface SpotDetailCardProps {
   distanceKm?: number;
 }
 
-// Detail content for a spot, led by the photo: hero, description, the
-// practical facts, amenities, the media strip, and what to do next. Rendered
-// inside SpotModal, which supplies the surrounding chrome.
+// Main content for a spot: photo, description, facts, amenities, more
+// photos, and next steps. Shown inside the spot pop-up window.
 //
-// The media state lives in a hook rather than in any one section, because the
-// hero and the strip that drives it sit at opposite ends of the panel with
-// three other sections between them. `distanceKm` is set only when the visitor
-// has shared their location.
+// The photo/panorama state is tracked in one shared place because the main
+// photo and the strip that controls it sit far apart on the page.
+// `distanceKm` is only set if the visitor shared their location.
 export default function SpotDetailCard({
   spot,
   titleId,
@@ -47,9 +45,8 @@ export default function SpotDetailCard({
       />
 
       <div className="flex flex-col gap-6 p-5 sm:p-6">
-        {/* The lead paragraph carries a category-coloured rule — a quiet echo
-            of the pin that opened this spot, and a bit of editorial weight on
-            what is otherwise plain body copy. */}
+        {/* The coloured line matches the map pin's colour, tying the
+            description back to how the spot was found. */}
         <p
           className="max-w-prose border-l-2 pl-4 text-[15px] leading-relaxed text-ink/80"
           style={{ borderColor: cat.accent }}
@@ -64,9 +61,8 @@ export default function SpotDetailCard({
         <SpotReviews spot={spot} />
       </div>
 
-      {/* AnimatePresence delays each overlay's unmount until its own exit
-          animation finishes. Only one is ever open at a time — opening the
-          lightbox closes the panorama and vice-versa (see useSpotMedia). */}
+      {/* Lets the closing animation finish before the overlay disappears.
+          Only one overlay (photo or panorama) is ever open at a time. */}
       <AnimatePresence>
         {media.lightboxOpen && (
           <PhotoLightbox

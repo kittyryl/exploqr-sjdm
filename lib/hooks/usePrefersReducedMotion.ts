@@ -2,11 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-// Mirrors the OS-level "reduce motion" setting the rest of the app already
-// respects via `<MotionConfig reducedMotion="user">` — that config only
-// covers Motion's own generated animations (variants, layout), so an effect
-// driven by a manually-computed value (a pointer-tracked tilt, a count-up)
-// needs to check this directly. Same shape as SpotMap's usePrefersDark.
+// Checks the "reduce motion" accessibility setting on the visitor's device.
+// Most animations already respect this automatically, but custom effects
+// (like a finger-tracked tilt or numbers counting up) have to check it themselves.
 export function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(false);
   useEffect(() => {

@@ -10,9 +10,8 @@ import { HEADLINE } from "@/lib/heroWords";
 import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
-// The headline's four nouns are no longer tinted by category (see
-// lib/heroWords.ts) — this is a deliberate one-off styling request for the
-// hero, not the map legend anymore.
+// These headline word colours are just a one-off style choice for this
+// banner, not tied to the category colours used elsewhere.
 const HEADLINE_STYLE: Record<string, { color: string; italic?: boolean }> = {
   "hero.word.shrines": { color: "#F2EDE1" },
   "hero.word.summits": { color: "#E3A857", italic: true },
@@ -20,10 +19,9 @@ const HEADLINE_STYLE: Record<string, { color: string; italic?: boolean }> = {
   "hero.word.fairways": { color: "#F2EDE1" },
 };
 
-// Counts a number up from 0 to `target` once, on mount — a first-impression
-// flourish for the stat strip. Renders the final value immediately (no
-// animation) when `enabled` is false, so the numbers never look "stuck" for
-// anyone who's asked their OS for less motion.
+// Animates a number counting up when the page loads, just for a nice first
+// impression. Skips straight to the final number if the visitor has asked
+// for reduced motion.
 function useCountUp(target: number, enabled: boolean): number {
   const [display, setDisplay] = useState(target);
 
@@ -45,9 +43,8 @@ function useCountUp(target: number, enabled: boolean): number {
   return display;
 }
 
-// The pitch, the at-a-glance stats, and the QR code in one compact strip
-// above the map — a visitor gets the whole "what is this" in one glance
-// instead of scrolling several stacked sections to reach the map itself.
+// Puts the pitch, quick stats, and QR code together in one strip so
+// visitors understand the app at a glance, without scrolling.
 export default function HomeTopBar() {
   const { t } = useLocale();
   const [origin, setOrigin] = useState("");
@@ -58,15 +55,14 @@ export default function HomeTopBar() {
   const tourDegrees = useCountUp(360, !reducedMotion);
   const freePercent = useCountUp(100, !reducedMotion);
 
-  // The origin is only knowable in the browser, so the code renders empty
-  // until mount — the same trade-off the rest of the app makes for anything
-  // that touches `window` (see SpotMap's SSR loading fallback).
+  // The site's web address is only known once the page loads in the
+  // browser, so this starts blank and fills in a moment later.
   useEffect(() => {
     setOrigin(window.location.origin);
   }, []);
 
-  // Desktop/pointer-capable only: a touch device has no hover to tilt from,
-  // and it's skipped outright under reduced motion.
+  // Tilt effect only runs on devices with a mouse — touch screens can't
+  // hover, and it's turned off for anyone who wants less motion.
   const [canTilt, setCanTilt] = useState(false);
   useEffect(() => {
     setCanTilt(
@@ -94,8 +90,8 @@ export default function HomeTopBar() {
     rotateYRaw.set(0);
   }
 
-  // Each stat tile carries a decor hue through the --c custom property, which
-  // the .stat-card rule turns into a wash, a hairline, and a top rule.
+  // Each stat box gets its own accent colour, used for its background tint
+  // and border lines.
   const stats: { value: string; label: string; color: string }[] = [
     { value: `${destinationsCount}`, label: t("front.stat.destinations"), color: "var(--teal)" },
     { value: `${tourDegrees}°`, label: t("front.stat.tour360.label"), color: "var(--gold)" },
@@ -179,11 +175,7 @@ export default function HomeTopBar() {
             SCAN
           </span>
           <div className="rounded-xl border border-line bg-white p-2.5">
-            {/* The QR itself stays literal black-on-white regardless of
-                theme — unlike `ink`/`paper`, which invert, a scanner needs
-                maximum, reliable contrast. Same reasoning as `--scrim` and
-                the category `block` tokens in globals.css: some things are
-                theme-constant on purpose. */}
+            {/* QR code always stays black on white, even in dark mode, because scanners need strong contrast to read it. */}
             {origin && (
               <QRCode value={origin} size={92} bgColor="#ffffff" fgColor="#04191C" />
             )}

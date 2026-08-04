@@ -16,9 +16,9 @@ import FeedbackForm from "@/components/home/FeedbackForm";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import type { Spot, UserLocation } from "@/lib/types";
 
-// Leaflet touches `window`, so the map only ever renders on the client.
-// The fallback can't use the locale hook — it renders outside the tree — so
-// this one string stays English; it's on screen for a few hundred ms.
+// The map needs a real browser to work, so it only loads once the page is
+// open on screen. This loading text stays in English since it shows briefly
+// before anything else is ready.
 const SpotMap = dynamic(() => import("@/components/spot/SpotMap"), {
   ssr: false,
   loading: () => (
@@ -28,8 +28,8 @@ const SpotMap = dynamic(() => import("@/components/spot/SpotMap"), {
   ),
 });
 
-// Matches name, barangay, and amenities — the fields a visitor is likely to
-// search by ("Tungtong", "Graceville", "swimming pool").
+// Checks the spot's name, area, and amenities — whatever a visitor is likely
+// to type when searching.
 function matchesQuery(spot: Spot, query: string): boolean {
   if (!query.trim()) return true;
   const haystack = [spot.name, spot.barangay, ...(spot.amenities ?? [])]
@@ -46,9 +46,8 @@ function visibleIn(category: CategoryFilterKey, query: string): Spot[] {
 
 export default function Home() {
   const { t } = useLocale();
-  // No spot is selected on load — the map is the landing view. Clicking a
-  // pin opens that spot in a modal (bottom sheet on mobile, centered dialog
-  // on desktop) over the still-visible map.
+  // No spot is picked when the page first loads. Clicking a pin opens that
+  // spot in a popup over the map.
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [category, setCategory] = useState<CategoryFilterKey>("all");
   const [query, setQuery] = useState("");
@@ -56,14 +55,14 @@ export default function Home() {
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
 
-  // Deep link in: /?spot=<id> opens that spot's modal on first load.
+  // If the web address includes a spot ID, open that spot right away.
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get("spot");
     if (id && spots.some((s) => s.id === id)) setSelectedId(id);
   }, []);
 
-  // Deep link out: keep the URL shareable as the selection changes, and
-  // drop the param entirely once the modal is closed.
+  // Keep the web address updated with the selected spot, so it can be
+  // shared or bookmarked. Remove it once the popup is closed.
   useEffect(() => {
     const url = new URL(window.location.href);
     if (selectedId) url.searchParams.set("spot", selectedId);
@@ -93,8 +92,8 @@ export default function Home() {
     [category]
   );
 
-  // "Near me" toggles on/off; turning on asks the browser for a one-time
-  // location fix (a user gesture, not requested on page load).
+  // "Near me" only asks for your location when tapped, not automatically
+  // when the page loads.
   const handleNearMe = useCallback(() => {
     if (userLocation) {
       setUserLocation(null);
@@ -171,8 +170,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        {/* The category spectrum as a hairline — the same legend the pins and
-            headline use, threaded under the whole top bar. */}
+        {/* Thin colour strip under the top bar, matching the pin colours. */}
         <div
           aria-hidden="true"
           className="cat-rainbow pointer-events-none absolute inset-x-0 bottom-0 h-[2px] opacity-60"
@@ -180,9 +178,8 @@ export default function Home() {
       </header>
 
       <main className="flex-1">
-        {/* Full-bleed dawn band: the hero's sunrise gradient and contour
-            rings break out of the max-width column, then fade into the paper
-            so the map below sits on calm ground (see .hero-band). */}
+        {/* The sunrise banner stretches the full width, then fades so the
+            map below feels calm. */}
         <div className="hero-band">
           <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
             <HomeTopBar />
@@ -219,8 +216,7 @@ export default function Home() {
             <SpotSearch value={query} onChange={handleSearch} />
           </div>
 
-          {/* The map sits in a warm mat with four survey ticks — the same
-              cartographic lineage as the pins' printed-map shape. */}
+          {/* The map sits in a frame with corner marks, like an old paper map. */}
           <div className="map-shell relative mb-4 rounded-3xl border border-line p-3 shadow-[0_1px_2px_rgba(58,38,16,0.06),0_10px_30px_-14px_rgba(58,38,16,0.3)] sm:p-4">
             <span className="survey-tick" style={{ top: 14, left: 14, borderTopWidth: 1.5, borderLeftWidth: 1.5 }} />
             <span className="survey-tick" style={{ top: 14, right: 14, borderTopWidth: 1.5, borderRightWidth: 1.5 }} />

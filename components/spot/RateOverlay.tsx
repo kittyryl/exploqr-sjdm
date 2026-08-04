@@ -24,13 +24,10 @@ interface RateOverlayProps {
   onClose: () => void;
 }
 
-// The rating/review compose sheet, opened from SpotReviews' "Rate this spot"
-// button. Split out from the always-visible aggregate + review list so
-// browsing a spot's existing reviews doesn't also mean scrolling past a form
-// most visitors won't use. Mirrors PhotoLightbox/PanoOverlay's stacked-
-// overlay chrome: focus trap, capture-phase Escape so closing this doesn't
-// also close the spot modal underneath, body-scroll locking left to
-// SpotModal (this only ever opens from inside it).
+// The form for rating and reviewing a spot, opened from the "Rate this spot"
+// button. Kept separate from the review list so people browsing reviews
+// don't have to scroll past a form most won't use. Escape here closes only
+// this, not the spot window behind it.
 export default function RateOverlay({
   spot,
   cat,
@@ -61,8 +58,8 @@ export default function RateOverlay({
     return () => document.removeEventListener("keydown", onKey, true);
   }, [onClose]);
 
-  // Closes itself shortly after a successful submit, so the visitor sees the
-  // confirmation before landing back on the now-updated review list.
+  // Closes itself a bit after a successful submit, so people see the
+  // confirmation message first.
   useEffect(() => {
     if (status !== "success") return;
     const timer = setTimeout(onClose, 900);

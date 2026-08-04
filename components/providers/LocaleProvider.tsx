@@ -8,9 +8,8 @@ interface UseLocaleResult {
   text: (value: string | null | undefined) => string;
 }
 
-// There's only one language now (English), so this context no longer holds
-// any switchable state — it exists purely so every spot/detail component can
-// keep calling `useLocale()` for `t`/`text` without threading them as props.
+// Only English is supported now. This just lets any component grab the text
+// helpers without passing them down manually.
 const LocaleContext = createContext<UseLocaleResult | null>(null);
 
 export function LocaleProvider({ children }: { children: ReactNode }) {

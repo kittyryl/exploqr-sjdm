@@ -1,47 +1,30 @@
-// All tourist spot data for ExploQR SJDM v1 lives in this static array.
+// All tourist spot info lives in this one list.
 //
-// Content follows the City Tourism Office's destination sheet: name, address,
-// description, entrance fee, operating hours, amenities, Facebook page,
-// contact number, photos.
+// The content comes from the City Tourism Office's official spot sheet.
 //
-// Every text field (`name`, `description`, `hours`, `fee`, `amenities`) is a
-// plain English string now — this app has one language, not a switchable
-// English/Tagalog pair (see lib/i18n.ts).
+// All text is in plain English now — the app no longer switches between
+// English and Tagalog (see lib/i18n.ts).
 //
-// Proper nouns (`barangay`, `address`, `facebook`, and usually `name`) are
-// generally left as-is.
+// `barangay` must match a name in data/barangays.ts so the map can highlight
+// the right area — use the official spelling, not a shortcut like "Sto. Cristo".
 //
-// `barangay` must match a name in data/barangays.ts so the map can tint and
-// label the right area — lib/barangays.ts resolves the common spellings
-// ("Sto. Cristo") but it's better to store the official one.
-//
-// Optional per-spot fields the UI understands. Each renders only when set, so
-// a spot with none of them looks finished rather than broken — fill them in as
-// the information is confirmed locally, and don't guess:
-//   address — full street address, shown as its own full-width row.
-//   fee     — entrance/parking cost as free text.
-//             e.g. "Free" · "₱50 per person"
-//   contact — phone number as dialed locally, e.g. "0917 123 4567".
-//             Rendered as a tel: link, so keep it a real number.
-//   facebook — the page's NAME, not a URL. Rendered as plain text: most of
-//             these have no verified vanity URL, and a guessed link could send
-//             visitors to an impostor page.
-//   website — full https:// URL; the label is derived from the hostname.
-//   amenities — short facilities on offer, rendered as pills. Omit the field
-//             entirely rather than passing [] — an empty list reads as "we
-//             checked and there are none".
-//   icon    — lucide icon name override (see ICON_OVERRIDES in lib/categories.ts)
-//   images  — [{ src, credit, license, page }] real photos of the spot.
-//             All current photos are freely-licensed works from Wikimedia
-//             Commons; credit + license must stay displayed with the photo.
-//   pano360 — equirectangular panorama URL; setting it enables the 360° view.
-//   openHours — { open: "HH:MM", close: "HH:MM", closedDays?: number[] },
-//             evaluated in Asia/Manila by lib/hours.ts to drive the open/closed
-//             badge. Only set this when the spot genuinely has one daily
-//             window — a spot whose `hours` text says something like "varies",
-//             or one that opens twice a day like the River Park Esplanade, has
-//             no single window to encode, so leave openHours unset rather
-//             than picking a plausible-looking range.
+// These extra fields are optional and only show up on the page if you fill
+// them in — leave them out rather than guessing:
+//   address — full street address, shown as its own row.
+//   fee     — cost as plain text, e.g. "Free" or "₱50 per person".
+//   contact — a real phone number people can tap to call, e.g. "0917 123 4567".
+//   facebook — the page's name, not a link. We don't link directly because a
+//             wrong guess could send visitors to a fake page.
+//   website — a full web address; the label shown is worked out automatically.
+//   amenities — short list of facilities, shown as little tags. Leave the
+//             field out entirely if there are none, rather than an empty list.
+//   icon    — swap in a different icon (see ICON_OVERRIDES in lib/categories.ts).
+//   images  — real photos of the spot with credit and license info, which must
+//             stay visible next to the photo.
+//   pano360 — a 360-degree photo link; adding one turns on the 360° viewer.
+//   openHours — the daily open/close time, used to show an open/closed badge.
+//             Only set this if the spot has one simple daily schedule — skip
+//             it for places with "varies" hours or two separate time windows.
 import type { Spot } from "@/lib/types";
 
 export const spots: Spot[] = [
@@ -265,9 +248,8 @@ export const spots: Spot[] = [
     barangay: "Kaypian",
     address: "Abela Road, Brgy. Kaypian, City of San Jose del Monte, Bulacan",
     category: "parks",
-    // Approximate: placed at the centroid of Brgy. Kaypian. Geocoding the
-    // address put it in Poblacion I, which is the wrong barangay, so the
-    // barangay centre is the more honest placeholder until someone confirms.
+    // Approximate location: the address lookup put this in the wrong
+    // barangay, so we used the middle of Kaypian instead until confirmed.
     lat: 14.81968,
     lng: 121.05912,
     description:
@@ -300,7 +282,10 @@ export const spots: Spot[] = [
         license: "CC BY-SA 4.0",
         page: "https://commons.wikimedia.org/wiki/File:SM_SJDM_View_Deck.jpg",
       },
-    ]
+    ],
+    pano360:
+      "https://upload.wikimedia.org/wikipedia/commons/a/a3/SM_SJDM_VIEW_DECK.jpg"
+    
   },
   {
     id: "starmall",
@@ -333,9 +318,8 @@ export const spots: Spot[] = [
     address:
       "479 Paradise Farm Street, Brgy. Tungkong Mangga, City of San Jose del Monte, Bulacan 3023, Philippines",
     category: "resorts",
-    // Approximate: placed near the barangay's Quirino Highway corridor, close
-    // to smviewdeck's pin — no independently verified coordinate found for
-    // this address. Confirm on the ground before treating this pin as exact.
+    // Approximate location: no confirmed exact coordinates found for this
+    // address yet — verify in person before relying on this pin.
     lat: 14.7845,
     lng: 121.079,
     description:
@@ -370,9 +354,8 @@ export const spots: Spot[] = [
     address:
       "Barangay Sapang Palay Proper, City of San Jose del Monte, Bulacan, Philippines",
     category: "parks",
-    // Approximate: placed within Brgy. Sapang Palay near the reported Area D
-    // sports-complex locality — no independently verified coordinate found.
-    // Confirm on the ground before treating this pin as exact.
+    // Approximate location: no confirmed exact coordinates found yet —
+    // verify in person before relying on this pin.
     lat: 14.8395,
     lng: 121.047,
     description:

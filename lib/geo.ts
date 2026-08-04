@@ -1,6 +1,6 @@
 import type { UserLocation } from "@/lib/types";
 
-// Great-circle distance between two {lat, lng} points, in kilometers.
+// Straight-line distance between two map points, in kilometers (accounts for the Earth's curve).
 const EARTH_RADIUS_KM = 6371;
 
 function toRad(deg: number): number {

@@ -17,17 +17,11 @@ interface SegmentedToggleProps<T extends string> {
   optionClassName: string;
 }
 
-// Shared "segmented control" shell for LocaleToggle and ThemeToggle: a
-// rounded-full border grouping buttons, with a sliding highlight (a single
-// motion.span sharing a layoutId across options) tracking whichever one is
-// active, instead of each button just swapping its own background color.
-//
-// `useId()` scopes the layoutId to this component *instance*: both
-// ThemeToggle and LocaleToggle are mounted twice at once in the page header
-// (one copy shown on mobile, one on desktop, toggled via Tailwind
-// responsive classes rather than unmounting) — a literal shared string
-// would make Motion try to animate the highlight between those two
-// simultaneously-visible copies.
+// Shared button-group style used by the theme and language switches, with a
+// highlight that slides over to whichever option is picked.
+// Each instance gets its own unique ID so the mobile and desktop copies
+// (both exist on screen at once) don't try to slide their highlights into
+// each other.
 export default function SegmentedToggle<T extends string>({
   ariaLabel,
   options,

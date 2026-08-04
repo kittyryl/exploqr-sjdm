@@ -1,16 +1,10 @@
-// Regenerate data/barangays.ts and data/sjdmBoundary.ts from the upstream PSA
-// boundary set:
-//   node scripts/generate-barangays.mjs
-// Needs network access. Rerun it if the barangay list changes or if a spot's
-// barangay stops matching (the script prints the join result).
+// Run this with: node scripts/generate-barangays.mjs
+// It rebuilds data/barangays.ts and data/sjdmBoundary.ts from official government map data.
+// Needs internet access. Rerun if the barangay list changes or a spot's barangay name stops matching.
 //
-// The city boundary is derived as the polygon union of the 59 barangays
-// rather than pulled from a separate source (it used to come from OSM/
-// Nominatim): two independently-digitized outlines of the same city never
-// line up exactly, which showed up on the map as slivers of gap and overhang
-// between the barangay tints and the dashed city border. Unioning the same
-// PSA shapes we already draw guarantees the border traces their combined
-// edge exactly.
+// The city outline is built by merging the 59 barangay shapes together, instead of using
+// a separate map source — two different maps of the same city never line up exactly,
+// which used to leave weird gaps between the barangay colors and the city border.
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -28,8 +22,8 @@ console.log("features:", geo.features.length);
 const R = (n) => Math.round(n * 1e5) / 1e5;
 const key = (lat, lng) => `${R(lat)},${R(lng)}`;
 
-// GeoJSON is [lng,lat]; Leaflet wants [lat,lng]. Flatten Polygon/MultiPolygon
-// down to a list of rings so both shapes render the same way.
+// The map file stores points backwards (lng before lat), so flip them to
+// the order the map display expects.
 function ringsOf(geom) {
   const polys = geom.type === "MultiPolygon" ? geom.coordinates : [geom.coordinates];
   const out = [];
@@ -42,7 +36,7 @@ const items = geo.features.map((f) => ({
   rings: ringsOf(f.geometry),
 }));
 
-// --- adjacency by shared vertices -------------------------------------------
+// --- find which barangays touch each other ---
 const vertexOwners = new Map();
 items.forEach((it, i) => {
   const seen = new Set();
@@ -64,7 +58,7 @@ for (const owners of vertexOwners.values()) {
 const degs = adj.map((s) => s.size);
 console.log("adjacency: min", Math.min(...degs), "max", Math.max(...degs), "isolated", degs.filter((d) => d === 0).length);
 
-// --- greedy graph colouring (Welsh-Powell): neighbours never share a tint ----
+// --- pick colors so touching barangays never get the same one ---
 const order = items.map((_, i) => i).sort((a, b) => adj[b].size - adj[a].size);
 const color = new Array(items.length).fill(-1);
 for (const i of order) {
@@ -75,12 +69,12 @@ for (const i of order) {
 }
 console.log("colours used:", Math.max(...color) + 1);
 
-// verify no neighbour clash
+// double-check no touching barangays got the same color
 let clashes = 0;
 adj.forEach((ns, i) => ns.forEach((n) => { if (color[i] === color[n]) clashes++; }));
 console.log("neighbour colour clashes:", clashes);
 
-// --- label anchor: area-weighted centroid of the largest ring ---------------
+// --- find the best spot to place each barangay's name label ---
 function centroid(ring) {
   let a = 0, cy = 0, cx = 0;
   for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
@@ -101,12 +95,9 @@ function ringArea(ring) {
   return Math.abs(a / 2);
 }
 
-// The zoom at which this barangay is finally wide enough to carry its own
-// name. Web-mercator tiles are 256px and span 360deg at z0, so a shape roughly
-// sqrt(area) degrees across is sqrt(area)*256*2^z/360 pixels across. Solve for
-// the zoom that clears MIN_PX and you get progressive disclosure by size: the
-// big southern barangays label immediately, the slivers around Sapang Palay
-// wait until they can actually hold the text.
+// Works out how far you need to zoom in before a barangay is big enough on
+// screen to show its name. Bigger barangays get labeled sooner; small
+// slivers wait until there's room for the text.
 const MIN_PX = 74;
 function minZoomFor(area) {
   const deg = Math.sqrt(area);
@@ -132,43 +123,36 @@ const byZoom = {};
 for (const o of out) byZoom[o.minZoom] = (byZoom[o.minZoom] || 0) + 1;
 console.log("\nlabels revealed per zoom:", JSON.stringify(byZoom));
 
-// --- city boundary: dissolve the 59 barangays into one outline -------------
-// Union needs GeoJSON [lng, lat] Polygon/MultiPolygon features, so this runs
-// on `geo.features` directly rather than the already-reprojected `items`.
+// --- merge the 59 barangays into one city outline ---
+// This uses the original map data, before the point order was flipped above.
 const dissolved = geo.features
   .map((f) => ({ type: "Feature", properties: {}, geometry: f.geometry }))
   .reduce((acc, f) => (acc ? union({ type: "FeatureCollection", features: [acc, f] }) : f));
 const dissolvedPolys =
   dissolved.geometry.type === "MultiPolygon" ? dissolved.geometry.coordinates : [dissolved.geometry.coordinates];
-// Flatten to a flat ring list. Leaflet draws each ring as its own closed
-// path, so a MultiPolygon (e.g. a landlocked barangay leaving a doughnut
-// hole) still renders correctly whether the boundary is one piece or several.
+// Turn the shape into a simple list of outlines the map can draw, even if
+// the city boundary ends up in more than one piece.
 const cityRings = dissolvedPolys.flatMap((poly) => poly.map((ring) => ring.map(([lng, lat]) => [R(lat), R(lng)])));
 console.log("\ncity boundary rings:", cityRings.length, "points:", cityRings.reduce((n, r) => n + r.length, 0));
 
-// --- cross-check against the barangays used in data/spots.ts ---------------
+// --- check that every barangay name used in data/spots.ts actually exists ---
 const spotsSrc = fs.readFileSync(path.join(ROOT, "data/spots.ts"), "utf8");
 const used = [...new Set([...spotsSrc.matchAll(/barangay:\s*"([^"]+)"/g)].map((m) => m[1]))];
 const names = new Set(out.map((o) => o.name));
 console.log("\nbarangays referenced by spots:", used.length);
 for (const u of used) console.log(`  ${names.has(u) ? "MATCH  " : "NO MATCH"} ${u}`);
 
-const body = `// Barangay boundaries for the City of San Jose del Monte (59 barangays).
+const body = `// The shape data for the map: the 59 barangay boundaries of San Jose del Monte.
 //
-// Source: Philippine Statistics Authority administrative boundaries, via
-// github.com/faeldon/philippines-json-maps (MIT), 2019 medium-resolution set,
-// municipality PSGC 031420000. Coordinates are [lat, lng] pairs ready for
-// Leaflet, rounded to 5 decimals (~1 m) and reprojected from GeoJSON's
-// [lng, lat] order.
+// Source: official Philippine government map data (2019), City of San Jose del Monte.
+// Points are stored as [lat, lng] pairs, rounded to about 1 meter of precision.
 //
-// GENERATED FILE — do not hand-edit. \`tint\` is a palette slot (not a
-// category): the generator builds an adjacency graph from shared vertices and
-// greedy-colours it, so no two barangays that touch ever get the same tint.
-// \`minZoom\` is the zoom at which the barangay is finally wide enough to hold
-// its own name — labels appear progressively by size rather than all at once,
-// which is what keeps the Sapang Palay slivers from piling up. Barangays that
-// contain a destination are labelled regardless.
-// \`center\` is the area-weighted centroid of each barangay's largest ring.
+// This file is auto-generated — don't edit it by hand. \`tint\` is just a color
+// slot, picked so no two touching barangays share a color. \`minZoom\` controls
+// how far you must zoom in before a barangay's name label appears (small
+// barangays wait until there's room to show the text; barangays with a
+// destination inside always show their name). \`center\` is where the label
+// is placed.
 export interface Barangay {
   name: string;
   tint: number;
@@ -179,21 +163,19 @@ export interface Barangay {
 
 export const barangays: Barangay[] = ${JSON.stringify(out)};
 `;
-// Match the platform's line endings, so rerunning this on Windows doesn't
-// leave the file showing as modified with an EOL-only diff.
+// Use Windows-style line endings so re-running this doesn't show the file
+// as changed for no real reason.
 fs.writeFileSync(path.join(ROOT, "data/barangays.ts"), body.replace(/\n/g, os.EOL));
 console.log("\nwrote data/barangays.ts —", (body.length / 1024).toFixed(1), "KB");
 
-const boundaryBody = `// Administrative boundary of San Jose del Monte, Bulacan.
+const boundaryBody = `// The shape data for the map: the outer edge of San Jose del Monte, Bulacan.
 //
-// GENERATED FILE — do not hand-edit. Derived by dissolving the 59 barangay
-// polygons in data/barangays.ts into one outline (see
-// scripts/generate-barangays.mjs), rather than pulled from a separate
-// source: two independently-digitized outlines of the same city never line
-// up exactly, which used to leave visible gaps/overhangs between the
-// barangay tints and this border. Source: Philippine Statistics Authority
-// administrative boundaries, via github.com/faeldon/philippines-json-maps
-// (MIT). Rings are [lat, lng] pairs, ready for Leaflet.
+// This file is auto-generated — don't edit it by hand. It's made by merging
+// the 59 barangay shapes in data/barangays.ts into one outline (see
+// scripts/generate-barangays.mjs), instead of using a separate map source —
+// two different maps of the same city never line up exactly, which used to
+// leave visible gaps along this border. Source: official Philippine
+// government map data. Points are [lat, lng] pairs.
 export const sjdmBoundary: number[][][] = ${JSON.stringify(cityRings)};
 `;
 fs.writeFileSync(path.join(ROOT, "data/sjdmBoundary.ts"), boundaryBody.replace(/\n/g, os.EOL));

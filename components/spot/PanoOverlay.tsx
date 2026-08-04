@@ -7,7 +7,7 @@ import { X } from "lucide-react";
 import { useFocusTrap } from "@/lib/hooks/useFocusTrap";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
-// Pannellum needs the browser; only load the viewer once the overlay opens.
+// The 360 viewer only works in the browser, so it's loaded only once this overlay opens.
 const Pano360Viewer = dynamic(() => import("@/components/spot/Pano360Viewer"), {
   ssr: false,
   loading: () => (
@@ -17,11 +17,9 @@ const Pano360Viewer = dynamic(() => import("@/components/spot/Pano360Viewer"), {
   ),
 });
 
-// Full-screen 360° viewer, opened from the last tile of the photo gallery.
-// Mirrors PhotoLightbox's chrome and isolation: Escape is captured ahead of the
-// modal's own listener so closing the panorama doesn't also close the spot
-// modal underneath, and body-scroll locking is left to SpotModal (this only
-// ever opens from inside it).
+// Full-screen 360° viewer, opened from the last tile in the photo gallery.
+// The Escape key is handled here first so it only closes this, not the spot
+// window underneath.
 export default function PanoOverlay({
   src,
   title,

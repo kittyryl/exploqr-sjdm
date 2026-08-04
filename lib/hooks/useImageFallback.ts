@@ -2,19 +2,18 @@
 
 import { useEffect, useState } from "react";
 
-// Every photo in this app is hotlinked from Wikimedia Commons; a dead URL
-// should read as a designed gap, not a broken-image glyph. Shared by
-// SpotList, SpotMedia, and PhotoLightbox.
+// Photos are linked from Wikimedia and sometimes go dead — when that happens
+// we want a clean placeholder, not a broken-image icon. Shared by the photo
+// grid, the spot detail panel, and the full-screen photo viewer.
 //
-// The grid is server-rendered, so a photo can fail while the HTML is still
-// parsing — before React attaches onError, which then never fires. `checkOnMount`
-// re-checks the settled state once the element exists, so a pre-hydration
-// failure still registers; pass it as the image's `ref`.
+// Photos can appear on the page before the app has fully loaded, so a broken
+// photo might fail too early to be caught the normal way. `checkOnMount`
+// double-checks each photo once it's on screen, so early failures still get
+// caught — pass it as the image's `ref`.
 //
-// `resetKey` re-arms the failure flag when it changes — pass the thing that
-// identifies "a different image now occupies this slot" (e.g. PhotoLightbox's
-// index). Omit it for a component instance that's never reused for a
-// different image (e.g. one grid tile per spot).
+// `resetKey` clears the "failed" flag when it changes — pass something that
+// changes whenever a different photo takes this slot (like the photo index
+// in the full-screen viewer). Skip it if this slot always shows the same photo.
 export function useImageFallback(resetKey?: unknown) {
   const [failed, setFailed] = useState(false);
 
@@ -30,9 +29,9 @@ export function useImageFallback(resetKey?: unknown) {
   return { failed, onError: () => setFailed(true), checkOnMount };
 }
 
-// Same idea, but for a component that shows one of several images at a time
-// (SpotMedia's thumbnail strip) — failure is keyed by src so it sticks to
-// the photo that failed rather than whichever slot happens to be active.
+// Same idea, but for showing several photos at once (the thumbnail strip).
+// Failures are tracked per photo, so the right thumbnail stays marked broken
+// even as the active one changes.
 export function useImageFallbackMap() {
   const [failedMap, setFailedMap] = useState<Record<string, boolean>>({});
 

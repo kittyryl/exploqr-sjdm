@@ -11,15 +11,14 @@ const FOCUSABLE = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(", ");
 
-// Overlays that are open right now, oldest first. The lightbox renders inside
-// the modal's DOM tree, so without this only-the-topmost-traps rule the modal
-// would grab Tab from the lightbox and walk focus into the card behind it.
+// Tracks which popups are open right now, oldest first. Only the newest one
+// should control the Tab key, or pressing Tab in the photo viewer could
+// jump focus to the card behind the modal it opened from.
 const openTraps: object[] = [];
 
-// Keeps Tab inside `ref`'s subtree while `active`, and returns focus to
-// whatever was focused before the overlay opened. Pass `active` as a boolean
-// that stays true across content changes (not the content itself) — otherwise
-// the restore target is recaptured every time the content swaps.
+// Stops keyboard users from tabbing out of the open panel, and puts focus
+// back where it was once it closes. `active` should stay true even while the
+// panel's content changes, or it'll forget where to restore focus to.
 export function useFocusTrap(ref: RefObject<HTMLElement | null>, active: boolean): void {
   useEffect(() => {
     if (!active) return;
@@ -35,8 +34,8 @@ export function useFocusTrap(ref: RefObject<HTMLElement | null>, active: boolean
       const panel = ref.current;
       if (!panel) return;
 
-      // Queried per keypress, not on mount: the media panel's thumbnail
-      // buttons come and go with the spot.
+      // Re-checked on every key press, not just once, since the photo
+      // thumbnails can appear or disappear as the spot changes.
       const focusable = Array.from(
         panel.querySelectorAll<HTMLElement>(FOCUSABLE)
       ).filter((el) => el.offsetParent !== null);

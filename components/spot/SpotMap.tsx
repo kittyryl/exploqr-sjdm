@@ -26,22 +26,15 @@ import type { Spot, UserLocation } from "@/lib/types";
 
 const TILE_ATTRIBUTION = "© OpenStreetMap contributors © CARTO";
 
-// Voyager, not Positron. Positron is built to disappear under data — which is
-// right for a dashboard and wrong here, where the map *is* the content and its
-// emptiness read as an unfinished page. Voyager carries the Sierra Madre's
-// green, the road hierarchy, and the reservoirs, so the biggest area on the
-// page finally says something. Same provider and attribution, still no key.
-//
-// Dark mode keeps dark_all: Voyager has no dark sibling, and light tiles on a
-// dark page glare and wash out the boundary mask.
+// Uses a more colorful, detailed map style instead of a plain one, since the
+// map is the main content here, not just a backdrop.
+// Dark mode uses its own separate dark map style so it isn't too bright at night.
 const TILE_URL_LIGHT =
   "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
 const TILE_URL_DARK =
   "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
 
-// A world-sized outer ring with the city boundary as a hole: everything
-// outside San Jose del Monte gets a translucent paper wash, so the city
-// itself reads as the focus of the map.
+// Fades out everything outside San Jose del Monte so the city stands out.
 const WORLD_RING: [number, number][] = [
   [-90, -180],
   [-90, 180],
@@ -49,15 +42,8 @@ const WORLD_RING: [number, number][] = [
   [90, -180],
 ];
 
-// Tile URLs and the divIcon HTML below are strings, not React — but the
-// colors are still CSS variables, since this markup lands in the document
-// and resolves them like anything else.
-//
-// The CSS variables pick up an explicit light/dark override automatically
-// (globals.css keys off `data-theme`), but a raster tile URL has to be
-// chosen in JS, so it needs the same override explicitly: "system" still
-// tracks the OS live, but an explicit choice must win over it rather than
-// silently falling back to `prefers-color-scheme` like the map used to.
+// Decides whether to show the light or dark map. If the visitor picked a
+// theme manually, that choice wins over their device's setting.
 function usePrefersDark(): boolean {
   const { theme } = useTheme();
   const [osDark, setOsDark] = useState(false);
@@ -73,20 +59,9 @@ function usePrefersDark(): boolean {
   return osDark;
 }
 
-// Each pin is built exactly once and never rebuilt for selection — selection
-// is a class toggled on the marker element (see the effect in SpotMap), so the
-// DOM survives and its CSS transitions/animations can actually run. The old
-// code rebuilt every icon on every selectedId change, which recreated the DOM
-// and silently killed the width/height transition it declared.
-//
-// The markup nests two elements on purpose: `__drop` owns the staggered
-// entrance (translate + fade, driven by --i), `__dot` owns the selected pop
-// (a scale transition) and the pulse. Keeping them separate stops the entrance
-// transform and the selected-scale transform from fighting over one element.
-// Size, shadows, colors, and both animations live in globals.css.
-// Pin geometry. The circle carries the photo; the tail below it is what
-// actually points at the coordinate, so the icon is anchored at the tip
-// rather than at its centre the way the old dot was.
+// Each pin icon is made once and just gets highlighted when picked, rather
+// than rebuilt — rebuilding it used to break the highlight animation.
+// Pin shape: the circle shows the photo, the pointed tail marks the exact spot.
 const PIN_SIZE = 46;
 const PIN_TAIL = 10;
 
@@ -97,27 +72,19 @@ function markerIcon(spot: Spot, index: number): L.DivIcon {
     <Icon size={18} color="#ffffff" strokeWidth={2.25} />
   );
 
-  // The photo rides on top of the category icon rather than replacing it, so
-  // the two spots with no photo — and any spot whose Wikimedia URL dies —
-  // simply show the pin this map has always drawn. `onerror` removes the
-  // broken image and uncovers it; a broken-image glyph on a 46px pin would be
-  // the ugliest thing on the map.
-  //
-  // Routed through the Next image optimizer instead of hotlinking: the
-  // originals are 960px wide and there is one per pin. w=96 covers the 46px
-  // circle at 2x and is a configured image size, so the endpoint accepts it.
+  // The photo sits on top of the category icon. If the photo fails to load it
+  // just disappears, showing the plain icon instead of a broken-image icon.
+  // Photos are resized down for the small pin so the map loads faster.
   const photo = spot.images?.[0]?.src;
   const img = photo
     ? `<img class="spot-marker__img" alt="" loading="lazy" decoding="async"
         src="/_next/image?url=${encodeURIComponent(proxiedSrc(photo))}&w=96&q=75"
         onerror="this.remove()">`
     : "";
-  // The aria-label isn't localized to the current UI language — this HTML
-  // string is built outside React (no locale to read), so it always resolves
-  // through lib/i18n's own English fallback chain via text().
+  // The screen-reader label always uses English here, since this part can't
+  // access the visitor's chosen language.
   const label = text(spot.name).replace(/"/g, "&quot;");
-  // `color:${fill}` sets currentColor so the pulse ring and the selected halo
-  // both pick up the category color without re-templating it.
+  // Sets the pin's color once so the glow and highlight ring both match it automatically.
   return L.divIcon({
     className: "spot-marker",
     html: `<div class="spot-marker__drop" style="--i:${index}">
@@ -130,8 +97,7 @@ function markerIcon(spot: Spot, index: number): L.DivIcon {
   });
 }
 
-// Fits the map to the currently visible markers (and the user's location,
-// if known) on mount and whenever that set changes.
+// Zooms and centers the map to fit all visible spots (and the visitor's location, if known).
 function FitToSpots({ spots, userLocation }: { spots: Spot[]; userLocation: UserLocation | null }) {
   const map = useMap();
   const key = useMemo(
@@ -158,19 +124,11 @@ function useZoom(): number {
   return zoom;
 }
 
-// The city's 59 barangays, tinted so neighbours are distinguishable and
-// labelled by name — the shape of the printed City Tourism Office map, kept
-// translucent so the basemap underneath still does its job.
-//
-// interactive={false} throughout: these are a backdrop, and a barangay
-// swallowing a click meant for a pin would be a real regression. Permanent
-// tooltips render without needing pointer events.
-// Labels appear progressively by size: each barangay carries the zoom at which
-// it's finally wide enough to hold its own name (see scripts/generate-
-// barangays.mjs). A single global cutoff doesn't work here — Tungkong Mangga
-// is legible from the default view while the San Rafael and Fatima slivers
-// around Sapang Palay pile into an unreadable knot until far deeper in. The
-// barangays holding a destination are always named, whatever the zoom.
+// Shows all 59 barangays as colored, named areas in the background. They
+// can't be clicked, so taps always reach the pins instead.
+// Barangay names only appear once you've zoomed in enough to read them
+// clearly, since small barangays get crowded at low zoom. Barangays with a
+// tourist spot always show their name, though.
 function BarangayLayer({ spots }: { spots: Spot[] }) {
   const zoom = useZoom();
   const withSpots = useMemo(() => barangaysWithSpots(spots), [spots]);
@@ -217,30 +175,22 @@ export default function SpotMap({ spots, selectedId, onSelect, userLocation }: S
   const prefersDark = usePrefersDark();
   const { t, text: localizedText } = useLocale();
 
-  // The set of visible spots, order-independent: toggling "Near me" reorders
-  // `spots` but shouldn't rebuild pins (that would replay the drop-in and reset
-  // the stagger). Filtering, which changes the set, should.
+  // Tracks which spots are showing, regardless of order, so sorting by
+  // distance doesn't replay the pin drop-in animation.
   const generation = useMemo(
     () => spots.map((s) => s.id).slice().sort().join(","),
     [spots]
   );
 
-  // Built once per generation. Not keyed on selectedId: selection is a class
-  // toggle below, so these icon instances stay stable and their DOM is never
-  // recreated on click. Stagger index is fixed at build time.
+  // Pin icons are built once and reused, not rebuilt when a pin is selected.
   const icons = useMemo(
     () => Object.fromEntries(spots.map((s, i) => [s.id, markerIcon(s, i)])),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [generation]
   );
 
-  // Selection is a class toggled on the live marker element, not a rebuilt
-  // icon (a rebuild recreates the DOM and kills the pop transition). A marker's
-  // element only exists once it's been *added* to the map, which happens after
-  // this component's own effects (MapContainer renders its children, and each
-  // Marker adds itself, asynchronously once the map is ready). So `mapReady`
-  // bumps on every marker's `add` event, forcing this effect to re-run once the
-  // elements actually exist; it also re-runs whenever the selection changes.
+  // Highlights the selected pin by tagging its element, once it's actually
+  // on the map. Re-runs whenever pins finish loading or the selection changes.
   const markerRefs = useRef(new Map<string, L.Marker>());
   const [mapReady, setMapReady] = useState(0);
   const markReady = useCallback(() => setMapReady((n) => n + 1), []);
@@ -256,11 +206,8 @@ export default function SpotMap({ spots, selectedId, onSelect, userLocation }: S
     []
   );
 
-  // Stable per-spot eventHandlers/ref identities, rebuilt only when the
-  // visible set changes (`generation`) — react-leaflet diffs `eventHandlers`
-  // by reference and re-registers every marker's DOM listeners when it sees
-  // a new object, so a fresh literal per render was churning every marker's
-  // listeners on every SpotMap re-render, not just the one that changed.
+  // Keeps click handlers stable between renders so the map doesn't redo
+  // unnecessary work on every re-render.
   const eventHandlersById = useMemo(
     () =>
       Object.fromEntries(
@@ -294,32 +241,23 @@ export default function SpotMap({ spots, selectedId, onSelect, userLocation }: S
       scrollWheelZoom={false}
       className="h-full w-full"
     >
-      {/* Keyed so the layer is rebuilt, not just re-pointed, on theme change */}
+      {/* Forces the map to fully reload its tiles when switching light/dark mode */}
       <TileLayer
         key={prefersDark ? "dark" : "light"}
         url={prefersDark ? TILE_URL_DARK : TILE_URL_LIGHT}
         attribution={TILE_ATTRIBUTION}
       />
-      {/* Under the dim mask, so the wash still reads over the tinted city. */}
+      {/* Sits below the dimming layer so the barangay colors still show through */}
       <BarangayLayer spots={spots} />
-      {/* Dim everything outside the city. fillColor/color are dead values that
-          the .map-dim-mask / .map-boundary CSS rules override — Leaflet can't
-          write a var() into an SVG attribute. className goes through
-          eventHandlers.add rather than pathOptions: react-leaflet's
-          setStyle-based pathOptions update never touches the DOM class
-          attribute (only Leaflet's own _initPath does, once, before that
-          update runs), so a className in pathOptions is silently a no-op —
-          the path was rendering with Leaflet's stock blue until this
-          switched to the same getElement()-on-add pattern the markers use. */}
+      {/* Dims the area outside the city. The color comes from a style class
+          rather than a setting here, since the setting alone didn't work. */}
       <Polygon
         positions={[WORLD_RING, ...sjdmBoundary] as L.LatLngExpression[][]}
         interactive={false}
         eventHandlers={{ add: (e) => e.target.getElement()?.classList.add("map-dim-mask") }}
         pathOptions={{
           stroke: false,
-          // Enough wash to make the city read as the subject, not so much that
-          // the surrounding terrain becomes more blank page. Worth less now
-          // that the basemap underneath is worth seeing.
+          // Just enough fading to keep focus on the city without hiding the map underneath.
           fillOpacity: 0.5,
         }}
       />
@@ -369,10 +307,8 @@ export default function SpotMap({ spots, selectedId, onSelect, userLocation }: S
             eventHandlers={eventHandlersById[spot.id]}
           >
             <Tooltip
-              // Names are always on the map now rather than waiting for a
-              // hover — a printed map labels its places. Pins are anchored at
-              // the tail tip, so the label hangs just under that point and
-              // never covers the pin it belongs to.
+              // Spot names are always shown, like labels on a printed map,
+              // not just when hovered.
               permanent
               direction="bottom"
               offset={[0, 3]}

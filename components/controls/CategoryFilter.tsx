@@ -14,10 +14,9 @@ interface CategoryFilterProps {
   onChange: (key: CategoryFilterKey) => void;
 }
 
-// Filter chips: "All spots" plus one chip per category, each with a count.
-// An active category chip fills with that category's `block` color, so the
-// control states which filter is on in the same color the tiles and pins
-// already use. "All spots" has no color of its own and stays ink.
+// Filter buttons: "All spots" plus one button per category, each with a count.
+// A selected category button fills with that category's own colour, matching
+// the map. "All spots" has no colour of its own, so it just goes dark.
 export default function CategoryFilter({ spots, active, onChange }: CategoryFilterProps) {
   const { t } = useLocale();
   const chips = useMemo(
@@ -68,8 +67,7 @@ export default function CategoryFilter({ spots, active, onChange }: CategoryFilt
                   : PILL_BUTTON_INACTIVE
               }`}
             >
-              {/* The dot names the category color; once the chip *is* that
-                  color, the dot is repeating itself. */}
+              {/* Hide the colour dot once the button itself is that colour — no need to show it twice. */}
               {chip.dot && !isActive && (
                 <span
                   aria-hidden="true"
@@ -78,14 +76,13 @@ export default function CategoryFilter({ spots, active, onChange }: CategoryFilt
                 />
               )}
               {chip.label}
-              {/* Full opacity on an active chip: the muted /70 that works on
-                  paper drops white on the leisure block under AA. */}
+              {/* Selected buttons need solid white text — the usual faded version is too hard to read here. */}
               <span className={isActive ? "" : "text-ink/70"}>{chip.count}</span>
             </button>
           );
         })}
       </nav>
-      {/* Hints that the chip rail scrolls further right, on mobile only */}
+      {/* Shows a fade hint that there are more buttons to scroll to, on mobile only */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-paper to-transparent sm:hidden"

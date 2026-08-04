@@ -6,17 +6,15 @@ import { useLocale } from "@/components/providers/LocaleProvider";
 
 const DISMISS_KEY = "exploqr-install-dismissed";
 
-// Not in the DOM lib: a Chromium-only event, still behind a spec draft.
+// This event type only exists in Chrome-based browsers, not everywhere yet.
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
 }
 
-// Lets visitors install the app to their home screen — the point of doing
-// so here is offline-friendly access at spots with weak signal (Balagbag,
-// Kaytitinga Falls). Chrome/Android gets a real install button via
-// beforeinstallprompt; iOS Safari has no such API, so it gets instructions
-// instead. Hidden once dismissed (localStorage) or already installed.
+// Lets visitors add the app to their home screen, useful at spots with weak
+// signal. Android gets a real install button; iPhones don't support that, so
+// they get instructions instead. Hidden once dismissed or already installed.
 export default function InstallPrompt() {
   const { t } = useLocale();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);

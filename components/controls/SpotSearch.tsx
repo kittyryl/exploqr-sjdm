@@ -8,11 +8,9 @@ interface SpotSearchProps {
   onChange: (value: string) => void;
 }
 
-// Free-text filter that sits between the map heading and the map itself.
-// Combines with CategoryFilter (AND logic) in page.js's visibleIn — typing
-// here narrows the same `visible` set the category chips narrow, so the map's
-// existing FitToSpots re-fits to whatever matches without any new "fly to"
-// logic.
+// Search box that narrows the same list of spots the category filters do,
+// so typing here and picking a category work together, and the map
+// auto-zooms to whatever's left.
 export default function SpotSearch({ value, onChange }: SpotSearchProps) {
   const { t } = useLocale();
 

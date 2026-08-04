@@ -29,18 +29,17 @@ function Fact({
   );
 }
 
-// The practical details, one labelled cell each. Cells for details nobody has
-// confirmed yet are dropped rather than filled with a placeholder, and the
-// grid reflows around the gap — an "N/A" claims we checked and there is none.
-// `hours` is required on Spot, so the grid is never empty.
+// Practical details, one per box. Unconfirmed details are left out entirely
+// instead of showing "N/A", since that would wrongly suggest we checked.
+// Hours is always shown, so this grid is never empty.
 export default function SpotFactGrid({ spot }: { spot: Spot }) {
   const { t, text } = useLocale();
   const openStatus = isOpenNow(spot.openHours);
 
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-      {/* Full width: a street address wraps to two lines in a half cell and
-          drags the row it shares out of alignment. */}
+      {/* Full width, since a street address wrapping in a half-size box
+          would look messy. */}
       {spot.address && (
         <Fact label={t("spot.addressLabel")} wide>
           <span className="font-normal">{spot.address}</span>
@@ -86,9 +85,8 @@ export default function SpotFactGrid({ spot }: { spot: Spot }) {
         </Fact>
       )}
 
-      {/* The page name as the tourism office records it, not a link: these
-          have no verified vanity URLs, and a guessed one could point visitors
-          at an impostor page. */}
+      {/* Shown as plain text, not a link: we can't verify the Facebook page
+          URL, and a wrong guess could send people to a fake page. */}
       {spot.facebook && <Fact label={t("spot.facebookLabel")}>{spot.facebook}</Fact>}
 
       {spot.contact && (

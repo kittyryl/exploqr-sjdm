@@ -3,13 +3,16 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { CATEGORY_HEX } from "@/lib/ogGlyph";
 
-// Static, English-only: shared link previews render before any client-side
-// locale or theme choice exists, so this can't read LocaleProvider/
-// ThemeProvider — same constraint InstallPrompt and the SpotMap loading
-// fallback already live with. Colors are the light-theme category accents
-// and paper/ink from globals.css, hardcoded (via lib/ogGlyph's CATEGORY_HEX)
-// because Satori renders outside the page's CSS and can't resolve custom
-// properties.
+const LOGO_DATA_URL = async () => {
+  const logo = await readFile(join(process.cwd(), "public/logo.png"));
+  return `data:image/png;base64,${logo.toString("base64")}`;
+};
+
+// This preview image is always English and always light-themed, because it's
+// built before the page (and its language/theme settings) exist. Colours are
+// typed in by hand here instead of pulled from the site's usual colour
+// settings, and the logo is embedded directly since it can't be fetched like
+// a normal image at this stage.
 export const alt =
   "ExploQR SJDM — Shrines, summits, falls & fairways. A field guide to San Jose del Monte, Bulacan.";
 export const size = { width: 1200, height: 630 };
@@ -22,64 +25,11 @@ const RELIGIOUS = CATEGORY_HEX.religious;
 const NATURE = CATEGORY_HEX.nature;
 const LEISURE = CATEGORY_HEX.leisure;
 
-// The QR-finder-pattern glyph from components/Glyph.js, rebuilt in absolutely
-// positioned divs — Satori's supported CSS subset doesn't reliably cover
-// inline <svg>, but plain positioned boxes are safe.
-function Glyph() {
-  return (
-    <div style={{ position: "relative", width: 48, height: 48, display: "flex" }}>
-      <div
-        style={{
-          position: "absolute",
-          left: 0,
-          top: 0,
-          width: 20,
-          height: 20,
-          borderRadius: 5,
-          backgroundColor: RELIGIOUS.fill,
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          left: 28,
-          top: 0,
-          width: 20,
-          height: 20,
-          borderRadius: 5,
-          backgroundColor: NATURE.fill,
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          left: 0,
-          top: 28,
-          width: 20,
-          height: 20,
-          borderRadius: 5,
-          backgroundColor: LEISURE.fill,
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          left: 31,
-          top: 31,
-          width: 14,
-          height: 14,
-          borderRadius: 7,
-          backgroundColor: INK,
-        }}
-      />
-    </div>
-  );
-}
-
 export default async function Image() {
-  const [bricolage, spaceMono] = await Promise.all([
+  const [bricolage, spaceMono, logoSrc] = await Promise.all([
     readFile(join(process.cwd(), "assets/fonts/BricolageGrotesque-ExtraBold.ttf")),
     readFile(join(process.cwd(), "assets/fonts/SpaceMono-Bold.ttf")),
+    LOGO_DATA_URL(),
   ]);
 
   return new ImageResponse(
@@ -96,7 +46,7 @@ export default async function Image() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <Glyph />
+          <img src={logoSrc} width={64} height={64} alt="" />
           <div style={{ display: "flex", fontFamily: "Bricolage Grotesque", fontSize: 36, fontWeight: 800 }}>
             <span style={{ color: INK }}>ExploQR</span>
             <span style={{ color: INK_MUTED, marginLeft: 12 }}>SJDM</span>

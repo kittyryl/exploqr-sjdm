@@ -1,16 +1,13 @@
 import { barangays } from "@/data/barangays";
 import type { Spot } from "@/lib/types";
 
-// Number of palette slots the generator coloured the map with; the CSS carries
-// one `.map-brgy--N` rule per slot. See data/barangays.ts.
+// How many map colors we use for barangays; the CSS has a matching style for each. See data/barangays.ts.
 export const BARANGAY_TINTS = 5;
 
-// `data/spots.ts` records the barangay as a person would write it on a flyer,
-// which is not always the PSA's name for it. Everything here is a spelling or
-// specificity gap, not a disagreement about where a spot is:
-//   - "Sto."/"Sta." are the everyday contractions of Santo/Santa.
-//   - "Area C, Brgy. Paradise" names a subdivision inside the barangay;
-//     Paradise III is the only Paradise in the city's 59.
+// Spot data uses casual barangay names (like on a flyer), not always the official spelling.
+// These are just spelling fixes, not disagreements about where a spot actually is:
+//   - "Sto."/"Sta." are short for Santo/Santa.
+//   - "Area C, Brgy. Paradise" means Paradise III, the only Paradise barangay in the city.
 const ALIASES: Record<string, string> = {
   "area c, brgy. paradise": "Paradise III",
 };
@@ -28,9 +25,7 @@ function normalize(raw: string): string {
     .trim();
 }
 
-// The official barangay name for a spot, or null when it can't be resolved —
-// callers treat null as "don't highlight anything" rather than guessing, since
-// a wrong highlight points visitors at the wrong part of the city.
+// Finds the official barangay name for a spot, or null if unsure — better to show nothing than point visitors to the wrong place.
 export function resolveBarangay(raw: string): string | null {
   const direct = CANON.get(raw.toLowerCase());
   if (direct) return direct;
@@ -41,9 +36,7 @@ export function resolveBarangay(raw: string): string | null {
   return CANON.get(normalize(raw)) ?? null;
 }
 
-// The set of barangays that actually contain a visible destination. These are
-// the ones worth labelling before the reader zooms in — 59 names at once is
-// noise on a phone.
+// Only the barangays that actually have a spot in them — labeling all 59 on the map at once would be too cluttered on a phone.
 export function barangaysWithSpots(spots: Spot[]): Set<string> {
   const out = new Set<string>();
   for (const s of spots) {

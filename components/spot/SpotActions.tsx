@@ -9,9 +9,8 @@ import type { Spot } from "@/lib/types";
 const ACTION =
   "flex flex-1 items-center justify-center gap-2 rounded-[10px] px-4 py-2.5 text-sm font-semibold transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink motion-reduce:transition-none motion-reduce:hover:translate-y-0";
 
-// What to do next: get there, or look around first. The waypoint sits above
-// them because it's a reference, not an action — it used to head the card,
-// where it outranked the spot's own name.
+// Buttons for what to do next: get directions or look around first. The
+// coordinates sit above them since they're just a reference, not a button.
 export default function SpotActions({
   spot,
   media,
@@ -38,8 +37,8 @@ export default function SpotActions({
           <Navigation size={15} aria-hidden="true" />
           {t("spot.directions")}
         </a>
-        {/* Always shown so the panorama is a discoverable feature; disabled
-            and greyed when this spot has no 360° yet, rather than vanishing. */}
+        {/* Always shown, but greyed out and disabled if this spot has no
+            360° view yet, so people know the feature exists. */}
         <button
           type="button"
           onClick={media.openPano}

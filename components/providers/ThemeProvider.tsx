@@ -15,12 +15,8 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-// Mirrors LocaleProvider: the page is fully static, so the saved choice
-// comes from localStorage after mount rather than SSR — same one-frame
-// trade already accepted for locale. "system" removes `data-theme` entirely
-// so the `prefers-color-scheme` block in globals.css keeps driving the
-// no-JS, no-flash default; only an explicit light/dark choice sets the
-// attribute and overrides it.
+// The saved theme choice is only known once the page loads in the browser.
+// "System" means follow the device's setting; picking light or dark overrides it.
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = usePersistentChoice(
     THEME_STORAGE_KEY,

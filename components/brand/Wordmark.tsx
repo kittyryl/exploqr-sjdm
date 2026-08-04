@@ -1,11 +1,10 @@
-import Glyph from "@/components/brand/Glyph";
 import Image from 'next/image';
 
 export default function Wordmark() {
   return (
     <div className="flex items-center gap-2.5">
       <Image
-        src="/final-logo.png"
+        src="/logo.png"
         alt="ExploQR SJDM"
         width={60}
         height={60}

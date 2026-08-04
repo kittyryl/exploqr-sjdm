@@ -3,17 +3,11 @@
 import { useState, type FormEvent } from "react";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
-// The visitor's note reaches the City Tourism Office by way of Web3Forms:
-// the form POSTs straight to their API with a public access key, and they
-// relay the message to the office inbox. No server route and no secret of
-// our own to host — the key is *meant* to be public (it only ever grants
-// "send a message to this one inbox"), so it rides in NEXT_PUBLIC_ and is
-// inlined at build. Set it in .env.local:
-//
-//   NEXT_PUBLIC_WEB3FORMS_KEY=your-access-key-from-web3forms.com
-//
-// Until it's set, the form renders but explains it isn't wired up yet rather
-// than failing silently on submit.
+// The feedback form sends messages straight to Web3Forms using a public key
+// — no server needed, and the key is safe to show publicly since it can
+// only send messages to one inbox. Set it in .env.local as
+// NEXT_PUBLIC_WEB3FORMS_KEY=your-access-key-from-web3forms.com, otherwise
+// the form will say it isn't set up yet instead of failing quietly.
 const ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY;
 
 type Status = "idle" | "sending" | "success" | "error";
@@ -29,8 +23,8 @@ export default function FeedbackForm() {
 
     const form = e.currentTarget;
     const data = new FormData(form);
-    // Honeypot: a real person never fills this hidden field. If it's set,
-    // treat the submit as a bot and drop it while showing "success".
+    // Hidden field real visitors never fill in — if it's filled, it's a
+    // bot, so pretend it worked and ignore the message.
     if (data.get("botcheck")) {
       setStatus("success");
       form.reset();
@@ -79,7 +73,7 @@ export default function FeedbackForm() {
         </div>
 
         <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-          {/* Honeypot — visually hidden, off the tab order, never seen. */}
+          {/* Hidden trap field to catch spam bots — invisible to real visitors. */}
           <input
             type="checkbox"
             name="botcheck"

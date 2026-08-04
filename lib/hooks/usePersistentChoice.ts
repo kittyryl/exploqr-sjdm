@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-// Shared by ThemeProvider and LocaleProvider: both persist one choice from a
-// fixed set of allowed values to localStorage, restoring it after mount
-// (the page is fully static, so nothing is known before that).
+// Used to remember one saved choice (like theme or language) in the browser
+// so it's still set the next time someone visits.
 export function usePersistentChoice<T extends string>(
   storageKey: string,
   allowedValues: readonly T[],

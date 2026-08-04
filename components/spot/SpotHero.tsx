@@ -16,12 +16,8 @@ interface SpotHeroProps {
   distanceKm?: number;
 }
 
-// The detail panel's cover: a still banner carrying the spot's name, category,
-// and barangay over its lead photo. It is deliberately static — a visitor opens
-// and pages through imagery from the photo gallery further down, not by poking
-// the header — so the title never fights a zoom target or a live panorama for
-// the same pixels. When a spot has no usable photo, the category tint + icon
-// stand in, the same "no photo yet looks designed" fallback the map pins use.
+// Banner showing the spot's name, category, and area over its main photo.
+// It stays still on purpose — photo browsing happens in the gallery below.
 export default function SpotHero({ spot, media, titleId, distanceKm }: SpotHeroProps) {
   const { t, text } = useLocale();
   const cat = CATEGORIES[spot.category];
@@ -61,7 +57,7 @@ export default function SpotHero({ spot, media, titleId, distanceKm }: SpotHeroP
         </div>
       )}
 
-      {/* Keeps the white type legible over whatever the photo happens to be. */}
+      {/* Darkens the photo so the white text stays easy to read. */}
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-linear-to-t from-scrim/85 via-scrim/30 to-transparent"

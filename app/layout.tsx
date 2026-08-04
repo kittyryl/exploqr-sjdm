@@ -8,9 +8,8 @@ import Footer from "@/components/layout/Footer";
 import { LocaleProvider } from "@/components/providers/LocaleProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
-// Sierra Dawn's display face: an expressive high-contrast oldstyle serif.
-// Italic is loaded too — the hero's "Find your" kicker and the ampersand
-// lean on it, so the face has to carry a real italic, not a synthesised slant.
+// Main heading font. Italic is loaded too, since the hero text needs true
+// italic letters, not just slanted regular ones.
 const display = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
@@ -24,11 +23,9 @@ const mono = Space_Mono({
   subsets: ["latin"],
 });
 
-// Needed so og:image/twitter:image resolve to an absolute URL — social
-// scrapers won't follow a relative one. Vercel sets these automatically per
-// deploy; VERCEL_PROJECT_PRODUCTION_URL is the stable production domain
-// (unlike VERCEL_URL, which is per-deployment and would break on preview
-// builds pointing at the wrong host).
+// Share previews (Facebook, Twitter, etc.) need the site's full address, not
+// a shortcut one. Use the stable live-site address if we have it, so preview
+// builds don't accidentally point at the wrong site.
 const SITE_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
   : process.env.VERCEL_URL
@@ -55,8 +52,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // Matches the page's own paper in each theme, so the browser/OS chrome
-  // doesn't sit as a bright bar above a dark app.
+  // Matches the browser's toolbar colour to the page background in each theme.
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#fbf5ea" },
     { media: "(prefers-color-scheme: dark)", color: "#17110a" },

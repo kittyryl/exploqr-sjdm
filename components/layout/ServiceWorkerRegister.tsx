@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 
-// Registered in production only — a caching service worker in dev would
-// fight with Turbopack's HMR and serve stale chunks.
+// Only turn this on for the live site — during development it would keep
+// showing old versions of the app while we're testing changes.
 export default function ServiceWorkerRegister() {
   useEffect(() => {
     if (process.env.NODE_ENV !== "production") return;
