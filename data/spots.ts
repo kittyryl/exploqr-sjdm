@@ -119,7 +119,7 @@ export const spots: Spot[] = [
     facebook: "Padre Pio Mountain of Healing",
         images: [
       {
-        src: "https://upload.wikimedia.org/wikipedia/commons/f/f0/Tungtong_Falls.jpg",
+        src: "https://upload.wikimedia.org/wikipedia/commons/6/68/Padre_Pio_Mountain_of_Healing.jpg",
         credit: "Obandoeño12345",
         license: "CC BY-SA 4.0",
         page: "https://commons.wikimedia.org/wiki/File:Padre_Pio_Mountain_of_Healing.jpg",
@@ -146,7 +146,7 @@ export const spots: Spot[] = [
     contact: "0991 789 4243",
         images: [
       {
-        src: "https://upload.wikimedia.org/wikipedia/commons/6/68/Padre_Pio_Mountain_of_Healing.jpg",
+        src: "https://upload.wikimedia.org/wikipedia/commons/f/f0/Tungtong_Falls.jpg",
         credit: "Obandoeño12345",
         license: "CC BY-SA 4.0",
         page: "https://commons.wikimedia.org/wiki/File:Tungtong_Falls.jpg",
