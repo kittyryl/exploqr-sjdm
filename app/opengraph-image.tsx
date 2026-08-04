@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { CATEGORY_HEX } from "@/lib/ogGlyph";
 
 const LOGO_DATA_URL = async () => {
   const logo = await readFile(join(process.cwd(), "public/logo.png"));
@@ -21,9 +20,9 @@ export const contentType = "image/png";
 const PAPER = "#F8F9FA";
 const INK = "#04191C";
 const INK_MUTED = "rgba(4, 25, 28, 0.7)";
-const RELIGIOUS = CATEGORY_HEX.religious;
-const NATURE = CATEGORY_HEX.nature;
-const LEISURE = CATEGORY_HEX.leisure;
+const RELIGIOUS = { fill: "#5A51B8", accent: "#7066D3" };
+const NATURE = { fill: "#51B897", accent: "#268366" };
+const LEISURE = { fill: "#B86B51", accent: "#BB5836" };
 
 export default async function Image() {
   const [bricolage, spaceMono, logoSrc] = await Promise.all([
