@@ -4,7 +4,6 @@ import Image from "next/image";
 import { ImageOff, LocateFixed, MapPin } from "lucide-react";
 import { CATEGORIES, spotIcon, barangayLabel } from "@/lib/categories";
 import { formatDistance } from "@/lib/geo";
-import { proxiedSrc } from "@/lib/images";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import type { SpotMediaState } from "@/lib/hooks/useSpotMedia";
 import type { Spot } from "@/lib/types";
@@ -31,7 +30,7 @@ export default function SpotHero({ spot, media, titleId, distanceKm }: SpotHeroP
     <div className="relative h-56 shrink-0 overflow-hidden bg-ink/4 sm:h-64">
       {showCover ? (
         <Image
-          src={proxiedSrc(coverSrc!)}
+          src={coverSrc!}
           alt={text(spot.name)}
           fill
           sizes="(min-width: 640px) 42rem, 100vw"

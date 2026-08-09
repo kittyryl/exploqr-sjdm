@@ -7,7 +7,6 @@ import { CATEGORIES, spotIcon, barangayLabel } from "@/lib/categories";
 import { formatDistance } from "@/lib/geo";
 import { useImageFallback } from "@/lib/hooks/useImageFallback";
 import { useLocale } from "@/components/providers/LocaleProvider";
-import { proxiedSrc } from "@/lib/images";
 import type { Spot } from "@/lib/types";
 
 // Same motion setting for the whole grid, so every tile moves the same way.
@@ -30,7 +29,7 @@ function SpotTile({ spot, index, selected, onSelect, distanceKm, ref }: SpotTile
   const { failed, onError, checkOnMount } = useImageFallback();
   const cat = CATEGORIES[spot.category];
   const Icon = spotIcon(spot);
-  const src = spot.images?.[0]?.src;
+  const src = spot.images?.[0];
   const showPhoto = Boolean(src) && !failed;
 
   const meta = [
@@ -69,7 +68,7 @@ function SpotTile({ spot, index, selected, onSelect, distanceKm, ref }: SpotTile
         {showPhoto && src ? (
           <>
             <Image
-              src={proxiedSrc(src)}
+              src={src}
               alt=""
               fill
               sizes="(min-width: 1024px) 320px, 45vw"

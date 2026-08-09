@@ -77,7 +77,6 @@ const UI = {
   "media.failed": "Photo unavailable",
   "media.zoom": "Zoom",
   "media.loading360": "Loading 360°…",
-  "media.credit": "Photo:",
   "media.zoomLabel": "Zoom in on {name} photo {index} of {total}",
   "media.thumbLabel": "Show photo {index}",
   "media.panoThumbLabel": "Show 360° panorama",

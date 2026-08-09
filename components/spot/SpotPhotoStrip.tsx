@@ -4,7 +4,6 @@ import Image from "next/image";
 import { Camera, ImageOff, ZoomIn } from "lucide-react";
 import SectionTitle from "@/components/spot/SectionTitle";
 import { useLocale } from "@/components/providers/LocaleProvider";
-import { proxiedSrc } from "@/lib/images";
 import type { SpotMediaState } from "@/lib/hooks/useSpotMedia";
 import type { Spot } from "@/lib/types";
 
@@ -43,9 +42,9 @@ export default function SpotPhotoStrip({
     <section>
       <SectionTitle>{t("spot.photos")}</SectionTitle>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        {images.map((img, i) => (
+        {images.map((src, i) => (
           <button
-            key={img.src}
+            key={src}
             type="button"
             onClick={() => media.openLightboxAt(i)}
             aria-label={t("media.zoomLabel", {
@@ -55,19 +54,19 @@ export default function SpotPhotoStrip({
             })}
             className={TILE}
           >
-            {failedMap[img.src] ? (
+            {failedMap[src] ? (
               <span className="flex h-full w-full items-center justify-center bg-ink/4 text-ink/40">
                 <ImageOff size={16} aria-hidden="true" />
               </span>
             ) : (
               <>
                 <Image
-                  src={proxiedSrc(img.src)}
+                  src={src}
                   alt=""
                   fill
                   sizes="(min-width: 640px) 10rem, 45vw"
-                  ref={checkOnMount(img.src)}
-                  onError={() => markFailed(img.src)}
+                  ref={checkOnMount(src)}
+                  onError={() => markFailed(src)}
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                   loading="lazy"
                 />

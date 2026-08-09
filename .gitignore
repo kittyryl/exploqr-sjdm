@@ -45,6 +45,14 @@ next-env.d.ts
 
 # project documentation deliverables (kept locally, not part of the app)
 ExploQR-Project-Guide.docx
+ExploQR-Tools-and-Codebase.docx
+ExploQR-Tools-and-Codebase-updated.docx
+How-I-Built-ExploQR.docx
+
+# raw photo upload dump (unorganized source material, already sorted into public/images/spots/*)
+/public/DESTINATION PHOTO-20260809T103928Z-1-001.zip
+/public/DESTINATION PHOTO-20260809T103928Z-1-001/
+public/images/spots/DESTINATION PHOTO-20260809T103928Z-1-001/
 
 # Claude Code / superpowers local state (machine-specific, may hold session tokens)
 .claude/settings.local.json

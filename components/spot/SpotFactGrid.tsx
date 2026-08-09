@@ -85,9 +85,22 @@ export default function SpotFactGrid({ spot }: { spot: Spot }) {
         </Fact>
       )}
 
-      {/* Shown as plain text, not a link: we can't verify the Facebook page
-          URL, and a wrong guess could send people to a fake page. */}
-      {spot.facebook && <Fact label={t("spot.facebookLabel")}>{spot.facebook}</Fact>}
+      {spot.facebook && (
+        <Fact label={t("spot.facebookLabel")}>
+          {spot.facebookUrl ? (
+            <a
+              href={spot.facebookUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-ink/20 underline-offset-2 transition-colors hover:text-ink/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            >
+              {spot.facebook}
+            </a>
+          ) : (
+            spot.facebook
+          )}
+        </Fact>
+      )}
 
       {spot.contact && (
         <Fact label={t("spot.contactLabel")}>

@@ -7,11 +7,9 @@ import { X, ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
 import { useFocusTrap } from "@/lib/hooks/useFocusTrap";
 import { useImageFallback } from "@/lib/hooks/useImageFallback";
 import { useLocale } from "@/components/providers/LocaleProvider";
-import { proxiedSrc } from "@/lib/images";
-import type { SpotImage } from "@/lib/types";
 
 interface PhotoLightboxProps {
-  images: SpotImage[];
+  images: string[];
   index: number;
   spotId: string;
   spotName: string;
@@ -66,8 +64,8 @@ export default function PhotoLightbox({
     return () => document.removeEventListener("keydown", onKey, true);
   }, [onClose, onPrev, onNext]);
 
-  const img = images[index];
-  if (!img) return null;
+  const src = images[index];
+  if (!src) return null;
 
   return (
     <motion.div
@@ -137,7 +135,7 @@ export default function PhotoLightbox({
         >
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
-              key={img.src}
+              key={src}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -145,7 +143,7 @@ export default function PhotoLightbox({
               className="absolute inset-0"
             >
               <Image
-                src={proxiedSrc(img.src)}
+                src={src}
                 alt={t("media.alt", { name: spotName, index: index + 1, total: images.length })}
                 fill
                 sizes="100vw"
@@ -157,14 +155,6 @@ export default function PhotoLightbox({
             </motion.div>
           </AnimatePresence>
         </motion.div>
-      )}
-      {!failed && (
-        <p
-          onClick={(e) => e.stopPropagation()}
-          className="mt-3 font-mono text-[11px] text-white/70"
-        >
-          {img.credit} · {img.license} · Wikimedia Commons
-        </p>
       )}
     </motion.div>
   );

@@ -23,7 +23,7 @@ export function useSpotMedia(spot: Spot) {
 
   // The cover photo: the first photo, or a flat frame from the 360 panorama if
   // that's all the spot has, so the banner is never blank when there's imagery.
-  const coverSrc = images[0]?.src ?? spot.pano360 ?? null;
+  const coverSrc = images[0] ?? spot.pano360 ?? null;
 
   // Opens the zoomed-in photo viewer. Always closes the 360 viewer first, so
   // the two full-screen views never show at the same time.

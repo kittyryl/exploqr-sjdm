@@ -14,13 +14,6 @@ export interface OpenHours {
   closedDays?: number[]; // 0 (Sun) - 6 (Sat)
 }
 
-export interface SpotImage {
-  src: string;
-  credit: string;
-  license: string;
-  page: string;
-}
-
 export interface Spot {
   id: string;
   name: string;
@@ -35,17 +28,21 @@ export interface Spot {
   description: string;
   hours: string;
   openHours?: OpenHours;
-  images?: SpotImage[];
+  // Local paths under public/images/spots/.
+  images?: string[];
   icon?: string; // key into ICON_OVERRIDES, lib/categories.js
   pano360?: string;
   fee?: string;
   contact?: string;
   website?: string;
-  // The Facebook page's name, not a URL — that's how the tourism office
-  // records it, and most of these have no verified vanity URL. Rendered as
-  // plain text, since linking a guessed URL could send visitors to an
+  // The Facebook page's name, as the tourism office records it. Rendered as
+  // plain text unless facebookUrl is also set — most of these have no
+  // verified vanity URL, and linking a guessed one could send visitors to an
   // impostor page.
   facebook?: string;
+  // Verified URL for the Facebook page above. Only set this when the exact
+  // page has been confirmed — never a guessed vanity URL.
+  facebookUrl?: string;
   // Short facilities on offer — parking, restrooms, wifi. Rendered as pills in
   // the detail modal; the whole section is omitted when this is absent, since
   // an empty amenities list reads as "none available" rather than "unconfirmed".

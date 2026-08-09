@@ -15,7 +15,6 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { CATEGORIES, spotIcon } from "@/lib/categories";
-import { proxiedSrc } from "@/lib/images";
 import { sjdmBoundary } from "@/data/sjdmBoundary";
 import { barangays } from "@/data/barangays";
 import { barangaysWithSpots } from "@/lib/barangays";
@@ -75,10 +74,10 @@ function markerIcon(spot: Spot, index: number): L.DivIcon {
   // The photo sits on top of the category icon. If the photo fails to load it
   // just disappears, showing the plain icon instead of a broken-image icon.
   // Photos are resized down for the small pin so the map loads faster.
-  const photo = spot.images?.[0]?.src;
+  const photo = spot.images?.[0];
   const img = photo
     ? `<img class="spot-marker__img" alt="" loading="lazy" decoding="async"
-        src="/_next/image?url=${encodeURIComponent(proxiedSrc(photo))}&w=96&q=75"
+        src="/_next/image?url=${encodeURIComponent(photo)}&w=96&q=75"
         onerror="this.remove()">`
     : "";
   // The screen-reader label always uses English here, since this part can't
