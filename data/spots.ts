@@ -145,7 +145,11 @@ export const spots: Spot[] = [
     amenities: ["Hiking Trail", "Restrooms", "Hillside Resorts"],
     facebook: "CSJDM Mt. Balagbag Yapak Tour Guides",
     facebookUrl: "https://facebook.com/REPLACE_ME",
-    images: ["/images/spots/balagbag-1.jpg", "/images/spots/balagbag-2.jpg"],
+    images: [
+      "/images/spots/balagbag/1.jpeg",
+      "/images/spots/balagbag/2.jpeg",
+      "/images/spots/balagbag/3.jpeg",
+    ],
   },
   {
     id: "otsootso",
