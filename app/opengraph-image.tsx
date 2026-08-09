@@ -7,22 +7,28 @@ const LOGO_DATA_URL = async () => {
   return `data:image/png;base64,${logo.toString("base64")}`;
 };
 
-// This preview image is always English and always light-themed, because it's
-// built before the page (and its language/theme settings) exist. Colours are
-// typed in by hand here instead of pulled from the site's usual colour
-// settings, and the logo is embedded directly since it can't be fetched like
-// a normal image at this stage.
+// This preview image is always English and always the hero band's dark
+// look — it's built before the page (and its language/theme settings)
+// exist, so it can't switch with light/dark mode the way the live page
+// does. Colours are typed in by hand here to mirror app/globals.css
+// (--hero-1/2/3, --sun) and HomeTopBar's HEADLINE_STYLE rather than pulled
+// in, since inline styles here can't read CSS variables; the logo is
+// embedded directly since it can't be fetched like a normal image at this
+// stage.
 export const alt =
   "ExploQR SJDM — Shrines, summits, falls & fairways. A field guide to San Jose del Monte, Bulacan.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 const PAPER = "#F8F9FA";
-const INK = "#04191C";
-const INK_MUTED = "rgba(4, 25, 28, 0.7)";
-const RELIGIOUS = { fill: "#5A51B8", accent: "#7066D3" };
-const NATURE = { fill: "#51B897", accent: "#268366" };
-const LEISURE = { fill: "#B86B51", accent: "#BB5836" };
+const CREAM = "#F2EDE1";
+const CREAM_MUTED = "rgba(242, 237, 225, 0.72)";
+const GOLD = "#E3A857";
+const HERO_1 = "#1e4a3b";
+const HERO_2 = "#16302A";
+const HERO_3 = "#0f2620";
+// Same five category fills as --cat-*-fill in globals.css, in taxonomy order.
+const CATEGORY_FILLS = ["#5A51B8", "#51B897", "#A2B851", "#B8517F", "#B86B51"];
 
 export default async function Image() {
   const [bricolage, spaceMono, logoSrc] = await Promise.all([
@@ -40,15 +46,24 @@ export default async function Image() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          backgroundColor: PAPER,
+          backgroundImage: `linear-gradient(135deg, ${HERO_1} 0%, ${HERO_2} 55%, ${HERO_3} 100%)`,
           padding: "64px 72px",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <img src={logoSrc} width={64} height={64} alt="" />
+          <div
+            style={{
+              display: "flex",
+              backgroundColor: PAPER,
+              borderRadius: 20,
+              padding: 10,
+            }}
+          >
+            <img src={logoSrc} width={72} height={72} alt="" />
+          </div>
           <div style={{ display: "flex", fontFamily: "Bricolage Grotesque", fontSize: 36, fontWeight: 800 }}>
-            <span style={{ color: INK }}>ExploQR</span>
-            <span style={{ color: INK_MUTED, marginLeft: 12 }}>SJDM</span>
+            <span style={{ color: CREAM }}>ExploQR</span>
+            <span style={{ color: CREAM_MUTED, marginLeft: 12 }}>SJDM</span>
           </div>
         </div>
 
@@ -60,7 +75,7 @@ export default async function Image() {
               fontWeight: 700,
               letterSpacing: 3,
               textTransform: "uppercase",
-              color: INK_MUTED,
+              color: CREAM_MUTED,
             }}
           >
             San Jose del Monte · Bulacan · Philippines
@@ -76,17 +91,17 @@ export default async function Image() {
               letterSpacing: -2,
             }}
           >
-            <span style={{ color: RELIGIOUS.accent, marginRight: 22 }}>Shrines,</span>
-            <span style={{ color: NATURE.accent, marginRight: 22 }}>summits,</span>
-            <span style={{ color: NATURE.accent, marginRight: 22 }}>falls</span>
-            <span style={{ color: LEISURE.accent }}>&amp; fairways.</span>
+            <span style={{ color: CREAM, marginRight: 22 }}>Shrines,</span>
+            <span style={{ color: GOLD, marginRight: 22 }}>summits,</span>
+            <span style={{ color: GOLD, marginRight: 22 }}>falls</span>
+            <span style={{ color: CREAM }}>&amp; fairways.</span>
           </div>
         </div>
 
         <div style={{ display: "flex", height: 10, borderRadius: 5, overflow: "hidden" }}>
-          <div style={{ flex: 1, display: "flex", backgroundColor: RELIGIOUS.fill }} />
-          <div style={{ flex: 1, display: "flex", backgroundColor: NATURE.fill }} />
-          <div style={{ flex: 1, display: "flex", backgroundColor: LEISURE.fill }} />
+          {CATEGORY_FILLS.map((color) => (
+            <div key={color} style={{ flex: 1, display: "flex", backgroundColor: color }} />
+          ))}
         </div>
       </div>
     ),
