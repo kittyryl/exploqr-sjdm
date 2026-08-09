@@ -45,3 +45,30 @@ create policy "Public insert access" on reviews
 drop policy if exists "Public update access" on reviews;
 create policy "Public update access" on reviews
   for update using (true) with check (true);
+
+-- Feedback photo attachments. The browser uploads directly to this bucket
+-- (see components/home/FeedbackForm.tsx) and the resulting public URLs are
+-- emailed through Web3Forms — Web3Forms' own file attachments are a paid
+-- feature, and this reuses the Supabase project we already have.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'feedback-photos', 'feedback-photos', true, 5242880,
+  array['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+)
+on conflict (id) do update set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+-- Public read: the emailed links must open without a login.
+drop policy if exists "Public read feedback photos" on storage.objects;
+create policy "Public read feedback photos" on storage.objects
+  for select using (bucket_id = 'feedback-photos');
+
+-- Public insert: same unauthenticated trust level as the reviews table
+-- above. The bucket's own MIME allow-list and 5MB ceiling are the real
+-- guard, plus random UUID filenames so nothing is enumerable. Deliberately
+-- no update or delete policy — cleanup is a manual dashboard step.
+drop policy if exists "Public upload feedback photos" on storage.objects;
+create policy "Public upload feedback photos" on storage.objects
+  for insert with check (bucket_id = 'feedback-photos');

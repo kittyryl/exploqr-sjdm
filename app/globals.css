@@ -883,6 +883,29 @@ body::before {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 22%, transparent);
 }
 
+/* Native file inputs ignore the padding/border treatment .fb-field gives
+   text inputs, so this styles the browser-drawn "choose files" button to
+   match the app's teal accent instead of the OS default. */
+.fb-field-file::file-selector-button {
+  margin-right: 12px;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 12px;
+  background: var(--teal);
+  color: white;
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.fb-field-file::file-selector-button:hover {
+  opacity: 0.9;
+}
+.fb-field-file:disabled::file-selector-button {
+  cursor: default;
+  opacity: 0.6;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .fb-submit:hover:not(:disabled) {
     transform: none;

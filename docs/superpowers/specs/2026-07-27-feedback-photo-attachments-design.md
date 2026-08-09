@@ -1,7 +1,17 @@
 # Feedback Form Photo Attachments Design
 
 **Date:** 2026-07-27
-**Status:** Approved
+**Status:** Superseded (2026-08-09)
+
+> **Superseded.** This spec assumed Web3Forms would carry real file
+> attachments on the free plan and flagged that as an unverified risk (see
+> the Approach section below). Verification against the live Web3Forms docs
+> confirmed `attachment` is a **PRO-subscription-only feature** — the free
+> JSON endpoint this form uses can't send files. The replacement approach
+> uploads photos browser-direct to a Supabase Storage bucket
+> (`feedback-photos`) and emails their public URLs as a `photos` field
+> instead of real attachments. See `supabase/schema.sql` and
+> `components/home/FeedbackForm.tsx` for the implementation that shipped.
 
 ## Goal
 
