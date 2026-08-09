@@ -119,39 +119,6 @@ export default function SpotReviews({ spot }: { spot: Spot }) {
         <p className="mb-5 text-sm text-ink/60">{t("review.empty")}</p>
       )}
 
-      {reviews && reviews.length > 0 && (
-        <ul className="mb-5 flex flex-col gap-3">
-          {reviews.map((r) => (
-            <li key={r.id} className="rounded-xl border border-line bg-surface p-3.5">
-              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                <div className="flex items-center gap-2">
-                  <Hearts value={r.hearts} size={13} color={cat.accent} />
-                  <span className="sr-only">{r.hearts} / 5</span>
-                  <span className="text-sm font-medium text-ink">
-                    {r.name || t("review.anonymous")}
-                  </span>
-                  {deviceId && r.device_id === deviceId && (
-                    <span className="rounded-full bg-ink/[.06] px-2 py-0.5 text-[11px] font-medium text-ink/60">
-                      {t("review.you")}
-                    </span>
-                  )}
-                </div>
-                <time className="text-[11px] text-ink/40" dateTime={r.created_at}>
-                  {new Date(r.created_at).toLocaleDateString(undefined, {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </time>
-              </div>
-              {r.comment && (
-                <p className="mt-1.5 text-[14px] leading-relaxed text-ink/75">{r.comment}</p>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-
       {!supabaseConfigured ? (
         <p className="font-mono text-[10.5px] uppercase tracking-wider text-ink/45">
           {t("review.config")}

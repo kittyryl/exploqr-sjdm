@@ -137,7 +137,7 @@ const UI = {
   "feedback.optional": "optional",
   "feedback.replyNote": "Leave your email if you'd like a reply.",
   "feedback.photos": "Photos",
-  "feedback.photos.hint": "Up to 3 images, 5MB each",
+  "feedback.photos.hint": "optional · up to 3 images, 5MB each",
   "feedback.photos.remove": "Remove photo",
   "feedback.photos.errorType": "Only image files can be attached.",
   "feedback.photos.errorSize": "Photos must be under 5MB.",
