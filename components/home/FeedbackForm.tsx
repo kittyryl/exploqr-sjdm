@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import Image from "next/image";
 import { useLocale } from "@/components/providers/LocaleProvider";
+import { supabase, supabaseConfigured } from "@/lib/supabase";
 
 // The feedback form sends messages straight to Web3Forms using a public key
 // — no server needed, and the key is safe to show publicly since it can
@@ -10,16 +12,80 @@ import { useLocale } from "@/components/providers/LocaleProvider";
 // the form will say it isn't set up yet instead of failing quietly.
 const ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY;
 
-type Status = "idle" | "sending" | "success" | "error";
+const MAX_PHOTOS = 3;
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+type Photo = { file: File; url: string };
+
+type Status = "idle" | "uploading" | "sending" | "success" | "error";
 
 export default function FeedbackForm() {
   const { t } = useLocale();
   const [status, setStatus] = useState<Status>("idle");
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [photoError, setPhotoError] = useState<string | null>(null);
   const configured = Boolean(ACCESS_KEY);
+
+  // Object URLs are only good for the life of this tab — revoke whatever's
+  // left when the form unmounts so they don't leak. The unmount cleanup has
+  // to read the list through a ref: a plain closure over `photos` would
+  // capture the empty array from the first render and free nothing.
+  const photosRef = useRef(photos);
+
+  useEffect(() => {
+    photosRef.current = photos;
+  }, [photos]);
+
+  useEffect(() => {
+    return () => {
+      photosRef.current.forEach((p) => URL.revokeObjectURL(p.url));
+    };
+  }, []);
+
+  function clearPhotos() {
+    photos.forEach((p) => URL.revokeObjectURL(p.url));
+    setPhotos([]);
+    setPhotoError(null);
+  }
+
+  function removePhoto(index: number) {
+    setPhotos((prev) => {
+      URL.revokeObjectURL(prev[index].url);
+      return prev.filter((_, i) => i !== index);
+    });
+  }
+
+  function handlePhotoChange(e: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    // Reset so picking the same file again (e.g. after removing it) still
+    // fires a change event.
+    e.target.value = "";
+    if (files.length === 0) return;
+
+    for (const file of files) {
+      if (!file.type.startsWith("image/")) {
+        setPhotoError(t("feedback.photos.errorType"));
+        return;
+      }
+      if (file.size > MAX_PHOTO_BYTES) {
+        setPhotoError(t("feedback.photos.errorSize"));
+        return;
+      }
+    }
+    if (photos.length + files.length > MAX_PHOTOS) {
+      setPhotoError(t("feedback.photos.errorCount"));
+      return;
+    }
+
+    setPhotoError(null);
+    setPhotos((prev) => [
+      ...prev,
+      ...files.map((file) => ({ file, url: URL.createObjectURL(file) })),
+    ]);
+  }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!configured || status === "sending") return;
+    if (!configured || status === "sending" || status === "uploading") return;
 
     const form = e.currentTarget;
     const data = new FormData(form);
@@ -28,10 +94,45 @@ export default function FeedbackForm() {
     if (data.get("botcheck")) {
       setStatus("success");
       form.reset();
+      clearPhotos();
       return;
     }
 
+    // Photos upload at submit time, not at pick time — a visitor who picks
+    // photos and abandons the form leaves nothing orphaned in the bucket.
+    let photoUrls: string[] = [];
+    if (photos.length > 0 && supabase) {
+      // Narrowed to a local const — TS can't carry the `supabase` truthiness
+      // check into the closure below, since it's a module-level binding.
+      const client = supabase;
+      setStatus("uploading");
+      const uploads = await Promise.all(
+        photos.map(async ({ file }) => {
+          const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+          const path = `${crypto.randomUUID()}.${ext}`;
+          const { error } = await client.storage
+            .from("feedback-photos")
+            .upload(path, file, { contentType: file.type, upsert: false });
+          if (error) return null;
+          const {
+            data: { publicUrl },
+          } = client.storage.from("feedback-photos").getPublicUrl(path);
+          return publicUrl;
+        })
+      );
+      if (uploads.some((url) => !url)) {
+        // Something failed — don't send a half-broken email. The visitor
+        // keeps their picked photos and can retry the submit.
+        setPhotoError(t("feedback.photos.errorUpload"));
+        setStatus("idle");
+        return;
+      }
+      photoUrls = uploads as string[];
+    }
+
     setStatus("sending");
+    const name = (data.get("name") as string)?.trim() || null;
+    const email = (data.get("email") as string)?.trim() || null;
     try {
       const res = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
@@ -40,15 +141,17 @@ export default function FeedbackForm() {
           access_key: ACCESS_KEY,
           subject: "New ExploQR SJDM feedback",
           from_name: "ExploQR SJDM",
-          name: data.get("name"),
-          email: data.get("email"),
           message: data.get("message"),
+          ...(name ? { name } : {}),
+          ...(email ? { email } : {}),
+          ...(photoUrls.length ? { photos: photoUrls.join("\n") } : {}),
         }),
       });
       const json = await res.json();
       if (json.success) {
         setStatus("success");
         form.reset();
+        clearPhotos();
       } else {
         setStatus("error");
       }
@@ -86,28 +189,29 @@ export default function FeedbackForm() {
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="flex flex-col gap-1.5 font-mono text-[10.5px] uppercase tracking-widest text-ink/65">
-              {t("feedback.name")}
+              {t("feedback.name")} <span className="text-ink/40 normal-case">({t("feedback.optional")})</span>
               <input
                 type="text"
                 name="name"
-                required
                 disabled={status === "success"}
                 placeholder={t("feedback.name.placeholder")}
                 className="fb-field rounded-xl px-3.5 py-3 font-sans text-[15px] normal-case tracking-normal text-ink placeholder:text-ink/40"
               />
             </label>
             <label className="flex flex-col gap-1.5 font-mono text-[10.5px] uppercase tracking-widest text-ink/65">
-              {t("feedback.email")}
+              {t("feedback.email")} <span className="text-ink/40 normal-case">({t("feedback.optional")})</span>
               <input
                 type="email"
                 name="email"
-                required
                 disabled={status === "success"}
                 placeholder={t("feedback.email.placeholder")}
                 className="fb-field rounded-xl px-3.5 py-3 font-sans text-[15px] normal-case tracking-normal text-ink placeholder:text-ink/40"
               />
             </label>
           </div>
+          <p className="-mt-1.5 font-mono text-[10.5px] normal-case tracking-normal text-ink/45">
+            {t("feedback.replyNote")}
+          </p>
 
           <label className="flex flex-col gap-1.5 font-mono text-[10.5px] uppercase tracking-widest text-ink/65">
             {t("feedback.message")}
@@ -121,17 +225,63 @@ export default function FeedbackForm() {
             />
           </label>
 
+          {/* Photos need a Supabase project to upload to, so the whole
+              control disappears rather than offering something that can't
+              work — same degrade pattern as SpotReviews. */}
+          {supabaseConfigured && (
+            <div className="flex flex-col gap-1.5">
+              <label className="flex flex-col gap-1.5 font-mono text-[10.5px] uppercase tracking-widest text-ink/65">
+                {t("feedback.photos")}{" "}
+                <span className="text-ink/40 normal-case">({t("feedback.photos.hint")})</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  disabled={status === "success" || photos.length >= MAX_PHOTOS}
+                  onChange={handlePhotoChange}
+                  className="fb-field fb-field-file rounded-xl px-3.5 py-3 font-sans text-[13px] normal-case tracking-normal text-ink"
+                />
+              </label>
+              {photoError && (
+                <p className="text-[13px]" style={{ color: "var(--cat-leisure-accent)" }}>
+                  {photoError}
+                </p>
+              )}
+              {photos.length > 0 && (
+                <ul className="flex flex-wrap gap-2">
+                  {photos.map((photo, i) => (
+                    <li key={photo.url} className="relative h-14 w-14 overflow-hidden rounded-lg border border-line">
+                      <Image src={photo.url} alt="" fill unoptimized sizes="56px" className="object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(i)}
+                        aria-label={t("feedback.photos.remove")}
+                        className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-black/60 text-[10px] leading-none text-white"
+                      >
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
           <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-2">
             <button
               type="submit"
-              disabled={!configured || status === "sending" || status === "success"}
+              disabled={
+                !configured || status === "sending" || status === "uploading" || status === "success"
+              }
               className="fb-submit tactile rounded-xl px-6 py-3 font-sans text-[15px] font-semibold text-white"
             >
-              {status === "sending"
-                ? t("feedback.sending")
-                : status === "success"
-                  ? "Sent ✓"
-                  : `${t("feedback.submit")} →`}
+              {status === "uploading"
+                ? t("feedback.photos.uploading")
+                : status === "sending"
+                  ? t("feedback.sending")
+                  : status === "success"
+                    ? "Sent ✓"
+                    : `${t("feedback.submit")} →`}
             </button>
 
             {status === "success" ? (

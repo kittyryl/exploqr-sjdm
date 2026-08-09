@@ -1,5 +1,13 @@
 # Feedback Form Photo Attachments Implementation Plan
 
+> **Superseded (2026-08-09).** Built on the design spec's now-disproved
+> assumption that Web3Forms' free plan carries real file attachments —
+> `attachment` turned out to be a **PRO-subscription-only feature**. Photos
+> now upload browser-direct to a Supabase Storage bucket (`feedback-photos`)
+> and travel as links in the Web3Forms `photos` field instead. See
+> `supabase/schema.sql` and `components/home/FeedbackForm.tsx` for what
+> actually shipped. Do not execute the plan below.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Let visitors attach up to 3 optional photos to the feedback form, sent to the City Tourism Office through the existing keyless Web3Forms integration.
