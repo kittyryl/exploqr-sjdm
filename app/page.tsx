@@ -205,11 +205,21 @@ export default function Home() {
   // A route pointing at a spot that's been filtered/searched away would
   // otherwise linger with no destination pin visible.
   useEffect(() => {
+    // Legitimate reaction to an external input (search/category filtering
+    // `visible`) invalidating derived route state, not a cascading render:
+    // this only fires when the filtered spot list changes, and clearing
+    // `route` here doesn't re-trigger this same effect.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (route && !visible.some((s) => s.id === route.spot.id)) setRoute(null);
   }, [visible, route]);
 
   // No origin, no route.
   useEffect(() => {
+    // Legitimate reaction to an external input (geolocation being toggled
+    // off) invalidating derived route state, not a cascading render: this
+    // only fires when `userLocation` changes, and clearing `route` here
+    // doesn't re-trigger this same effect.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!userLocation) setRoute(null);
   }, [userLocation]);
 
