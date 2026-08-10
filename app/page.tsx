@@ -1,16 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { MotionConfig } from "motion/react";
 import { spots } from "@/data/spots";
 import { distanceKm } from "@/lib/geo";
+import { fetchRoute, type RouteResult, type RouteState } from "@/lib/routing";
 import Wordmark from "@/components/brand/Wordmark";
 import ThemeToggle from "@/components/controls/ThemeToggle";
 import CategoryFilter, { type CategoryFilterKey } from "@/components/controls/CategoryFilter";
 import NearMeToggle from "@/components/controls/NearMeToggle";
 import SpotSearch from "@/components/controls/SpotSearch";
 import SpotModal from "@/components/spot/SpotModal";
+import RouteInfoPill from "@/components/spot/RouteInfoPill";
 import HomeTopBar from "@/components/home/HomeTopBar";
 import FeedbackForm from "@/components/home/FeedbackForm";
 import { useLocale } from "@/components/providers/LocaleProvider";
@@ -54,6 +56,9 @@ export default function Home() {
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [route, setRoute] = useState<RouteState | null>(null);
+  const routeCacheRef = useRef(new Map<string, RouteResult>());
+  const routeAbortRef = useRef<AbortController | null>(null);
 
   // If the web address includes a spot ID, open that spot right away.
   useEffect(() => {
@@ -92,6 +97,39 @@ export default function Home() {
     [category]
   );
 
+  // Wraps the geolocation call as a promise so both the "Near Me" toggle and
+  // the directions flow share one path for requesting/recording location and
+  // its error states, instead of two copies of the same getCurrentPosition
+  // call drifting apart over time.
+  const requestLocation = useCallback((): Promise<UserLocation> => {
+    return new Promise((resolve, reject) => {
+      if (!("geolocation" in navigator)) {
+        const message = t("nearme.unsupported");
+        setLocationError(message);
+        reject(new Error(message));
+        return;
+      }
+      setLocating(true);
+      setLocationError(null);
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          setUserLocation(next);
+          setLocating(false);
+          resolve(next);
+        },
+        (err) => {
+          const message =
+            err.code === err.PERMISSION_DENIED ? t("nearme.denied") : t("nearme.failed");
+          setLocationError(message);
+          setLocating(false);
+          reject(new Error(message));
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+      );
+    });
+  }, [t]);
+
   // "Near me" only asks for your location when tapped, not automatically
   // when the page loads.
   const handleNearMe = useCallback(() => {
@@ -100,33 +138,81 @@ export default function Home() {
       setLocationError(null);
       return;
     }
-    if (!("geolocation" in navigator)) {
-      setLocationError(t("nearme.unsupported"));
-      return;
-    }
-    setLocating(true);
-    setLocationError(null);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setUserLocation({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-        });
-        setLocating(false);
-      },
-      (err) => {
-        setLocationError(
-          err.code === err.PERMISSION_DENIED
-            ? t("nearme.denied")
-            : t("nearme.failed")
-        );
-        setLocating(false);
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-    );
-  }, [userLocation, t]);
+    requestLocation().catch(() => {
+      // requestLocation already recorded the error in locationError; nothing
+      // further to do here.
+    });
+  }, [userLocation, requestLocation]);
+
+  // Resolves the visitor's location (asking for it if needed), closes the
+  // modal so the map is visible, then draws a route: a real OSRM road route
+  // when available, a dashed straight line immediately and as a fallback.
+  const handleDirections = useCallback(
+    async (spot: Spot) => {
+      routeAbortRef.current?.abort();
+
+      let origin = userLocation;
+      if (!origin) {
+        try {
+          origin = await requestLocation();
+        } catch {
+          return;
+        }
+      }
+
+      setSelectedId(null);
+      if (window.matchMedia("(max-width: 639px)").matches) {
+        document.getElementById("explore-map")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      const straightLineKm = distanceKm(origin, spot);
+      if (straightLineKm < 0.2) {
+        setRoute({ spot, coords: null, distanceKm: straightLineKm, durationMin: null, arrived: true, loading: false });
+        return;
+      }
+
+      const cacheKey = `${spot.id}:${origin.lat.toFixed(3)},${origin.lng.toFixed(3)}`;
+      const cached = routeCacheRef.current.get(cacheKey);
+      if (cached) {
+        setRoute({ spot, coords: cached.coords, distanceKm: cached.distanceKm, durationMin: cached.durationMin, arrived: false, loading: false });
+        return;
+      }
+
+      setRoute({ spot, coords: null, distanceKm: straightLineKm, durationMin: null, arrived: false, loading: true });
+
+      const controller = new AbortController();
+      routeAbortRef.current = controller;
+      const result = await fetchRoute(origin, spot, controller.signal);
+      if (controller.signal.aborted) return;
+
+      if (result) {
+        routeCacheRef.current.set(cacheKey, result);
+        setRoute({ spot, coords: result.coords, distanceKm: result.distanceKm, durationMin: result.durationMin, arrived: false, loading: false });
+      } else {
+        setRoute((current) => (current && current.spot.id === spot.id ? { ...current, loading: false } : current));
+      }
+    },
+    [userLocation, requestLocation]
+  );
+
+  const handleClearRoute = useCallback(() => {
+    routeAbortRef.current?.abort();
+    setRoute(null);
+  }, []);
 
   const visible = useMemo(() => visibleIn(category, query), [category, query]);
+
+  // A route pointing at a spot that's been filtered/searched away would
+  // otherwise linger with no destination pin visible.
+  useEffect(() => {
+    if (route && !visible.some((s) => s.id === route.spot.id)) setRoute(null);
+  }, [visible, route]);
+
+  // No origin, no route.
+  useEffect(() => {
+    if (!userLocation) setRoute(null);
+  }, [userLocation]);
+
   const selected = useMemo(
     () => spots.find((s) => s.id === selectedId) || null,
     [selectedId]
@@ -223,13 +309,17 @@ export default function Home() {
             <span className="survey-tick" style={{ bottom: 14, left: 14, borderBottomWidth: 1.5, borderLeftWidth: 1.5 }} />
             <span className="survey-tick" style={{ bottom: 14, right: 14, borderBottomWidth: 1.5, borderRightWidth: 1.5 }} />
 
-            <div className="rise-in relative z-0 h-[440px] overflow-hidden rounded-2xl border border-line sm:h-[560px]">
+            <div id="explore-map" className="rise-in relative z-0 h-[440px] overflow-hidden rounded-2xl border border-line sm:h-[560px]">
               <SpotMap
                 spots={orderedVisible}
                 selectedId={selectedId}
                 onSelect={setSelectedId}
                 userLocation={userLocation}
+                route={route}
               />
+              {route && (
+                <RouteInfoPill route={route} onReopen={setSelectedId} onClear={handleClearRoute} />
+              )}
               {orderedVisible.length === 0 && (
                 <div className="pointer-events-none absolute inset-0 z-[1000] flex items-center justify-center">
                   <p className="rounded-full border border-line bg-surface/95 px-4 py-2 font-mono text-xs text-ink/65 shadow-sm">
@@ -248,6 +338,8 @@ export default function Home() {
         spot={selected}
         onClose={() => setSelectedId(null)}
         distanceKm={selected && distances ? distances[selected.id] : undefined}
+        onDirections={handleDirections}
+        directionsLoading={locating}
       />
     </MotionConfig>
   );
