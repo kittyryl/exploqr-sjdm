@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { MotionConfig } from "motion/react";
+import { Maximize2, Minimize2 } from "lucide-react";
 import { spots } from "@/data/spots";
 import { distanceKm } from "@/lib/geo";
 import { fetchRoute, type RouteResult, type RouteState } from "@/lib/routing";
@@ -59,6 +60,24 @@ export default function Home() {
   const [route, setRoute] = useState<RouteState | null>(null);
   const routeCacheRef = useRef(new Map<string, RouteResult>());
   const routeAbortRef = useRef<AbortController | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // While the map is fullscreen it covers the whole viewport, so Escape
+  // backs out of it and the page behind it can't be scrolled underneath.
+  useEffect(() => {
+    if (!isFullscreen) return;
+
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setIsFullscreen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [isFullscreen]);
 
   // If the web address includes a spot ID, open that spot right away.
   useEffect(() => {
@@ -322,13 +341,21 @@ export default function Home() {
             <span className="survey-tick" style={{ bottom: 14, left: 14, borderBottomWidth: 1.5, borderLeftWidth: 1.5 }} />
             <span className="survey-tick" style={{ bottom: 14, right: 14, borderBottomWidth: 1.5, borderRightWidth: 1.5 }} />
 
-            <div id="explore-map" className="rise-in relative z-0 h-[440px] overflow-hidden rounded-2xl border border-line sm:h-[560px]">
+            <div
+              id="explore-map"
+              className={
+                isFullscreen
+                  ? "rise-in fixed inset-0 z-40"
+                  : "rise-in relative z-0 h-[440px] overflow-hidden rounded-2xl border border-line sm:h-[560px]"
+              }
+            >
               <SpotMap
                 spots={orderedVisible}
                 selectedId={selectedId}
                 onSelect={setSelectedId}
                 userLocation={userLocation}
                 route={route}
+                fullscreen={isFullscreen}
               />
               {route && (
                 <RouteInfoPill route={route} onReopen={setSelectedId} onClear={handleClearRoute} />
@@ -340,6 +367,19 @@ export default function Home() {
                   </p>
                 </div>
               )}
+              <button
+                type="button"
+                onClick={() => setIsFullscreen((v) => !v)}
+                aria-label={isFullscreen ? t("map.fullscreen.exit") : t("map.fullscreen.enter")}
+                title={isFullscreen ? t("map.fullscreen.exit") : t("map.fullscreen.enter")}
+                className="absolute bottom-3 right-3 z-[1000] flex h-9 w-9 items-center justify-center rounded-full border border-line bg-surface/95 text-ink/70 shadow-md backdrop-blur hover:bg-ink/8 hover:text-ink"
+              >
+                {isFullscreen ? (
+                  <Minimize2 size={16} aria-hidden="true" />
+                ) : (
+                  <Maximize2 size={16} aria-hidden="true" />
+                )}
+              </button>
             </div>
           </div>
         </div>

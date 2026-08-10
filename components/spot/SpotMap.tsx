@@ -152,6 +152,18 @@ function useZoom(): number {
   return zoom;
 }
 
+// Leaflet sizes its canvas from the container's dimensions at mount time and
+// doesn't notice CSS-only resizes, so entering/exiting fullscreen leaves it
+// showing a stale, partially-blank map until this nudges it to remeasure.
+function FullscreenResize({ fullscreen }: { fullscreen: boolean }) {
+  const map = useMap();
+  useEffect(() => {
+    const id = requestAnimationFrame(() => map.invalidateSize());
+    return () => cancelAnimationFrame(id);
+  }, [fullscreen, map]);
+  return null;
+}
+
 // Shows all 59 barangays as colored, named areas in the background. They
 // can't be clicked, so taps always reach the pins instead.
 // Barangay names only appear once you've zoomed in enough to read them
@@ -198,9 +210,10 @@ interface SpotMapProps {
   onSelect: (id: string) => void;
   userLocation: UserLocation | null;
   route: RouteState | null;
+  fullscreen: boolean;
 }
 
-export default function SpotMap({ spots, selectedId, onSelect, userLocation, route }: SpotMapProps) {
+export default function SpotMap({ spots, selectedId, onSelect, userLocation, route, fullscreen }: SpotMapProps) {
   const prefersDark = usePrefersDark();
   const { t, text: localizedText } = useLocale();
 
@@ -303,6 +316,7 @@ export default function SpotMap({ spots, selectedId, onSelect, userLocation, rou
         }}
       />
       <FitToSpots spots={spots} userLocation={userLocation} route={route} />
+      <FullscreenResize fullscreen={fullscreen} />
       {route && !route.arrived && (
         <Polyline
           positions={

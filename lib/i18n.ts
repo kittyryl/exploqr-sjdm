@@ -120,6 +120,8 @@ const UI = {
 
   "map.cap.eyebrow": "Interactive Map",
   "map.cap.meta": "{count} pins · {categories} categories",
+  "map.fullscreen.enter": "Fullscreen",
+  "map.fullscreen.exit": "Exit fullscreen",
 
   "feedback.eyebrow": "We're listening",
   "feedback.title": "Been somewhere we missed?",
