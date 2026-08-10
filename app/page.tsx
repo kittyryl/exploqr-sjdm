@@ -219,8 +219,11 @@ export default function Home() {
     // off) invalidating derived route state, not a cascading render: this
     // only fires when `userLocation` changes, and clearing `route` here
     // doesn't re-trigger this same effect.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (!userLocation) setRoute(null);
+    if (!userLocation) {
+      routeAbortRef.current?.abort();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRoute(null);
+    }
   }, [userLocation]);
 
   const selected = useMemo(

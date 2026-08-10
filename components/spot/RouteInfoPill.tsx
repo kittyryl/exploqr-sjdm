@@ -32,7 +32,7 @@ export default function RouteInfoPill({ route, onReopen, onClear }: RouteInfoPil
       : t("directions.pillNoDuration", { distance: formatDistance(route.distanceKm), name });
 
   return (
-    <div className="absolute left-3 top-3 z-[1000] flex items-center gap-1.5 rounded-full border border-line bg-surface/95 py-1.5 pl-3 pr-1.5 shadow-md backdrop-blur">
+    <div className="absolute right-3 top-3 z-[1000] flex items-center gap-1.5 rounded-full border border-line bg-surface/95 py-1.5 pl-3 pr-1.5 shadow-md backdrop-blur">
       <button
         type="button"
         onClick={() => onReopen(route.spot.id)}
