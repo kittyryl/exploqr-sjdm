@@ -113,10 +113,6 @@ export function formatCoords(lat: number, lng: number): string {
   return `${Math.abs(lat).toFixed(4)}° ${ns}, ${Math.abs(lng).toFixed(4)}° ${ew}`;
 }
 
-export function directionsUrl(spot: Spot): string {
-  return `https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}`;
-}
-
 // Shows just the site name (like "cattlecreek.ph") instead of the full web address, which is easier to read in small text.
 export function hostOf(url: string): string {
   try {
