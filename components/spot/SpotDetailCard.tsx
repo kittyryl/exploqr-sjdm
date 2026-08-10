@@ -18,6 +18,8 @@ interface SpotDetailCardProps {
   spot: Spot;
   titleId?: string;
   distanceKm?: number;
+  onDirections: (spot: Spot) => void;
+  directionsLoading: boolean;
 }
 
 // Main content for a spot: photo, description, facts, amenities, more
@@ -30,6 +32,8 @@ export default function SpotDetailCard({
   spot,
   titleId,
   distanceKm,
+  onDirections,
+  directionsLoading,
 }: SpotDetailCardProps) {
   const { text } = useLocale();
   const media = useSpotMedia(spot);
@@ -57,7 +61,12 @@ export default function SpotDetailCard({
         <SpotFactGrid spot={spot} />
         <SpotAmenities spot={spot} />
         <SpotPhotoStrip spot={spot} media={media} />
-        <SpotActions spot={spot} media={media} />
+        <SpotActions
+          spot={spot}
+          media={media}
+          onDirections={onDirections}
+          directionsLoading={directionsLoading}
+        />
         <SpotReviews spot={spot} />
       </div>
 

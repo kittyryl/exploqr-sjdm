@@ -40,13 +40,21 @@ interface SpotModalProps {
   spot: Spot | null;
   onClose: () => void;
   distanceKm?: number;
+  onDirections: (spot: Spot) => void;
+  directionsLoading: boolean;
 }
 
 // Full spot view: a full-screen page takeover on mobile (a bottom sheet
 // still left the map peeking through cramped margins — this gives photos
 // and text the room they need), a centered dialog over the dimmed map on
 // desktop, where there's room to spare and the map-behind context is nice.
-export default function SpotModal({ spot, onClose, distanceKm }: SpotModalProps) {
+export default function SpotModal({
+  spot,
+  onClose,
+  distanceKm,
+  onDirections,
+  directionsLoading,
+}: SpotModalProps) {
   const { t, text } = useLocale();
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -166,6 +174,8 @@ export default function SpotModal({ spot, onClose, distanceKm }: SpotModalProps)
               spot={spot}
               titleId={titleId}
               distanceKm={distanceKm}
+              onDirections={onDirections}
+              directionsLoading={directionsLoading}
             />
           </motion.div>
         </motion.div>
