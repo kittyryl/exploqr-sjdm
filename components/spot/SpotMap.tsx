@@ -8,6 +8,7 @@ import {
   TileLayer,
   Marker,
   Polygon,
+  Polyline,
   CircleMarker,
   Tooltip,
   useMap,
@@ -22,6 +23,7 @@ import { text } from "@/lib/i18n";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import type { Spot, UserLocation } from "@/lib/types";
+import type { RouteState } from "@/lib/routing";
 
 const TILE_ATTRIBUTION = "© OpenStreetMap contributors © CARTO";
 
@@ -96,16 +98,43 @@ function markerIcon(spot: Spot, index: number): L.DivIcon {
   });
 }
 
-// Zooms and centers the map to fit all visible spots (and the visitor's location, if known).
-function FitToSpots({ spots, userLocation }: { spots: Spot[]; userLocation: UserLocation | null }) {
+// Zooms and centers the map to fit all visible spots (and the visitor's
+// location, if known) — or, while a route is active, zooms to just that
+// route instead, so the two endpoints aren't lost among every other pin.
+function FitToSpots({
+  spots,
+  userLocation,
+  route,
+}: {
+  spots: Spot[];
+  userLocation: UserLocation | null;
+  route: RouteState | null;
+}) {
   const map = useMap();
-  const key = useMemo(
-    () =>
+  const key = useMemo(() => {
+    if (route) {
+      return `route:${route.spot.id}:${route.arrived ? "arrived" : (route.coords?.length ?? "pending")}`;
+    }
+    return (
       spots.map((s) => s.id).join(",") +
-      (userLocation ? `|${userLocation.lat},${userLocation.lng}` : ""),
-    [spots, userLocation]
-  );
+      (userLocation ? `|${userLocation.lat},${userLocation.lng}` : "")
+    );
+  }, [spots, userLocation, route]);
+
   useEffect(() => {
+    if (route) {
+      if (route.arrived) {
+        map.setView([route.spot.lat, route.spot.lng], 17, { animate: true });
+        return;
+      }
+      const points: [number, number][] =
+        route.coords ??
+        (userLocation
+          ? [[userLocation.lat, userLocation.lng], [route.spot.lat, route.spot.lng]]
+          : [[route.spot.lat, route.spot.lng]]);
+      map.fitBounds(L.latLngBounds(points), { padding: [56, 56] });
+      return;
+    }
     if (spots.length === 0) return;
     const points: [number, number][] = spots.map((s) => [s.lat, s.lng]);
     if (userLocation) points.push([userLocation.lat, userLocation.lng]);
@@ -168,9 +197,10 @@ interface SpotMapProps {
   selectedId: string | null;
   onSelect: (id: string) => void;
   userLocation: UserLocation | null;
+  route: RouteState | null;
 }
 
-export default function SpotMap({ spots, selectedId, onSelect, userLocation }: SpotMapProps) {
+export default function SpotMap({ spots, selectedId, onSelect, userLocation, route }: SpotMapProps) {
   const prefersDark = usePrefersDark();
   const { t, text: localizedText } = useLocale();
 
@@ -272,7 +302,23 @@ export default function SpotMap({ spots, selectedId, onSelect, userLocation }: S
           fill: false,
         }}
       />
-      <FitToSpots spots={spots} userLocation={userLocation} />
+      <FitToSpots spots={spots} userLocation={userLocation} route={route} />
+      {route && !route.arrived && (
+        <Polyline
+          positions={
+            route.coords ??
+            (userLocation
+              ? [[userLocation.lat, userLocation.lng], [route.spot.lat, route.spot.lng]]
+              : [])
+          }
+          pathOptions={{
+            color: CATEGORIES[route.spot.category].accent,
+            weight: 4,
+            opacity: 0.85,
+            dashArray: route.coords ? undefined : "8 8",
+          }}
+        />
+      )}
       {userLocation && (
         <CircleMarker
           center={[userLocation.lat, userLocation.lng]}
