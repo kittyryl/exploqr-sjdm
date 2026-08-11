@@ -5,7 +5,7 @@
 A graphify knowledge-graph pass over the repo surfaced findings worth acting on. The original premise for item 1 below (that `verify/SKILL.md` re-describes features README already covers) did **not** survive reading the actual files — see "Correction" below. The scope here reflects what's actually true of the files, not the graph's synthetic node labels.
 
 1. **Related-but-uncrossreferenced docs.** `.claude/skills/verify/SKILL.md`'s PWA/offline (item 11) and dark-mode (item 14) test flows assert specific values (`rgb(20, 25, 23)`, `navigator.serviceWorker.getRegistration()`) without explaining *why* those are the right values — that explanation only lives in `README.md`, and nothing links the two. This isn't duplication to prune, it's a missing cross-reference to add.
-2. **Stale self-contradiction in README.** Line 10 (Stack section) says the basemap is CARTO Positron; the dedicated "The basemap" section (line 90+) says Voyager and explains at length why Positron was rejected. One of these is wrong — Voyager is current (matches `components/SpotMap.tsx` and the graph). Line 10 is stale.
+2. **Stale self-contradiction in README.** Line 10 (Stack section) says the basemap is CARTO Positron; the dedicated "The basemap" section (line 90+) says Voyager and explains at length why Positron was rejected. One of these is wrong — Voyager is current (matches `components/spot/SpotMap.tsx` and the graph). Line 10 is stale.
 3. **Unverified dead-code signal.** The graph's "isolated node" report (158 nodes) turned out to be a structural-extraction artifact — TypeScript `Props`/response-type interfaces, internal constants, and same-file helper functions that AST extraction doesn't wire up with usage edges — not real dead code. A genuine unused-export/file audit needs a purpose-built tool instead.
 
 Everything else the graph flagged (low-cohesion "communities") was ruled out during brainstorming as parsing artifacts (`package.json`/`tsconfig.json` field lists) or normal loosely-coupled component structure, not actionable refactor targets.
@@ -52,5 +52,5 @@ After the run, present the filtered findings (file path + reason) back for a man
 
 ## Testing
 
-- Doc changes: visually diff both files before/after to confirm no verification steps were lost, only the descriptive prose moved/linked.
+- Doc changes: visually diff both files before/after to confirm both files gained only the pointer text, with no testing steps or prose removed.
 - knip audit: no app behavior changes in this step, so no functional testing needed — the deliverable is the reviewed report itself.

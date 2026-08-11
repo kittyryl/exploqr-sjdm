@@ -25,7 +25,7 @@
 
 **Interfaces:** None — pure prose edits, no code, no build step, nothing downstream depends on exact wording.
 
-- [ ] **Step 1: Add the PWA/offline pointer**
+- [x] **Step 1: Add the PWA/offline pointer**
 
 In `.claude/skills/verify/SKILL.md`, item 11 currently starts:
 
@@ -39,7 +39,7 @@ Change the start of that line to prepend the pointer, keeping everything after `
 11. PWA/offline (see README.md § Offline / installable for what this caches and why; run against `npm run start`, not `next dev` — the service worker only registers when `NODE_ENV=production`): load `/` once, check ...
 ```
 
-- [ ] **Step 2: Add the dark-mode pointer**
+- [x] **Step 2: Add the dark-mode pointer**
 
 In the same file, item 14 currently starts:
 
@@ -53,7 +53,7 @@ Change the start of that line to:
 14. Dark mode (see README.md § Theming for why these are the constants): spawn a context with `colorScheme: "dark"`. `document.body` background must be `rgb(20, 25, 23)`; ...
 ```
 
-- [ ] **Step 3: Fix the Positron/Voyager contradiction**
+- [x] **Step 3: Fix the Positron/Voyager contradiction**
 
 In `README.md`, line 10 currently reads:
 
@@ -69,13 +69,13 @@ Change `CARTO Positron` to `CARTO Voyager` (keep the same link and the rest of t
 
 This makes it agree with the dedicated "The basemap" section (README.md, around line 90-94), which already correctly describes Voyager and explains why Positron was rejected.
 
-- [ ] **Step 4: Review the diff**
+- [x] **Step 4: Review the diff**
 
 Run: `git diff .claude/skills/verify/SKILL.md README.md`
 
 Expected: exactly three changed lines (two in SKILL.md, one in README.md), each a single-phrase insertion/word-swap — no other content touched, no lines removed.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add .claude/skills/verify/SKILL.md README.md
@@ -103,7 +103,7 @@ EOF
 
 **Interfaces:** None — this task produces a report for human review, not code changes.
 
-- [ ] **Step 1: Run knip**
+- [x] **Step 1: Run knip**
 
 ```bash
 npx knip
@@ -113,7 +113,7 @@ Expected: knip runs (first invocation may take ~30-60s to fetch), then prints a 
 
 If knip errors because it can't find a config and refuses to guess (unlikely for a standard Next.js App Router layout, but possible), run `npx knip --include files,dependencies,exports` to scope it to the safe default checks instead of debugging a custom config — a custom `knip.json` is out of scope for this plan.
 
-- [ ] **Step 2: Filter known false-positive categories before presenting results**
+- [x] **Step 2: Filter known false-positive categories before presenting results**
 
 Cross off any finding that falls into these buckets before reporting anything as an actual candidate for removal — these are structurally expected to show up in a Next.js App Router project and are not real dead code:
 
@@ -121,10 +121,10 @@ Cross off any finding that falls into these buckets before reporting anything as
 - Anything under `.claude/`, `docs/`, `graphify-out/`, `scripts/` — these aren't part of the app bundle knip should be judging for "unused" in a shipped-code sense.
 - `next.config.mjs`, `postcss.config.mjs`, `eslint.config.mjs` and similar tool-config entry points — read by their respective tools directly, not imported.
 
-- [ ] **Step 3: Present the filtered findings**
+- [x] **Step 3: Present the filtered findings**
 
 List what's left after filtering, grouped the same way knip grouped them (unused files / unused dependencies / unused exports), each with its file path. Do not delete or modify anything based on this list — it's the deliverable of this task. A follow-up decision (separate from this plan) determines what's actually safe to remove.
 
-- [ ] **Step 4: No commit for this task**
+- [x] **Step 4: No commit for this task**
 
 Nothing changes on disk from Task 2 — skip the commit step. If Step 3's findings are extensive enough that the user wants them preserved, offer to write them to `docs/superpowers/plans/2026-08-12-knip-findings.md` as a follow-up, but don't create that file unprompted.

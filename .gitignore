@@ -57,3 +57,6 @@ public/images/spots/DESTINATION PHOTO-20260809T103928Z-1-001/
 # Claude Code / superpowers local state (machine-specific, may hold session tokens)
 .claude/settings.local.json
 .superpowers/
+
+# graphify knowledge-graph output (ephemeral, regenerated)
+graphify-out/
