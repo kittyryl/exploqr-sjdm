@@ -164,6 +164,25 @@ function FullscreenResize({ fullscreen }: { fullscreen: boolean }) {
   return null;
 }
 
+// Leaflet's maxBounds normally keeps the map locked to the city, but that
+// fights a visitor trying to look around while navigating. Lifting it while
+// a route is active — and restoring it once directions are cleared — is the
+// only way to do this dynamically, since maxBounds is otherwise fixed at
+// MapContainer init.
+function RouteBoundsGuard({
+  routeActive,
+  bounds,
+}: {
+  routeActive: boolean;
+  bounds: L.LatLngBounds;
+}) {
+  const map = useMap();
+  useEffect(() => {
+    map.setMaxBounds(routeActive ? undefined : bounds);
+  }, [routeActive, bounds, map]);
+  return null;
+}
+
 // Shows all 59 barangays as colored, named areas in the background. They
 // can't be clicked, so taps always reach the pins instead.
 // Barangay names only appear once you've zoomed in enough to read them
@@ -317,6 +336,7 @@ export default function SpotMap({ spots, selectedId, onSelect, userLocation, rou
       />
       <FitToSpots spots={spots} userLocation={userLocation} route={route} />
       <FullscreenResize fullscreen={fullscreen} />
+      <RouteBoundsGuard routeActive={route != null} bounds={cityBounds} />
       {route && !route.arrived && (
         <Polyline
           positions={
