@@ -3,14 +3,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { MotionConfig } from "motion/react";
-import { Maximize2, Minimize2 } from "lucide-react";
+import { Maximize2, Menu, Minimize2 } from "lucide-react";
 import { spots } from "@/data/spots";
 import { distanceKm } from "@/lib/geo";
 import { fetchRoute, type RouteResult, type RouteState } from "@/lib/routing";
 import Wordmark from "@/components/brand/Wordmark";
-import ThemeToggle from "@/components/controls/ThemeToggle";
-import CategoryFilter, { type CategoryFilterKey } from "@/components/controls/CategoryFilter";
-import NearMeToggle from "@/components/controls/NearMeToggle";
+import Sidebar from "@/components/layout/Sidebar";
+import type { CategoryFilterKey } from "@/components/controls/CategoryFilter";
 import SpotSearch from "@/components/controls/SpotSearch";
 import SpotModal from "@/components/spot/SpotModal";
 import RouteInfoPill from "@/components/spot/RouteInfoPill";
@@ -61,6 +60,7 @@ export default function Home() {
   const routeCacheRef = useRef(new Map<string, RouteResult>());
   const routeAbortRef = useRef<AbortController | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // While the map is fullscreen it covers the whole viewport, so Escape
   // backs out of it and the page behind it can't be scrolled underneath.
@@ -270,23 +270,16 @@ export default function Home() {
   return (
     <MotionConfig reducedMotion="user" transition={{ duration: 0.3 }}>
       <header className="sticky top-0 z-20 border-b border-line/70 bg-paper/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl flex-col gap-y-2.5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-x-6 sm:px-6">
-          <div className="flex items-center justify-between gap-2">
-            <Wordmark />
-            <div className="flex items-center gap-1.5 sm:hidden">
-              <ThemeToggle />
-            </div>
-          </div>
-          <div className="flex min-w-0 items-center gap-3">
-            <CategoryFilter
-              spots={spots}
-              active={category}
-              onChange={handleCategory}
-            />
-            <div className="hidden items-center gap-2 sm:flex">
-              <ThemeToggle />
-            </div>
-          </div>
+        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:px-6">
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            aria-label={t("sidebar.open")}
+            className="tactile flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line text-ink/70 hover:bg-ink/8 hover:text-ink lg:hidden"
+          >
+            <Menu size={18} aria-hidden="true" />
+          </button>
+          <Wordmark />
         </div>
         {/* Thin colour strip under the top bar, matching the pin colours. */}
         <div
@@ -295,18 +288,34 @@ export default function Home() {
         />
       </header>
 
-      <main className="flex-1">
-        {/* The sunrise banner stretches the full width, then fades so the
-            map below feels calm. */}
-        <div className="hero-band">
-          <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-            <HomeTopBar />
-          </div>
-        </div>
+      <main className="flex-1 lg:flex">
+        <Sidebar
+          spots={spots}
+          visible={orderedVisible}
+          category={category}
+          onCategory={handleCategory}
+          userLocation={userLocation}
+          locating={locating}
+          locationError={locationError}
+          onNearMe={handleNearMe}
+          distances={distances}
+          selectedId={selectedId}
+          onSelect={setSelectedId}
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
 
-        <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-          <div className="mb-3 mt-9 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-            <div className="min-w-0">
+        <div className="min-w-0 flex-1">
+          {/* The sunrise banner stretches the full width, then fades so the
+              map below feels calm. */}
+          <div className="hero-band">
+            <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+              <HomeTopBar />
+            </div>
+          </div>
+
+          <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+            <div className="mb-3 mt-9 min-w-0">
               <p
                 className="font-mono text-[11px] uppercase tracking-widest"
                 style={{ color: "var(--cat-nature-accent)" }}
@@ -320,71 +329,63 @@ export default function Home() {
                 City of San Jose Del Monte Top Tourist Destinations
               </h2>
             </div>
-            <div className="shrink-0">
-              <NearMeToggle
-                active={Boolean(userLocation)}
-                loading={locating}
-                error={locationError}
-                onClick={handleNearMe}
-              />
+
+            <div className="mb-3 max-w-md">
+              <SpotSearch value={query} onChange={handleSearch} />
             </div>
-          </div>
 
-          <div className="mb-3 max-w-md">
-            <SpotSearch value={query} onChange={handleSearch} />
-          </div>
+            {/* The map sits in a frame with corner marks, like an old paper map. */}
+            <div className="map-shell relative mb-4 rounded-3xl border border-line p-3 shadow-[0_1px_2px_rgba(58,38,16,0.06),0_10px_30px_-14px_rgba(58,38,16,0.3)] sm:p-4">
+              <span className="survey-tick" style={{ top: 14, left: 14, borderTopWidth: 1.5, borderLeftWidth: 1.5 }} />
+              <span className="survey-tick" style={{ top: 14, right: 14, borderTopWidth: 1.5, borderRightWidth: 1.5 }} />
+              <span className="survey-tick" style={{ bottom: 14, left: 14, borderBottomWidth: 1.5, borderLeftWidth: 1.5 }} />
+              <span className="survey-tick" style={{ bottom: 14, right: 14, borderBottomWidth: 1.5, borderRightWidth: 1.5 }} />
 
-          {/* The map sits in a frame with corner marks, like an old paper map. */}
-          <div className="map-shell relative mb-4 rounded-3xl border border-line p-3 shadow-[0_1px_2px_rgba(58,38,16,0.06),0_10px_30px_-14px_rgba(58,38,16,0.3)] sm:p-4">
-            <span className="survey-tick" style={{ top: 14, left: 14, borderTopWidth: 1.5, borderLeftWidth: 1.5 }} />
-            <span className="survey-tick" style={{ top: 14, right: 14, borderTopWidth: 1.5, borderRightWidth: 1.5 }} />
-            <span className="survey-tick" style={{ bottom: 14, left: 14, borderBottomWidth: 1.5, borderLeftWidth: 1.5 }} />
-            <span className="survey-tick" style={{ bottom: 14, right: 14, borderBottomWidth: 1.5, borderRightWidth: 1.5 }} />
-
-            <div
-              id="explore-map"
-              className={
-                isFullscreen
-                  ? "rise-in fixed inset-0 z-40"
-                  : "rise-in relative z-0 h-[440px] overflow-hidden rounded-2xl border border-line sm:h-[560px]"
-              }
-            >
-              <SpotMap
-                spots={orderedVisible}
-                selectedId={selectedId}
-                onSelect={setSelectedId}
-                userLocation={userLocation}
-                route={route}
-                fullscreen={isFullscreen}
-              />
-              {route && (
-                <RouteInfoPill route={route} onReopen={setSelectedId} onClear={handleClearRoute} />
-              )}
-              {orderedVisible.length === 0 && (
-                <div className="pointer-events-none absolute inset-0 z-[1000] flex items-center justify-center">
-                  <p className="rounded-full border border-line bg-surface/95 px-4 py-2 font-mono text-xs text-ink/65 shadow-sm">
-                    {t("search.empty")}
-                  </p>
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={() => setIsFullscreen((v) => !v)}
-                aria-label={isFullscreen ? t("map.fullscreen.exit") : t("map.fullscreen.enter")}
-                title={isFullscreen ? t("map.fullscreen.exit") : t("map.fullscreen.enter")}
-                className="absolute bottom-3 right-3 z-[1000] flex h-9 w-9 items-center justify-center rounded-full border border-line bg-surface/95 text-ink/70 shadow-md backdrop-blur hover:bg-ink/8 hover:text-ink"
+              <div
+                id="explore-map"
+                className={
+                  isFullscreen
+                    ? "rise-in fixed inset-0 z-40"
+                    : "rise-in relative z-0 h-[440px] overflow-hidden rounded-2xl border border-line sm:h-[560px]"
+                }
               >
-                {isFullscreen ? (
-                  <Minimize2 size={16} aria-hidden="true" />
-                ) : (
-                  <Maximize2 size={16} aria-hidden="true" />
+                <SpotMap
+                  spots={orderedVisible}
+                  selectedId={selectedId}
+                  onSelect={setSelectedId}
+                  userLocation={userLocation}
+                  route={route}
+                  fullscreen={isFullscreen}
+                />
+                {route && (
+                  <RouteInfoPill route={route} onReopen={setSelectedId} onClear={handleClearRoute} />
                 )}
-              </button>
+                {orderedVisible.length === 0 && (
+                  <div className="pointer-events-none absolute inset-0 z-[1000] flex items-center justify-center">
+                    <p className="rounded-full border border-line bg-surface/95 px-4 py-2 font-mono text-xs text-ink/65 shadow-sm">
+                      {t("search.empty")}
+                    </p>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setIsFullscreen((v) => !v)}
+                  aria-label={isFullscreen ? t("map.fullscreen.exit") : t("map.fullscreen.enter")}
+                  title={isFullscreen ? t("map.fullscreen.exit") : t("map.fullscreen.enter")}
+                  className="absolute bottom-3 right-3 z-[1000] flex h-9 w-9 items-center justify-center rounded-full border border-line bg-surface/95 text-ink/70 shadow-md backdrop-blur hover:bg-ink/8 hover:text-ink"
+                >
+                  {isFullscreen ? (
+                    <Minimize2 size={16} aria-hidden="true" />
+                  ) : (
+                    <Maximize2 size={16} aria-hidden="true" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <FeedbackForm />
+          <FeedbackForm />
+        </div>
       </main>
 
       <SpotModal
