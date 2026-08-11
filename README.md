@@ -7,7 +7,7 @@ Personal/portfolio project. v1 is fully static: no database, no backend, no auth
 ## Stack
 
 - [Next.js](https://nextjs.org) (App Router, plain JavaScript)
-- [react-leaflet](https://react-leaflet.js.org) + Leaflet with free [CARTO Positron](https://carto.com/basemaps) tiles (no API key)
+- [react-leaflet](https://react-leaflet.js.org) + Leaflet with free [CARTO Voyager](https://carto.com/basemaps) tiles (no API key)
 - [Tailwind CSS](https://tailwindcss.com) v4
 - [lucide-react](https://lucide.dev) icons
 
