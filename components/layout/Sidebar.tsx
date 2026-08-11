@@ -25,11 +25,12 @@ interface SidebarProps {
   onClose: () => void;
 }
 
-// Persistent left column at lg+ (1024px), off-canvas drawer below that.
-// Holds every filter/browse control in one place: category filter, Near Me,
-// the live spot list, and the theme switch. Owns no filter/selection state
-// of its own — app/page.tsx stays the single source of truth, this is a
-// controlled presentational shell around it.
+// Off-canvas drawer at every screen size — closed by default, opened via the
+// header's hamburger button. Holds every filter/browse control in one place:
+// page-section links, category filter, Near Me, the live spot list, and the
+// theme switch. Owns no filter/selection state of its own — app/page.tsx
+// stays the single source of truth, this is a controlled presentational
+// shell around it.
 export default function Sidebar({
   spots,
   visible,
@@ -47,8 +48,6 @@ export default function Sidebar({
 }: SidebarProps) {
   const { t } = useLocale();
 
-  // Only relevant while the mobile/tablet drawer is open — at lg+ `open`
-  // never becomes true (the hamburger that sets it is hidden there).
   useEffect(() => {
     if (!open) return;
     function onKey(e: KeyboardEvent) {
@@ -62,11 +61,19 @@ export default function Sidebar({
     };
   }, [open, onClose]);
 
-  // Selecting a spot does what clicking its map pin does; on mobile it also
-  // dismisses the drawer so the resulting modal is visible.
+  // Selecting a spot does what clicking its map pin does; also dismisses the
+  // drawer so the resulting modal is visible.
   function handleSelect(id: string) {
     onSelect(id);
     onClose();
+  }
+
+  // Jump links: close the drawer (it's an overlay at every size, so it would
+  // otherwise sit on top of the section being scrolled to) and scroll the
+  // target section into view.
+  function scrollToSection(id: string) {
+    onClose();
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   return (
@@ -74,7 +81,7 @@ export default function Sidebar({
       <div
         aria-hidden="true"
         onClick={onClose}
-        className={`fixed inset-0 z-[44] bg-ink/40 transition-opacity lg:hidden ${
+        className={`fixed inset-0 z-[44] bg-ink/40 transition-opacity ${
           open ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
@@ -82,11 +89,11 @@ export default function Sidebar({
         role={open ? "dialog" : undefined}
         aria-modal={open ? true : undefined}
         aria-label={t("sidebar.label")}
-        className={`fixed inset-y-0 left-0 z-[45] flex w-80 max-w-[85vw] flex-col gap-5 border-r border-line bg-paper px-4 py-4 transition-transform duration-300 lg:sticky lg:top-[85px] lg:z-auto lg:h-[calc(100vh-85px)] lg:w-72 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-[45] flex w-80 max-w-[85vw] flex-col gap-5 border-r border-line bg-paper px-4 py-4 transition-transform duration-300 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between lg:hidden">
+        <div className="flex items-center justify-between">
           <p className="font-mono text-[11px] uppercase tracking-widest text-ink/60">{t("sidebar.label")}</p>
           <button
             type="button"
@@ -96,6 +103,28 @@ export default function Sidebar({
           >
             <X size={16} aria-hidden="true" />
           </button>
+        </div>
+
+        <div>
+          <p className="mb-2 font-mono text-[11px] uppercase tracking-widest text-ink/60">
+            {t("sidebar.nav.heading")}
+          </p>
+          <nav aria-label={t("sidebar.nav.heading")} className="flex flex-col gap-1">
+            <button
+              type="button"
+              onClick={() => scrollToSection("explore-map")}
+              className="tactile w-full rounded-lg border border-transparent px-3 py-2 text-left font-mono text-xs tracking-tight text-ink hover:border-line hover:bg-ink/[.03]"
+            >
+              {t("sidebar.nav.map")}
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToSection("feedback")}
+              className="tactile w-full rounded-lg border border-transparent px-3 py-2 text-left font-mono text-xs tracking-tight text-ink hover:border-line hover:bg-ink/[.03]"
+            >
+              {t("sidebar.nav.feedback")}
+            </button>
+          </nav>
         </div>
 
         <div>

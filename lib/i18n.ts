@@ -33,6 +33,9 @@ const UI = {
   "sidebar.label": "Browse and filter spots",
   "sidebar.open": "Open menu",
   "sidebar.close": "Close menu",
+  "sidebar.nav.heading": "Jump to",
+  "sidebar.nav.map": "Map",
+  "sidebar.nav.feedback": "Feedback",
   "sidebar.filter.heading": "Filter",
   "sidebar.spots.heading": "Spots ({count})",
 

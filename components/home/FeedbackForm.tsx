@@ -161,7 +161,7 @@ export default function FeedbackForm() {
   }
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-4 pb-16 pt-4 sm:px-6">
+    <section id="feedback" className="mx-auto w-full max-w-6xl px-4 pb-16 pt-4 sm:px-6">
       <div className="fb-panel grid grid-cols-1 gap-8 rounded-3xl border border-line p-7 shadow-[0_1px_2px_rgba(58,38,16,0.06),0_8px_24px_-10px_rgba(58,38,16,0.22)] sm:grid-cols-[0.9fr_1.1fr] sm:items-center sm:gap-10 sm:p-9">
         <div>
           <p className="font-mono text-[11px] uppercase tracking-widest" style={{ color: "var(--teal)" }}>
