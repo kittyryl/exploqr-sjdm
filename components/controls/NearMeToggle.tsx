@@ -32,13 +32,13 @@ export default function NearMeToggle({ active, loading, error, onClick }: NearMe
   }, [active]);
 
   return (
-    <div className="flex flex-col items-end gap-1">
+    <div className="flex flex-col items-start gap-1">
       <button
         type="button"
         onClick={onClick}
         disabled={loading}
         aria-pressed={active}
-        className={`relative ${PILL_BUTTON_BASE} disabled:opacity-60 ${
+        className={`relative w-full justify-center ${PILL_BUTTON_BASE} disabled:opacity-60 ${
           active ? PILL_BUTTON_ACTIVE : PILL_BUTTON_INACTIVE
         }`}
       >
@@ -59,7 +59,7 @@ export default function NearMeToggle({ active, loading, error, onClick }: NearMe
       </button>
       {error && (
         <p
-          className="max-w-[220px] text-right font-mono text-[11px] leading-snug"
+          className="font-mono text-[11px] leading-snug"
           style={{ color: CATEGORIES.leisure.accent }}
         >
           {error}
