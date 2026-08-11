@@ -30,6 +30,11 @@ const UI = {
 
   "filter.label": "Filter spots by category",
   "filter.all": "All spots",
+  "sidebar.label": "Browse and filter spots",
+  "sidebar.open": "Open menu",
+  "sidebar.close": "Close menu",
+  "sidebar.filter.heading": "Filter",
+  "sidebar.spots.heading": "Spots ({count})",
 
   "search.label": "Search destinations",
   "search.placeholder": "Search by name, barangay, or amenity…",
