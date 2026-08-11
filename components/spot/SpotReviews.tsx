@@ -82,9 +82,7 @@ export default function SpotReviews({ spot }: { spot: Spot }) {
       {
         spot_id: spot.id,
         device_id: deviceId,
-        name: (data.get("name") as string)?.trim() || null,
         hearts,
-        comment: (data.get("comment") as string)?.trim() || null,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "spot_id,device_id" }
