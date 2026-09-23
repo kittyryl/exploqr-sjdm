@@ -14,6 +14,13 @@ export interface OpenHours {
   closedDays?: number[]; // 0 (Sun) - 6 (Sat)
 }
 
+export interface PanoItem {
+  src: string;
+  caption?: string;
+}
+
+export type PanoSource = string | PanoItem;
+
 export interface Spot {
   id: string;
   name: string;
@@ -31,8 +38,8 @@ export interface Spot {
   // Local paths under public/images/spots/.
   images?: string[];
   icon?: string; // key into ICON_OVERRIDES, lib/categories.js
-  pano360?: string | string[];
-  pano360s?: string[];
+  pano360?: PanoSource | PanoSource[];
+  pano360s?: PanoSource[];
   fee?: string;
   contact?: string;
   website?: string;
@@ -53,17 +60,42 @@ export interface Spot {
   amenities?: string[];
 }
 
-export function getSpotPanos(spot: Spot): string[] {
+export function getSpotPanos(spot: Spot): PanoItem[] {
+  let rawList: PanoSource[] = [];
   if (Array.isArray(spot.pano360s) && spot.pano360s.length > 0) {
-    return spot.pano360s;
+    rawList = spot.pano360s;
+  } else if (Array.isArray(spot.pano360) && spot.pano360.length > 0) {
+    rawList = spot.pano360;
+  } else if (spot.pano360) {
+    rawList = [spot.pano360 as PanoSource];
   }
-  if (Array.isArray(spot.pano360) && spot.pano360.length > 0) {
-    return spot.pano360;
+
+  if (rawList.length === 0) return [];
+
+  const defaultCaptions = ["Entrance", "Outside look"];
+  const expandedList: PanoSource[] =
+    rawList.length === 1 ? [rawList[0], rawList[0]] : rawList;
+
+  const results: PanoItem[] = [];
+  for (let i = 0; i < expandedList.length; i++) {
+    const item = expandedList[i];
+    if (typeof item === "string") {
+      const trimmed = item.trim();
+      if (trimmed) {
+        results.push({
+          src: trimmed,
+          caption: defaultCaptions[i] || `View ${i + 1}`,
+        });
+      }
+    } else if (item && typeof item === "object" && item.src) {
+      results.push({
+        src: item.src,
+        caption: item.caption || defaultCaptions[i] || `View ${i + 1}`,
+      });
+    }
   }
-  if (typeof spot.pano360 === "string" && spot.pano360.trim()) {
-    return [spot.pano360];
-  }
-  return [];
+
+  return results;
 }
 
 export interface UserLocation {

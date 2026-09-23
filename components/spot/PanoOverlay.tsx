@@ -7,6 +7,7 @@ import { Compass, Maximize2, X } from "lucide-react";
 import { useFocusTrap } from "@/lib/hooks/useFocusTrap";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import MediaThumbnailBar from "@/components/spot/MediaThumbnailBar";
+import type { PanoItem } from "@/lib/types";
 
 // The 360 viewer only works in the browser, so it's loaded only once this overlay opens.
 const Pano360Viewer = dynamic(() => import("@/components/spot/Pano360Viewer"), {
@@ -20,7 +21,7 @@ const Pano360Viewer = dynamic(() => import("@/components/spot/Pano360Viewer"), {
 
 interface PanoOverlayProps {
   src?: string;
-  panos?: string[];
+  panos?: (string | PanoItem)[];
   activeIndex?: number;
   onSelectPano?: (index: number) => void;
   title: string;
@@ -41,7 +42,25 @@ export default function PanoOverlay({
   const panelRef = useRef<HTMLDivElement>(null);
   useFocusTrap(panelRef, true);
 
-  const panoList = panos.length > 0 ? panos : src ? [src] : [];
+  const rawList: (string | PanoItem)[] =
+    panos.length > 0 ? panos : src ? [src] : [];
+  const defaultCaptions = ["Entrance", "Outside look"];
+  const expandedList =
+    rawList.length === 1 ? [rawList[0], rawList[0]] : rawList;
+
+  const panoList: PanoItem[] = expandedList.map((item, idx) => {
+    if (typeof item === "string") {
+      return {
+        src: item,
+        caption: defaultCaptions[idx] || `View ${idx + 1}`,
+      };
+    }
+    return {
+      src: item.src,
+      caption: item.caption || defaultCaptions[idx] || `View ${idx + 1}`,
+    };
+  });
+
   const [internalIndex, setInternalIndex] = useState(activeIndex);
   const currentIndex = onSelectPano ? activeIndex : internalIndex;
 
@@ -56,7 +75,8 @@ export default function PanoOverlay({
     [onSelectPano]
   );
 
-  const currentSrc = panoList[currentIndex] ?? panoList[0] ?? src;
+  const currentItem = panoList[currentIndex] ?? panoList[0];
+  const currentSrc = currentItem?.src ?? src;
 
   useEffect(() => {
     panelRef.current?.focus();
@@ -110,6 +130,16 @@ export default function PanoOverlay({
         title={t("media.controlsHint")}
         className="pointer-events-none absolute left-14 top-3.5 z-10 flex max-w-[calc(100vw-110px)] items-center gap-1.5 rounded-full border border-white/15 bg-black/65 px-2.5 py-1 text-[10px] font-medium text-white/90 shadow-md backdrop-blur-md sm:left-22 sm:top-9 sm:gap-2 sm:px-3 sm:py-1.5 sm:text-[11px]"
       >
+        {currentItem?.caption && (
+          <>
+            <span className="max-w-[70px] truncate font-semibold text-white sm:max-w-none">
+              {currentItem.caption}
+            </span>
+            <span className="text-white/30" aria-hidden="true">
+              ·
+            </span>
+          </>
+        )}
         <span className="flex items-center gap-1">
           <Maximize2 size={11} className="shrink-0 text-white/70 sm:size-3" aria-hidden="true" />
           <span className="truncate">{t("media.fullView")}</span>

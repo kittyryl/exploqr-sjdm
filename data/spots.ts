@@ -53,7 +53,10 @@ export const spots: Spot[] = [
       "/images/spots/grotto/2.jpg",
       "/images/spots/grotto/3.jpg",
     ],
-    pano360: "/images/spots/grotto/360.jpg"
+    pano360: [
+      { src: "/images/spots/grotto/360.jpg", caption: "Entrance" },
+      { src: "/images/spots/grotto/360.jpg", caption: "Outside look" },
+    ],
   },
   {
     id: "grottovista",
