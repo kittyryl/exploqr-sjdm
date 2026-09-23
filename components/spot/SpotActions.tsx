@@ -1,7 +1,8 @@
 "use client";
 
-import { Loader2, Navigation, Rotate3d } from "lucide-react";
+import { Loader2, MapPin, Navigation, Rotate3d } from "lucide-react";
 import { CATEGORIES, formatCoords } from "@/lib/categories";
+import { googleMapsUrl } from "@/lib/geo";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import type { SpotMediaState } from "@/lib/hooks/useSpotMedia";
 import type { Spot } from "@/lib/types";
@@ -9,8 +10,9 @@ import type { Spot } from "@/lib/types";
 const ACTION =
   "flex flex-1 items-center justify-center gap-2 rounded-[10px] px-4 py-2.5 text-sm font-semibold transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink motion-reduce:transition-none motion-reduce:hover:translate-y-0 disabled:cursor-not-allowed disabled:hover:translate-y-0";
 
-// Buttons for what to do next: get directions or look around first. The
-// coordinates sit above them since they're just a reference, not a button.
+// Buttons for what to do next: get directions (in-app or Google Maps) or
+// look around first. The coordinates sit above them since they're just a
+// reference, not a button.
 export default function SpotActions({
   spot,
   media,
@@ -45,6 +47,15 @@ export default function SpotActions({
           )}
           {t("spot.directions")}
         </button>
+        <a
+          href={googleMapsUrl(spot)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${ACTION} border border-line bg-surface text-ink hover:bg-ink/4`}
+        >
+          <MapPin size={15} aria-hidden="true" />
+          {t("spot.googleMaps")}
+        </a>
         {/* Always shown, but greyed out and disabled if this spot has no
             360° view yet, so people know the feature exists. */}
         <button

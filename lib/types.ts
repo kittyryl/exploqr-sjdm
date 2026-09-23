@@ -31,10 +31,14 @@ export interface Spot {
   // Local paths under public/images/spots/.
   images?: string[];
   icon?: string; // key into ICON_OVERRIDES, lib/categories.js
-  pano360?: string;
+  pano360?: string | string[];
+  pano360s?: string[];
   fee?: string;
   contact?: string;
   website?: string;
+  // Optional direct Google Maps link. If omitted, falls back to standard
+  // Google Maps search by coordinates (https://www.google.com/maps/search/?api=1&query=lat,lng).
+  googleMapsUrl?: string;
   // The Facebook page's name, as the tourism office records it. Rendered as
   // plain text unless facebookUrl is also set — most of these have no
   // verified vanity URL, and linking a guessed one could send visitors to an
@@ -47,6 +51,19 @@ export interface Spot {
   // the detail modal; the whole section is omitted when this is absent, since
   // an empty amenities list reads as "none available" rather than "unconfirmed".
   amenities?: string[];
+}
+
+export function getSpotPanos(spot: Spot): string[] {
+  if (Array.isArray(spot.pano360s) && spot.pano360s.length > 0) {
+    return spot.pano360s;
+  }
+  if (Array.isArray(spot.pano360) && spot.pano360.length > 0) {
+    return spot.pano360;
+  }
+  if (typeof spot.pano360 === "string" && spot.pano360.trim()) {
+    return [spot.pano360];
+  }
+  return [];
 }
 
 export interface UserLocation {

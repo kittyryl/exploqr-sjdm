@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "motion/react";
-import { X } from "lucide-react";
+import { Compass, Maximize2, X } from "lucide-react";
 import { useFocusTrap } from "@/lib/hooks/useFocusTrap";
 import { useLocale } from "@/components/providers/LocaleProvider";
+import MediaThumbnailBar from "@/components/spot/MediaThumbnailBar";
 
 // The 360 viewer only works in the browser, so it's loaded only once this overlay opens.
 const Pano360Viewer = dynamic(() => import("@/components/spot/Pano360Viewer"), {
@@ -17,21 +18,45 @@ const Pano360Viewer = dynamic(() => import("@/components/spot/Pano360Viewer"), {
   ),
 });
 
-// Full-screen 360° viewer, opened from the last tile in the photo gallery.
-// The Escape key is handled here first so it only closes this, not the spot
-// window underneath.
-export default function PanoOverlay({
-  src,
-  title,
-  onClose,
-}: {
-  src: string;
+interface PanoOverlayProps {
+  src?: string;
+  panos?: string[];
+  activeIndex?: number;
+  onSelectPano?: (index: number) => void;
   title: string;
   onClose: () => void;
-}) {
+}
+
+// Full-screen 360° viewer. When there are multiple 360° views, renders a
+// thumbnail strip at the bottom dedicated solely to 360° panoramas.
+export default function PanoOverlay({
+  src,
+  panos = [],
+  activeIndex = 0,
+  onSelectPano,
+  title,
+  onClose,
+}: PanoOverlayProps) {
   const { t } = useLocale();
   const panelRef = useRef<HTMLDivElement>(null);
   useFocusTrap(panelRef, true);
+
+  const panoList = panos.length > 0 ? panos : src ? [src] : [];
+  const [internalIndex, setInternalIndex] = useState(activeIndex);
+  const currentIndex = onSelectPano ? activeIndex : internalIndex;
+
+  const handleSelect = useCallback(
+    (idx: number) => {
+      if (!onSelectPano) {
+        setInternalIndex(idx);
+      } else {
+        onSelectPano(idx);
+      }
+    },
+    [onSelectPano]
+  );
+
+  const currentSrc = panoList[currentIndex] ?? panoList[0] ?? src;
 
   useEffect(() => {
     panelRef.current?.focus();
@@ -42,11 +67,21 @@ export default function PanoOverlay({
       if (e.key === "Escape") {
         e.stopPropagation();
         onClose();
+      } else if (e.key === "ArrowLeft" && panoList.length > 1) {
+        e.stopPropagation();
+        const next = (currentIndex - 1 + panoList.length) % panoList.length;
+        handleSelect(next);
+      } else if (e.key === "ArrowRight" && panoList.length > 1) {
+        e.stopPropagation();
+        const next = (currentIndex + 1) % panoList.length;
+        handleSelect(next);
       }
     }
     document.addEventListener("keydown", onKey, true);
     return () => document.removeEventListener("keydown", onKey, true);
-  }, [onClose]);
+  }, [onClose, currentIndex, panoList.length, handleSelect]);
+
+  if (!currentSrc) return null;
 
   return (
     <motion.div
@@ -69,11 +104,51 @@ export default function PanoOverlay({
       >
         <X size={18} aria-hidden="true" />
       </button>
-      <div className="absolute inset-0 p-3 sm:p-8">
+
+      {/* Caption & Tooltip explaining the top-left Full view (fullscreen) and Gyro controls */}
+      <div
+        title={t("media.controlsHint")}
+        className="pointer-events-none absolute left-14 top-4 z-10 hidden items-center gap-2 rounded-full border border-white/15 bg-black/60 px-3 py-1.5 text-[11px] font-medium text-white/90 shadow-md backdrop-blur-md min-[420px]:flex sm:left-22 sm:top-9"
+      >
+        <span className="flex items-center gap-1.5">
+          <Maximize2 size={12} className="text-white/70" aria-hidden="true" />
+          <span>{t("media.fullView")}</span>
+        </span>
+        <span className="text-white/30" aria-hidden="true">
+          ·
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Compass size={12} className="text-white/70" aria-hidden="true" />
+          <span>{t("media.gyroMotion")}</span>
+        </span>
+      </div>
+
+      <div
+        className={`absolute inset-0 p-3 sm:p-8 ${
+          panoList.length > 0 ? "pb-24 sm:pb-28" : ""
+        }`}
+      >
         <div className="h-full w-full overflow-hidden rounded-xl">
-          <Pano360Viewer src={src} title={title} />
+          <Pano360Viewer key={currentSrc} src={currentSrc} title={title} />
         </div>
       </div>
+
+      {panoList.length > 0 && (
+        <div className="pointer-events-none absolute bottom-4 left-0 right-0 z-20 flex justify-center px-4 sm:bottom-6">
+          <div
+            className="pointer-events-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <MediaThumbnailBar
+              items={panoList}
+              activeIndex={currentIndex}
+              onSelect={handleSelect}
+              type="pano"
+              spotName={title}
+            />
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }

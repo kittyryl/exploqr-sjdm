@@ -84,15 +84,18 @@ export default function SpotDetailCard({
             onClose={media.closeLightbox}
             onPrev={() => media.step(-1)}
             onNext={() => media.step(1)}
+            onSelectPhoto={media.openLightboxAt}
           />
         )}
       </AnimatePresence>
 
       <AnimatePresence>
-        {media.panoOpen && spot.pano360 && (
+        {media.panoOpen && media.hasPano && (
           <PanoOverlay
             key="pano-overlay"
-            src={spot.pano360}
+            panos={media.panos}
+            activeIndex={media.activePano}
+            onSelectPano={media.setActivePano}
             title={text(spot.name)}
             onClose={media.closePano}
           />

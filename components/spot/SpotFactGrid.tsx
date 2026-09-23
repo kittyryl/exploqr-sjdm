@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { CATEGORIES, hostOf } from "@/lib/categories";
+import { googleMapsUrl } from "@/lib/geo";
 import { isOpenNow } from "@/lib/hours";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import type { Spot } from "@/lib/types";
@@ -42,7 +43,14 @@ export default function SpotFactGrid({ spot }: { spot: Spot }) {
           would look messy. */}
       {spot.address && (
         <Fact label={t("spot.addressLabel")} wide>
-          <span className="font-normal">{spot.address}</span>
+          <a
+            href={googleMapsUrl(spot)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-normal underline decoration-ink/20 underline-offset-2 transition-colors hover:text-ink/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+          >
+            {spot.address}
+          </a>
         </Fact>
       )}
 

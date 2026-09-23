@@ -22,3 +22,26 @@ export function formatDistance(km: number): string {
   if (km < 1) return `${Math.round(km * 1000)} m`;
   return `${km < 10 ? km.toFixed(1) : Math.round(km)} km`;
 }
+
+// Builds a Google Maps redirect URL for a spot. Uses custom URL if present,
+// otherwise searches by the real place name and city so Google Maps opens the
+// registered location card (photos, reviews, hours) rather than a raw coordinate pin.
+export function googleMapsUrl(spot: {
+  lat: number;
+  lng: number;
+  name?: string;
+  barangay?: string;
+  address?: string;
+  googleMapsUrl?: string;
+}): string {
+  if (spot.googleMapsUrl) return spot.googleMapsUrl;
+  if (spot.name) {
+    const cleanName = spot.name.replace(/\bSM Starmall\b/i, "Starmall");
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      `${cleanName}, San Jose del Monte, Bulacan`
+    )}`;
+  }
+  return `https://www.google.com/maps/search/?api=1&query=${spot.lat},${spot.lng}`;
+}
+
+

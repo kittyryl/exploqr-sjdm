@@ -34,7 +34,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 flex flex-col gap-2 border-t border-line/70 pt-5 font-mono text-[10.5px] uppercase tracking-[0.16em] text-ink/45 sm:flex-row sm:items-center sm:justify-between">
-          <span>© {year} City Tourism Office · San Jose del Monte</span>
+          <span>© {year} · San Jose del Monte</span>
           <span aria-hidden="true">14.8136°N · 121.0453°E</span>
         </div>
       </div>

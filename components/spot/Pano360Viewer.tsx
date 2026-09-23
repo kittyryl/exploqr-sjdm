@@ -41,6 +41,18 @@ export default function Pano360Viewer({ src, title }: { src: string; title: stri
         showZoomCtrl: false,
         compass: false,
       });
+
+      // Add descriptive titles/tooltips to pannellum top-left buttons
+      const fsBtn = containerRef.current.querySelector(".pnlm-fullscreen-toggle-button");
+      if (fsBtn) {
+        fsBtn.setAttribute("title", "Full view (fullscreen)");
+        fsBtn.setAttribute("aria-label", "Full view (fullscreen)");
+      }
+      const orientBtn = containerRef.current.querySelector(".pnlm-orientation-button");
+      if (orientBtn) {
+        orientBtn.setAttribute("title", "Gyro motion (tilt phone to look around)");
+        orientBtn.setAttribute("aria-label", "Gyro motion (tilt phone to look around)");
+      }
     });
     return () => {
       cancelled = true;

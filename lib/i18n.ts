@@ -63,6 +63,7 @@ const UI = {
   "spot.barangay": "Brgy. {name}",
   "spot.distance": "{distance} away",
   "spot.directions": "Get directions",
+  "spot.googleMaps": "Google Maps",
   "directions.pill": "{distance} · {duration} to {name}",
   "directions.pillNoDuration": "{distance} to {name}",
   "directions.pillClose": "Clear route",
@@ -96,6 +97,9 @@ const UI = {
   "media.panoLabel": "360° panorama of {name}",
   "media.heroLabel": "View media for {name}",
   "media.exit360": "Exit 360° view",
+  "media.fullView": "Full view",
+  "media.gyroMotion": "Gyro motion",
+  "media.controlsHint": "Top-left controls: Full view (fullscreen) & Gyro (tilt device to look around)",
 
   "modal.back": "Back to map",
   "modal.close": "Close",
