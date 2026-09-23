@@ -108,18 +108,18 @@ export default function PanoOverlay({
       {/* Caption & Tooltip explaining the top-left Full view (fullscreen) and Gyro controls */}
       <div
         title={t("media.controlsHint")}
-        className="pointer-events-none absolute left-14 top-4 z-10 hidden items-center gap-2 rounded-full border border-white/15 bg-black/60 px-3 py-1.5 text-[11px] font-medium text-white/90 shadow-md backdrop-blur-md min-[420px]:flex sm:left-22 sm:top-9"
+        className="pointer-events-none absolute left-14 top-3.5 z-10 flex max-w-[calc(100vw-110px)] items-center gap-1.5 rounded-full border border-white/15 bg-black/65 px-2.5 py-1 text-[10px] font-medium text-white/90 shadow-md backdrop-blur-md sm:left-22 sm:top-9 sm:gap-2 sm:px-3 sm:py-1.5 sm:text-[11px]"
       >
-        <span className="flex items-center gap-1.5">
-          <Maximize2 size={12} className="text-white/70" aria-hidden="true" />
-          <span>{t("media.fullView")}</span>
+        <span className="flex items-center gap-1">
+          <Maximize2 size={11} className="shrink-0 text-white/70 sm:size-3" aria-hidden="true" />
+          <span className="truncate">{t("media.fullView")}</span>
         </span>
         <span className="text-white/30" aria-hidden="true">
           ·
         </span>
-        <span className="flex items-center gap-1.5">
-          <Compass size={12} className="text-white/70" aria-hidden="true" />
-          <span>{t("media.gyroMotion")}</span>
+        <span className="flex items-center gap-1">
+          <Compass size={11} className="shrink-0 text-white/70 sm:size-3" aria-hidden="true" />
+          <span className="truncate">{t("media.gyroMotion")}</span>
         </span>
       </div>
 
