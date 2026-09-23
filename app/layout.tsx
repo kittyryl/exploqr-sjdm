@@ -7,6 +7,7 @@ import InstallPrompt from "@/components/layout/InstallPrompt";
 import Footer from "@/components/layout/Footer";
 import { LocaleProvider } from "@/components/providers/LocaleProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { Analytics } from "@vercel/analytics/next"
 
 // Main heading font. Italic is loaded too, since the hero text needs true
 // italic letters, not just slanted regular ones.
@@ -70,6 +71,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <LocaleProvider>
             <ServiceWorkerRegister />
             {children}
+            <Analytics />
             <InstallPrompt />
             <Footer />
           </LocaleProvider>
